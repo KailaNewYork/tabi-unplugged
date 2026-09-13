@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#090713" />
   <title>Tabi Unplugged</title>
-  <meta name="tabi-build" content="v1.80-correct-branding-hero" />
+  <meta name="tabi-build" content="v1.81-mobile-header-cleanup" />
   <style>
 :root{
   --bg:#08070e;
@@ -2871,6 +2871,28 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
   .tu-mobile-wordmark{max-width:min(220px,52vw) !important;max-height:30px !important;}
   .main-nav{display:grid !important;grid-template-columns:repeat(3,minmax(0,1fr)) !important;gap:8px !important;width:100% !important;margin-top:0 !important;}
   .main-nav a{display:flex !important;justify-content:center !important;align-items:center !important;text-align:center !important;font-size:13px !important;line-height:1.1 !important;padding:10px 6px !important;white-space:nowrap !important;}
+}
+
+/* v1.81 — mobile header cleanup */
+@media (max-width:760px){
+  html.tu-phone .brand-lockup{display:none !important;}
+  html.tu-phone .brand-mark.brand-mark-clean{display:none !important;}
+  html.tu-phone .tu-mobile-wordmark{
+    width:min(320px,84vw) !important;
+    max-width:min(320px,84vw) !important;
+    max-height:42px !important;
+    height:auto !important;
+    margin:0 0 8px 0 !important;
+    object-position:left center !important;
+  }
+  html.tu-phone .topbar.service-nav{
+    padding:10px 14px 12px !important;
+    align-items:flex-start !important;
+  }
+  html.tu-phone .nav-left{
+    width:100% !important;
+    display:block !important;
+  }
 }
 
 </style>
