@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#090713" />
   <title>Tabi Unplugged</title>
-  <meta name="tabi-build" content="v1.59" />
+  <meta name="tabi-build" content="v1.63-cover-library" />
   <style>
 :root{
   --bg:#08070e;
@@ -1955,7 +1955,7 @@ body.playlist-detail-active #playlists{display:none!important}
 .cover-builder-actions{
   display:flex;
   gap:10px;
-  margin-top:18px;
+  margin-top:72px;
   flex-wrap:wrap;
 }
 .cover-builder-actions .primary-btn,
@@ -2062,6 +2062,118 @@ body.playlist-detail-active #playlistView{
   width:100%;
   height:100%;
 }
+
+
+/* v1.60 — playlist gets its own page below the hero */
+body.playlist-detail-active .quick-listen,
+body.playlist-detail-active #sessionsView,
+body.playlist-detail-active #playlists,
+body.playlist-detail-active #librarySection{
+  display:none !important;
+}
+
+body.playlist-detail-active #home{
+  display:block !important;
+}
+
+body.playlist-detail-active #playlistView{
+  display:block !important;
+  padding:54px 0 82px !important;
+  margin-top:0 !important;
+  border-top:1px solid rgba(255,255,255,.06);
+}
+
+body.playlist-detail-active .playlist-view-head{
+  grid-template-columns:auto 260px minmax(0,1fr) auto !important;
+  gap:34px !important;
+  align-items:center !important;
+}
+
+body.playlist-detail-active .playlist-view-cover{
+  width:260px !important;
+  height:260px !important;
+  border-radius:22px !important;
+}
+
+body.playlist-detail-active .playlist-view-copy h3{
+  font-size:46px !important;
+  line-height:1.02 !important;
+  margin:8px 0 10px !important;
+}
+
+body.playlist-detail-active .playlist-view-copy p{
+  font-size:18px !important;
+}
+
+body.playlist-detail-active .playlist-play-actions{
+  margin:30px 0 22px !important;
+}
+
+@media(max-width:900px){
+  body.playlist-detail-active .playlist-view-head{
+    grid-template-columns:1fr !important;
+  }
+  body.playlist-detail-active .playlist-view-cover{
+    width:min(72vw,320px) !important;
+    height:auto !important;
+    aspect-ratio:1 !important;
+  }
+}
+
+
+/* v1.61 — move Back to All Songs above playlist cover */
+body.playlist-detail-active .playlist-view-head{
+  position:relative;
+  padding-top:72px !important;
+}
+
+body.playlist-detail-active #backToLibrary{
+  position:absolute !important;
+  top:0 !important;
+  left:0 !important;
+  margin:0 !important;
+  z-index:2;
+}
+
+@media(max-width:900px){
+  body.playlist-detail-active .playlist-view-head{
+    padding-top:68px !important;
+  }
+}
+
+
+/* v1.62 FIXED — mouse + finger drag, clean controls */
+.track-card.playlist-reorderable{
+  cursor:grab !important;
+  touch-action:none;
+  user-select:none;
+  -webkit-user-select:none;
+}
+.track-card.playlist-reorderable:active{cursor:grabbing !important}
+.track-card.playlist-reorderable.dragging{
+  opacity:.36 !important;
+  transform:scale(.98) !important;
+  outline:2px dashed rgba(243,197,91,.55);
+  outline-offset:4px;
+  z-index:5;
+}
+.track-card .move-track-btn,
+.track-card .reorder-handle{display:none !important}
+
+
+/* v1.63 — playlist cover library */
+.cover-builder-card{width:min(920px,100%)!important}
+.cover-preset-section{margin-top:18px}
+.cover-preset-title{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:12px}
+.cover-preset-title strong{font-size:16px}.cover-preset-title span{font-size:11px;color:var(--muted)}
+.playlist-cover-preset-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 20px}
+.playlist-cover-preset{border:1px solid var(--line);background:rgba(255,255,255,.025);color:var(--cream);border-radius:16px;padding:8px;text-align:left;transition:.16s}
+.playlist-cover-preset:hover,.playlist-cover-preset.selected{border-color:rgba(243,197,91,.55);background:rgba(243,197,91,.06);transform:translateY(-2px)}
+.playlist-cover-preset img{display:block;width:100%;aspect-ratio:1;object-fit:cover;border-radius:11px;background:#15121f}
+.playlist-cover-preset strong{display:block;font-size:12px;line-height:1.2;margin:8px 2px 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cover-custom-divider{border-top:1px solid var(--line);margin:22px 0 18px;padding-top:18px}
+.cover-builder-preview img{width:100%;height:100%;object-fit:cover;display:block}
+@media(max-width:760px){.playlist-cover-preset-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 </style>
 </head>
@@ -2172,7 +2284,7 @@ body.playlist-detail-active #playlistView{
           <input id="playlistScopedSearch" type="search" placeholder="Search this playlist" autocomplete="off" />
         </label>
       </div>
-      <p class="playlist-reorder-note" id="playlistReorderNote">Drag songs to reorder your playlist. On touch devices, use ↑ and ↓.</p>
+      <p class="playlist-reorder-note" id="playlistReorderNote">Drag songs to reorder your playlist.</p>
       <div class="track-grid" id="playlistTrackGrid"></div>
     </section>
 
@@ -2325,42 +2437,100 @@ body.playlist-detail-active #playlistView{
       <button class="modal-close" id="closePlaylistCoverModal" aria-label="Close">×</button>
       <span class="eyebrow">PLAYLIST COVER</span>
       <h3 id="playlistCoverModalTitle">Make It Yours</h3>
-      <p class="modal-copy">Use the first song artwork, create a text cover, or upload your own image.</p>
+      <p class="modal-copy">Choose a Tabi cover, make a text cover, use the first song artwork, or upload your own image.</p>
 
-      <div class="cover-builder-preview" id="playlistCoverPreview"></div>
-
-      <label class="field-label" for="playlistCoverText">Cover wording</label>
-      <input class="text-input" id="playlistCoverText" maxlength="42" placeholder="Type your playlist title or your own wording" />
-
-      <div class="cover-builder-grid" id="playlistCoverThemes">
-        <button type="button" class="cover-theme-option selected" data-theme="gold">
-          <div class="cover-theme-preview playlist-custom-cover theme-gold"><span>YOUR WORDS</span></div>
-          <small>Gold</small>
-        </button>
-        <button type="button" class="cover-theme-option" data-theme="purple">
-          <div class="cover-theme-preview playlist-custom-cover theme-purple"><span>YOUR WORDS</span></div>
-          <small>Purple</small>
-        </button>
-        <button type="button" class="cover-theme-option" data-theme="night">
-          <div class="cover-theme-preview playlist-custom-cover theme-night"><span>YOUR WORDS</span></div>
-          <small>Night</small>
-        </button>
-        <button type="button" class="cover-theme-option" data-theme="pink">
-          <div class="cover-theme-preview playlist-custom-cover theme-pink"><span>YOUR WORDS</span></div>
-          <small>Pink</small>
-        </button>
+      <div class="cover-preset-section">
+        <div class="cover-preset-title"><strong>Tabi Cover Library</strong><span>Pick a vibe</span></div>
+        <div class="playlist-cover-preset-grid" id="playlistCoverPresetGrid">
+          <button type="button" class="playlist-cover-preset" data-cover-id="my-favorites" data-cover-src="assets/images/playlist-covers/rose-gold-crystal-favorites.png" aria-label="Use My Favorites cover">
+            <img src="assets/images/playlist-covers/rose-gold-crystal-favorites.png" alt="My Favorites playlist cover">
+            <strong>My Favorites</strong>
+          </button>
+          <button type="button" class="playlist-cover-preset" data-cover-id="go-to-list" data-cover-src="assets/images/playlist-covers/golden-crystal-go-to-list.png" aria-label="Use Go-To List cover">
+            <img src="assets/images/playlist-covers/golden-crystal-go-to-list.png" alt="Go-To List playlist cover">
+            <strong>Go-To List</strong>
+          </button>
+          <button type="button" class="playlist-cover-preset" data-cover-id="boundaries-activated" data-cover-src="assets/images/playlist-covers/boundaries-activated-red-jasper-glow.png" aria-label="Use Boundaries Activated cover">
+            <img src="assets/images/playlist-covers/boundaries-activated-red-jasper-glow.png" alt="Boundaries Activated playlist cover">
+            <strong>Boundaries Activated</strong>
+          </button>
+          <button type="button" class="playlist-cover-preset" data-cover-id="healing-mode" data-cover-src="assets/images/playlist-covers/healing-mode-emerald-serenity.png" aria-label="Use Healing Mode cover">
+            <img src="assets/images/playlist-covers/healing-mode-emerald-serenity.png" alt="Healing Mode playlist cover">
+            <strong>Healing Mode</strong>
+          </button>
+          <button type="button" class="playlist-cover-preset" data-cover-id="soft-life" data-cover-src="assets/images/playlist-covers/soft-life-emerald-celestial-glow.png" aria-label="Use Soft Life cover">
+            <img src="assets/images/playlist-covers/soft-life-emerald-celestial-glow.png" alt="Soft Life playlist cover">
+            <strong>Soft Life</strong>
+          </button>
+          <button type="button" class="playlist-cover-preset" data-cover-id="cosmic-reset" data-cover-src="assets/images/playlist-covers/cosmic-reset-celestial-healing-playlist.png" aria-label="Use Cosmic Reset cover">
+            <img src="assets/images/playlist-covers/cosmic-reset-celestial-healing-playlist.png" alt="Cosmic Reset playlist cover">
+            <strong>Cosmic Reset</strong>
+          </button>
+          <button type="button" class="playlist-cover-preset" data-cover-id="power-playlist" data-cover-src="assets/images/playlist-covers/power-playlist-celestial-amberuxe.png" aria-label="Use Power Playlist cover">
+            <img src="assets/images/playlist-covers/power-playlist-celestial-amberuxe.png" alt="Power Playlist playlist cover">
+            <strong>Power Playlist</strong>
+          </button>
+          <button type="button" class="playlist-cover-preset" data-cover-id="love-frequency" data-cover-src="assets/images/playlist-covers/cosmic-love-frequency-with-amethyst-crystals.png" aria-label="Use Love Frequency cover">
+            <img src="assets/images/playlist-covers/cosmic-love-frequency-with-amethyst-crystals.png" alt="Love Frequency playlist cover">
+            <strong>Love Frequency</strong>
+          </button>
+          <button type="button" class="playlist-cover-preset" data-cover-id="money-moves" data-cover-src="assets/images/playlist-covers/gilded-cosmic-money-moves.png" aria-label="Use Money Moves cover">
+            <img src="assets/images/playlist-covers/gilded-cosmic-money-moves.png" alt="Money Moves playlist cover">
+            <strong>Money Moves</strong>
+          </button>
+          <button type="button" class="playlist-cover-preset" data-cover-id="fuck-around-and-find-out" data-cover-src="assets/images/playlist-covers/crowned-duckling-find-out.png" aria-label="Use Fuck Around and Find Out cover">
+            <img src="assets/images/playlist-covers/crowned-duckling-find-out.png" alt="Fuck Around and Find Out playlist cover">
+            <strong>Fuck Around and Find Out</strong>
+          </button>
+          <button type="button" class="playlist-cover-preset" data-cover-id="strut-frequency" data-cover-src="assets/images/playlist-covers/strut-frequency-cosmic-crystal-luxe.png" aria-label="Use Strut Frequency cover">
+            <img src="assets/images/playlist-covers/strut-frequency-cosmic-crystal-luxe.png" alt="Strut Frequency playlist cover">
+            <strong>Strut Frequency</strong>
+          </button>
+          <button type="button" class="playlist-cover-preset" data-cover-id="grounding" data-cover-src="assets/images/playlist-covers/cosmic-grounding-obsidian-and-gold.png" aria-label="Use Grounding cover">
+            <img src="assets/images/playlist-covers/cosmic-grounding-obsidian-and-gold.png" alt="Grounding playlist cover">
+            <strong>Grounding</strong>
+          </button>
+          <button type="button" class="playlist-cover-preset" data-cover-id="calms-nervous-system" data-cover-src="assets/images/playlist-covers/calms-nervous-system-celestial-crystals.png" aria-label="Use Calms Nervous System cover">
+            <img src="assets/images/playlist-covers/calms-nervous-system-celestial-crystals.png" alt="Calms Nervous System playlist cover">
+            <strong>Calms Nervous System</strong>
+          </button>
+        </div>
       </div>
 
-      <div class="cover-upload-row">
+      <div class="cover-custom-divider">
+        <div class="cover-preset-title"><strong>Make Your Own</strong><span>Optional</span></div>
+        <div class="cover-builder-preview" id="playlistCoverPreview"></div>
+
+        <label class="field-label" for="playlistCoverText">Cover wording</label>
+        <input class="text-input" id="playlistCoverText" maxlength="42" placeholder="Type your playlist title or your own wording" />
+
+        <div class="cover-builder-grid" id="playlistCoverThemes">
+          <button type="button" class="cover-theme-option selected" data-theme="gold">
+            <div class="cover-theme-preview playlist-custom-cover theme-gold"><span>MY PLAYLIST</span></div>
+            <small>Gold</small>
+          </button>
+          <button type="button" class="cover-theme-option" data-theme="purple">
+            <div class="cover-theme-preview playlist-custom-cover theme-purple"><span>MY PLAYLIST</span></div>
+            <small>Purple</small>
+          </button>
+          <button type="button" class="cover-theme-option" data-theme="night">
+            <div class="cover-theme-preview playlist-custom-cover theme-night"><span>MY PLAYLIST</span></div>
+            <small>Night</small>
+          </button>
+          <button type="button" class="cover-theme-option" data-theme="pink">
+            <div class="cover-theme-preview playlist-custom-cover theme-pink"><span>MY PLAYLIST</span></div>
+            <small>Pink</small>
+          </button>
+        </div>
+      </div>
+
+      <div class="cover-builder-actions">
+        <button class="primary-btn" id="savePlaylistCoverBtn" type="button">Use Text Cover</button>
+        <button class="secondary-btn" id="useFirstSongCoverBtn" type="button">Use First Song Artwork</button>
         <label class="cover-upload-label">
           Upload Your Own Cover
           <input id="playlistCoverUpload" type="file" accept="image/png,image/jpeg,image/webp" />
         </label>
-      </div>
-
-      <div class="cover-builder-actions">
-        <button class="primary-btn" id="savePlaylistCoverBtn" type="button">Save Text Cover</button>
-        <button class="secondary-btn" id="useFirstSongCoverBtn" type="button">Use First Song Artwork</button>
       </div>
     </div>
   </div>
@@ -2492,7 +2662,7 @@ window.TABI_TRACKS = [
 
 </script>
   <script>
-console.info('Tabi Unplugged build v1.59');
+console.info('Tabi Unplugged build v1.63-cover-library');
 const tracks = [...window.TABI_TRACKS].filter(track => track.published !== false);
 const audio = document.getElementById('audio');
 const trackGrid = document.getElementById('trackGrid');
@@ -2561,10 +2731,11 @@ function loadPlaylists(){
           const safe = p || {};
           return {
             ...safe,
-            coverMode: ['custom','upload'].includes(safe.coverMode) ? safe.coverMode : 'first',
+            coverMode: ['custom','upload','preset'].includes(safe.coverMode) ? safe.coverMode : 'first',
             coverText: typeof safe.coverText === 'string' ? safe.coverText.slice(0,42) : '',
             coverTheme: ['gold','purple','night','pink'].includes(safe.coverTheme) ? safe.coverTheme : 'gold',
-            coverImage: typeof safe.coverImage === 'string' ? safe.coverImage : ''
+            coverImage: typeof safe.coverImage === 'string' ? safe.coverImage : '',
+            coverPreset: typeof safe.coverPreset === 'string' ? safe.coverPreset : ''
           };
         })
       : [];
@@ -2579,6 +2750,9 @@ function tracksForPlaylist(pl){ return (pl?.trackIds || []).map(id => tracks.fin
 function playlistCoverInfo(pl){
   const plTracks = tracksForPlaylist(pl);
   if (!pl) return {mode:'text', src:null, title:'Playlist'};
+  if (pl.coverMode === 'preset' && pl.coverImage){
+    return {mode:'preset', src:pl.coverImage, title:pl.name};
+  }
   if (pl.coverMode === 'upload' && pl.coverImage){
     return {mode:'upload', src:pl.coverImage, title:pl.name};
   }
@@ -2590,7 +2764,7 @@ function playlistCoverInfo(pl){
 }
 function playlistCoverMarkup(pl, compact=false){
   const info = playlistCoverInfo(pl);
-  if (info.mode === 'image') return `<img src="${info.src}" alt="${escapeHtml(pl.name)} playlist cover">`;
+  if (info.mode === 'image' || info.mode === 'preset') return `<img src="${info.src}" alt="${escapeHtml(pl.name)} playlist cover">`;
   if (info.mode === 'upload') return `<img class="playlist-upload-cover" src="${info.src}" alt="${escapeHtml(pl.name)} custom playlist cover">`;
   if (info.mode === 'custom'){
     return `<div class="playlist-custom-cover theme-${info.theme}${compact ? ' compact' : ''}"><span>${escapeHtml(info.text)}</span></div>`;
@@ -2614,7 +2788,7 @@ function trackCard(track, context='library'){
     </div>
     <div class="card-actions">
       ${context === 'playlist'
-        ? '<button class="mini-btn move-track-btn move-up-btn" title="Move up">↑</button><button class="mini-btn move-track-btn move-down-btn" title="Move down">↓</button><button class="mini-btn remove-track-btn">Remove</button>'
+        ? '<button class="mini-btn remove-track-btn">Remove</button>'
         : '<button class="mini-btn add-playlist-btn">＋ Playlist</button>'}
     </div>`;
   card.querySelector('.card-play').addEventListener('click', (e) => {
@@ -2625,12 +2799,6 @@ function trackCard(track, context='library'){
   if (addPlaylistBtn) addPlaylistBtn.addEventListener('click', (e) => { e.stopPropagation(); openAddToPlaylist(track.id); });
   const remove = card.querySelector('.remove-track-btn');
   if (remove) remove.addEventListener('click', (e) => { e.stopPropagation(); removeFromSelectedPlaylist(track.id); });
-
-  const moveUp = card.querySelector('.move-up-btn');
-  if (moveUp) moveUp.addEventListener('click', (e) => { e.stopPropagation(); movePlaylistTrack(track.id, -1); });
-
-  const moveDown = card.querySelector('.move-down-btn');
-  if (moveDown) moveDown.addEventListener('click', (e) => { e.stopPropagation(); movePlaylistTrack(track.id, 1); });
 
   card.addEventListener('click', (e) => {
     if (e.target.closest('button')) return;
@@ -2700,30 +2868,39 @@ function renderPlaylistView(){
     plTracks.forEach(t => playlistTrackGrid.appendChild(trackCard(t, 'playlist')));
     const reorderNote = document.getElementById('playlistReorderNote');
     if (q) {
-      playlistTrackGrid.querySelectorAll('.move-track-btn').forEach(btn => btn.disabled = true);
-      if (reorderNote) reorderNote.textContent = 'Clear the playlist search to reorder songs.';
+            if (reorderNote) reorderNote.textContent = 'Clear the playlist search to reorder songs.';
     } else {
-      if (reorderNote) reorderNote.textContent = 'Drag songs to reorder your playlist. On touch devices, use ↑ and ↓.';
+      if (reorderNote) reorderNote.textContent = 'Drag songs to reorder your playlist.';
       wirePlaylistReordering(pl);
     }
   }
 }
 
-function movePlaylistTrack(trackId, direction){
-  const pl = getPlaylist(selectedPlaylistId);
-  if(!pl || !Array.isArray(pl.trackIds)) return;
-  const from = pl.trackIds.indexOf(trackId);
-  if(from < 0) return;
-  const to = from + direction;
-  if(to < 0 || to >= pl.trackIds.length) return;
-  [pl.trackIds[from], pl.trackIds[to]] = [pl.trackIds[to], pl.trackIds[from]];
-  savePlaylists();
-  renderPlaylists();
-  renderPlaylistView();
-}
+
 
 function wirePlaylistReordering(pl){
   if(!pl || !playlistTrackGrid) return;
+
+  const saveCurrentOrder = () => {
+    const orderedIds = [...playlistTrackGrid.querySelectorAll('.track-card')]
+      .map(c => c.dataset.id)
+      .filter(Boolean);
+    if(orderedIds.length === pl.trackIds.length){
+      pl.trackIds = orderedIds;
+      savePlaylists();
+      renderPlaylists();
+    }
+  };
+
+  const placeCard = (dragged, target, x, y) => {
+    if(!dragged || !target || dragged === target) return;
+    const rect = target.getBoundingClientRect();
+    const after = Math.abs(x - (rect.left + rect.width/2)) >= Math.abs(y - (rect.top + rect.height/2))
+      ? x > rect.left + rect.width/2
+      : y > rect.top + rect.height/2;
+    playlistTrackGrid.insertBefore(dragged, after ? target.nextSibling : target);
+  };
+
   let draggedId = null;
 
   playlistTrackGrid.querySelectorAll('.track-card').forEach(card => {
@@ -2731,7 +2908,7 @@ function wirePlaylistReordering(pl){
     card.draggable = true;
 
     card.addEventListener('dragstart', e => {
-      if(e.target.closest('button')) {
+      if(e.target.closest('button')){
         e.preventDefault();
         return;
       }
@@ -2743,45 +2920,59 @@ function wirePlaylistReordering(pl){
       }
     });
 
-    card.addEventListener('dragend', () => {
-      card.classList.remove('dragging');
-      playlistTrackGrid.querySelectorAll('.track-card').forEach(c => c.classList.remove('drag-over'));
-
-      const orderedIds = [...playlistTrackGrid.querySelectorAll('.track-card')]
-        .map(c => c.dataset.id)
-        .filter(Boolean);
-
-      if(orderedIds.length === pl.trackIds.length){
-        pl.trackIds = orderedIds;
-        savePlaylists();
-        renderPlaylists();
-        renderPlaylistView();
-      }
-      draggedId = null;
-    });
-
     card.addEventListener('dragover', e => {
-      if(!draggedId || draggedId === card.dataset.id) return;
+      if(!draggedId) return;
       e.preventDefault();
-      card.classList.add('drag-over');
-
       const dragged = [...playlistTrackGrid.querySelectorAll('.track-card')]
         .find(c => c.dataset.id === draggedId);
-      if(!dragged || dragged === card) return;
-
-      const rect = card.getBoundingClientRect();
-      const dx = Math.abs(e.clientX - (rect.left + rect.width/2));
-      const dy = Math.abs(e.clientY - (rect.top + rect.height/2));
-      const after = dx >= dy
-        ? e.clientX > rect.left + rect.width/2
-        : e.clientY > rect.top + rect.height/2;
-      playlistTrackGrid.insertBefore(dragged, after ? card.nextSibling : card);
+      placeCard(dragged, card, e.clientX, e.clientY);
     });
 
-    card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
-    card.addEventListener('drop', e => {
+    card.addEventListener('dragend', () => {
+      card.classList.remove('dragging');
+      saveCurrentOrder();
+      draggedId = null;
+      renderPlaylistView();
+    });
+  });
+
+  let touchDragged = null;
+
+  const cardAt = (x, y) => {
+    const el = document.elementFromPoint(x, y);
+    return el?.closest?.('.track-card') || null;
+  };
+
+  playlistTrackGrid.querySelectorAll('.track-card').forEach(card => {
+    card.addEventListener('touchstart', e => {
+      if(e.target.closest('button') || e.touches.length !== 1) return;
       e.preventDefault();
-      card.classList.remove('drag-over');
+      touchDragged = card;
+      card.classList.add('dragging');
+    }, {passive:false});
+
+    card.addEventListener('touchmove', e => {
+      if(!touchDragged || e.touches.length !== 1) return;
+      e.preventDefault();
+      const touch = e.touches[0];
+      const target = cardAt(touch.clientX, touch.clientY);
+      if(target && target !== touchDragged){
+        placeCard(touchDragged, target, touch.clientX, touch.clientY);
+      }
+    }, {passive:false});
+
+    card.addEventListener('touchend', e => {
+      if(!touchDragged) return;
+      e.preventDefault();
+      touchDragged.classList.remove('dragging');
+      saveCurrentOrder();
+      touchDragged = null;
+      renderPlaylistView();
+    }, {passive:false});
+
+    card.addEventListener('touchcancel', () => {
+      touchDragged?.classList.remove('dragging');
+      touchDragged = null;
     });
   });
 }
@@ -2795,7 +2986,7 @@ function updatePlaylistCoverPreview(){
   if(!preview || !pl) return;
 
   const wording = (input?.value || pl.name).trim() || pl.name;
-  if(pl.coverMode === 'upload' && pl.coverImage){
+  if((pl.coverMode === 'upload' || pl.coverMode === 'preset') && pl.coverImage){
     preview.innerHTML = `<img class="playlist-upload-cover" src="${pl.coverImage}" alt="">`;
   } else {
     preview.innerHTML = `<div class="playlist-custom-cover theme-${selectedPlaylistCoverTheme}"><span>${escapeHtml(wording)}</span></div>`;
@@ -2812,6 +3003,9 @@ function openPlaylistCoverModal(){
 
   document.querySelectorAll('#playlistCoverThemes .cover-theme-option').forEach(btn => {
     btn.classList.toggle('selected', btn.dataset.theme === selectedPlaylistCoverTheme);
+  });
+  document.querySelectorAll('#playlistCoverPresetGrid .playlist-cover-preset').forEach(btn => {
+    btn.classList.toggle('selected', pl.coverMode === 'preset' && btn.dataset.coverId === pl.coverPreset);
   });
 
   modal.classList.remove('hidden');
@@ -2857,9 +3051,27 @@ async function saveUploadedPlaylistCover(file){
   pl.coverMode = 'upload';
   pl.coverImage = canvas.toDataURL('image/jpeg', .82);
   pl.coverText = '';
+  pl.coverPreset = '';
   savePlaylists();
   renderPlaylists();
   renderPlaylistView();
+  updatePlaylistCoverPreview();
+}
+
+function choosePlaylistPresetCover(button){
+  const pl = getPlaylist(selectedPlaylistId);
+  if(!pl || !button) return;
+  const src = button.dataset.coverSrc || '';
+  const preset = button.dataset.coverId || '';
+  if(!src) return;
+  pl.coverMode = 'preset';
+  pl.coverImage = src;
+  pl.coverPreset = preset;
+  pl.coverText = '';
+  savePlaylists();
+  renderPlaylists();
+  renderPlaylistView();
+  document.querySelectorAll('#playlistCoverPresetGrid .playlist-cover-preset').forEach(x=>x.classList.toggle('selected',x===button));
   updatePlaylistCoverPreview();
 }
 
@@ -2878,6 +3090,7 @@ function saveCustomPlaylistCover(){
   pl.coverText = wording;
   pl.coverTheme = selectedPlaylistCoverTheme;
   pl.coverImage = '';
+  pl.coverPreset = '';
   savePlaylists();
   renderPlaylists();
   renderPlaylistView();
@@ -2890,6 +3103,7 @@ function useFirstSongPlaylistCover(){
   pl.coverMode = 'first';
   pl.coverText = '';
   pl.coverImage = '';
+  pl.coverPreset = '';
   savePlaylists();
   renderPlaylists();
   renderPlaylistView();
@@ -2928,7 +3142,7 @@ function renderPlaylistPicker(){
 }
 function createPlaylist(name, initialTrackId=null){
   const clean = name.trim(); if (!clean) return null;
-  const pl = {id:uid(), name:clean, trackIds: initialTrackId ? [initialTrackId] : [], createdAt:Date.now(), coverMode:'first', coverText:'', coverTheme:'gold', coverImage:''};
+  const pl = {id:uid(), name:clean, trackIds: initialTrackId ? [initialTrackId] : [], createdAt:Date.now(), coverMode:'first', coverText:'', coverTheme:'gold', coverImage:'', coverPreset:''};
   playlists.unshift(pl); savePlaylists(); renderPlaylists(); return pl;
 }
 function landInPlaylist(playlistId){
@@ -3127,6 +3341,12 @@ document.getElementById('backToLibrary').addEventListener('click',closePlaylistV
 document.getElementById('changePlaylistCoverBtn').addEventListener('click',openPlaylistCoverModal);
 document.getElementById('renamePlaylistBtn').addEventListener('click',renameSelectedPlaylist);
 document.getElementById('deletePlaylistBtn').addEventListener('click',deleteSelectedPlaylist);
+
+document.getElementById('playlistCoverPresetGrid')?.addEventListener('click',e=>{
+  const btn=e.target.closest('.playlist-cover-preset');
+  if(!btn) return;
+  choosePlaylistPresetCover(btn);
+});
 
 document.getElementById('playlistCoverThemes').addEventListener('click',e=>{
   const btn=e.target.closest('.cover-theme-option');
