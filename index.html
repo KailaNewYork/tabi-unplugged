@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#090713" />
   <title>Tabi Unplugged</title>
-  <meta name="tabi-build" content="v1.88-mobile-brand-final" />
+  <meta name="tabi-build" content="v1.90-mobile-conflict-cleanup" />
   <style>
 :root{
   --bg:#08070e;
@@ -3128,6 +3128,79 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
   html.tu-phone .section-head .text-link{font-size:14px!important;}
   html.tu-phone .service-card-title{font-size:15px!important;line-height:1.15!important;}
   html.tu-phone .service-card-subtitle{font-size:13px!important;line-height:1.2!important;}
+}
+
+
+
+/* v1.90 — MOBILE ONLY: final conflict override. Desktop untouched. */
+@media (max-width:760px){
+  /* remove every mobile hero variant; keep only the real brand mark */
+  .hero-service.hero-brand-banner,
+  .hero-brand-picture,
+  .hero-brand-image,
+  .hero-brand-logo-overlay,
+  .tu-mobile-wordmark{display:none!important;}
+
+  .mobile-tabi-title{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    width:100%!important;
+    min-height:0!important;
+    margin:0!important;
+    padding:10px 12px 12px!important;
+    background:transparent!important;
+    overflow:visible!important;
+    font-size:0!important;
+    line-height:0!important;
+  }
+  .mobile-tabi-title span{display:none!important;}
+  .mobile-tabi-title img{
+    display:block!important;
+    width:210px!important;
+    max-width:62vw!important;
+    height:auto!important;
+    max-height:50px!important;
+    object-fit:contain!important;
+    object-position:center!important;
+    margin:0 auto!important;
+  }
+
+  /* smaller, cleaner mobile type */
+  .quick-listen.service-row{padding-top:10px!important;}
+  .quick-listen .row-head h3,
+  .playlist-head h3,
+  .section-head h3,
+  .library-section .section-head h3,
+  .sessions-public-head h2{
+    font-size:18px!important;
+    line-height:1.05!important;
+    letter-spacing:-.015em!important;
+    font-weight:750!important;
+    margin:0!important;
+  }
+  .row-head .text-link,
+  .section-head .text-link{font-size:12px!important;}
+
+  /* Create Playlist button */
+  #newPlaylistBtn{
+    font-size:11px!important;
+    line-height:1!important;
+    min-height:32px!important;
+    padding:8px 11px!important;
+    border-radius:16px!important;
+    white-space:nowrap!important;
+  }
+
+  /* session/card labels */
+  .service-rail .quick-track strong,
+  .card-meta strong,
+  .playlist-card strong,
+  .service-card-title{font-size:12px!important;line-height:1.15!important;}
+  .service-rail .quick-track small,
+  .card-meta span,
+  .playlist-card small,
+  .service-card-subtitle{font-size:10px!important;line-height:1.2!important;}
 }
 
 </style>
