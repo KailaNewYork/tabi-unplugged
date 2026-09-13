@@ -2662,15 +2662,41 @@ function wireHomePlayButtons(){
 wireHomePlayButtons();
 
 
-// v1.12 navigation polish
+// v1.54 navigation: Home, Playlists, and Library work from the Affirmation Page
+function leaveSongPageForNavigation(){
+  songPageActive = false;
+  document.body.classList.remove('song-page-active');
+  document.getElementById('sessionDetailModal')?.classList.add('hidden');
+  try{ history.replaceState({}, '', location.pathname + location.search); }catch(e){}
+  document.title = 'Tabi Unplugged';
+}
+
 function wireMainNavigation(){
   const navLinks = Array.from(document.querySelectorAll('.main-nav a[href^="#"]'));
   navLinks.forEach(link => {
     link.addEventListener('click', (event) => {
-      const target = document.querySelector(link.getAttribute('href'));
+      const href = link.getAttribute('href');
+      const target = document.querySelector(href);
       if (!target) return;
       event.preventDefault();
-      target.scrollIntoView({behavior:'smooth', block:'start'});
+
+      // The Affirmation Page hides the rest of <main>, so leave it first.
+      if (songPageActive || document.body.classList.contains('song-page-active')){
+        leaveSongPageForNavigation();
+      }
+
+      // Top navigation always lands on the main Home / Playlists / Library sections,
+      // not inside an open playlist detail view.
+      if (href === '#home' || href === '#playlists' || href === '#librarySection') {
+        selectedPlaylistId = null;
+        playlistView.classList.add('hidden');
+        librarySection.classList.remove('hidden');
+      }
+
+      // Let the normal page layout return before scrolling to the requested section.
+      requestAnimationFrame(() => {
+        target.scrollIntoView({behavior:'smooth', block:'start'});
+      });
       navLinks.forEach(item => item.classList.toggle('active', item === link));
     });
   });
