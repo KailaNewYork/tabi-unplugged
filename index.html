@@ -3023,6 +3023,49 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
   html.tu-phone .row-head .text-link,
   html.tu-phone .section-head .text-link{font-size:15px!important;}
 }
+
+/* v1.87 — MOBILE ONLY: strip hero artwork, keep clean Tabi title, slim headings */
+@media (max-width:760px){
+  .hero-service.hero-brand-banner,
+  .hero-brand-picture,
+  .hero-brand-image,
+  .hero-brand-logo-overlay{display:none!important;}
+
+  .mobile-tabi-title{
+    display:block!important;
+    width:100%!important;
+    margin:0!important;
+    padding:18px 12px 16px!important;
+    text-align:center!important;
+    background:transparent!important;
+    color:#f7f0e5!important;
+    font-family:Arial,Helvetica,sans-serif!important;
+    font-size:24px!important;
+    font-weight:300!important;
+    line-height:1!important;
+    letter-spacing:-.02em!important;
+  }
+  .mobile-tabi-title span{
+    color:#f3c55b!important;
+    font-family:Georgia,"Times New Roman",serif!important;
+    font-style:italic!important;
+    font-size:31px!important;
+    font-weight:500!important;
+  }
+
+  .quick-listen.service-row{padding-top:18px!important;}
+  .row-head h3,
+  .section-head h3,
+  .playlist-head h3,
+  .library-section .section-head h3,
+  .sessions-public-head h2{
+    font-size:22px!important;
+    line-height:1.05!important;
+    letter-spacing:-.02em!important;
+  }
+  .row-head .text-link,
+  .section-head .text-link{font-size:13px!important;}
+}
 </style>
 </head>
 <body>
