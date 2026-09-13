@@ -1,0 +1,842 @@
+[
+  {
+    "id": "agnes-the-attitude",
+    "title": "Agnes & The ATTITUDE",
+    "audio": "assets/audio/agnes-the-attitude.mp3",
+    "source_audio": "Agnes & The ATTITUDE.mp3",
+    "cover": "assets/covers/agnes-the-attitude.png"
+  },
+  {
+    "id": "am-i-fucking-invisible",
+    "title": "Am I Fucking Invisible",
+    "audio": "assets/audio/am-i-fucking-invisible.mp3",
+    "source_audio": "Am I Fucking Invisible.mp3",
+    "cover": "assets/covers/am-i-fucking-invisible.png"
+  },
+  {
+    "id": "ask-once-and-its-done",
+    "title": "Ask Once and It’s DONE",
+    "audio": "assets/audio/ask-once-and-its-done.mp3",
+    "source_audio": "Ask Once and It’s DONE.mp3",
+    "cover": "assets/covers/ask-once-and-its-done.png"
+  },
+  {
+    "id": "born-worthy",
+    "title": "Born WORTHY",
+    "audio": "assets/audio/born-worthy.mp3",
+    "source_audio": "Born WORTHY.mp3",
+    "cover": "assets/covers/born-worthy.png"
+  },
+  {
+    "id": "built-my-own-table",
+    "title": "Built My Own Table",
+    "audio": "assets/audio/built-my-own-table.mp3",
+    "source_audio": "Built My Own Table.mp3",
+    "cover": "assets/covers/built-my-own-table.png"
+  },
+  {
+    "id": "chin-up-crown-on",
+    "title": "Chin Up, Crown On",
+    "audio": "assets/audio/chin-up-crown-on.mp3",
+    "source_audio": "Chin Up, Crown On.mp3",
+    "cover": "assets/covers/chin-up-crown-on.png"
+  },
+  {
+    "id": "chin-up-crown-on-remix",
+    "title": "Chin Up, Crown On - Remix",
+    "audio": "assets/audio/chin-up-crown-on-remix.mp3",
+    "source_audio": "Chin Up, Crown On- Remix.mp3",
+    "cover": "assets/covers/chin-up-crown-on-remix.png"
+  },
+  {
+    "id": "connected-to-me",
+    "title": "Connected to Me",
+    "audio": "assets/audio/connected-to-me.mp3",
+    "source_audio": "CONNECTED TO ME.mp3",
+    "cover": "assets/covers/connected-to-me.png"
+  },
+  {
+    "id": "cosmic-sweatshirt",
+    "title": "Cosmic Sweatshirt",
+    "audio": "assets/audio/cosmic-sweatshirt.mp3",
+    "source_audio": "COSMIC SWEATSHIRT”.mp3",
+    "cover": "assets/covers/cosmic-sweatshirt.png"
+  },
+  {
+    "id": "divine-timing-can-eat-one",
+    "title": "Divine Timing Can Eat One",
+    "audio": "assets/audio/divine-timing-can-eat-one.mp3",
+    "source_audio": "DIVINE TIMING CAN EAT ONE.mp3",
+    "cover": "assets/covers/divine-timing-can-eat-one.png"
+  },
+  {
+    "id": "divine-timing-sucks-out-loud",
+    "title": "Divine Timing Sucks Out Loud!",
+    "audio": "assets/audio/divine-timing-sucks-out-loud.mp3",
+    "source_audio": "Divine Timing Sucks Out LOUD!(1).mp3",
+    "cover": "assets/covers/divine-timing-sucks-out-loud.png"
+  },
+  {
+    "id": "do-your-fucking-job",
+    "title": "Do Your Fucking Job",
+    "audio": "assets/audio/do-your-fucking-job.mp3",
+    "source_audio": "Do Your Fucking Job.mp3",
+    "cover": "assets/covers/do-your-fucking-job.png"
+  },
+  {
+    "id": "dont-call-me-cute",
+    "title": "Don’t Call Me Cute",
+    "audio": "assets/audio/dont-call-me-cute.mp3",
+    "source_audio": "Don't Call Me Cute.mp3",
+    "cover": "assets/covers/dont-call-me-cute.png"
+  },
+  {
+    "id": "everybodys-lighthouse",
+    "title": "Everybody’s Lighthouse",
+    "audio": "assets/audio/everybodys-lighthouse.mp3",
+    "source_audio": "Everybody’s Lighthouse.mp3",
+    "cover": "assets/covers/everybodys-lighthouse.png"
+  },
+  {
+    "id": "everybodys-waiting-for-you-to-come-home",
+    "title": "Everybody’s Waiting for You to Come Home",
+    "audio": "assets/audio/everybodys-waiting-for-you-to-come-home.mp3",
+    "source_audio": "Everybody’s Waiting for You to Come Home(1).mp3",
+    "cover": "assets/covers/everybodys-waiting-for-you-to-come-home.png"
+  },
+  {
+    "id": "everything-is-gonna-be-alright",
+    "title": "Everything Is Gonna Be Alright",
+    "audio": "assets/audio/everything-is-gonna-be-alright.mp3",
+    "source_audio": "EVERYTHING IS GONNA BE ALRIGHT.mp3",
+    "cover": "assets/covers/everything-is-gonna-be-alright.png"
+  },
+  {
+    "id": "get-off-your-knees",
+    "title": "GET OFF YOUR KNEES!",
+    "audio": "assets/audio/get-off-your-knees.mp3",
+    "source_audio": "GET OFF YOUR KNEES!.mp3",
+    "cover": "assets/covers/get-off-your-knees.png"
+  },
+  {
+    "id": "get-up-nobodys-coming",
+    "title": "Get Up Nobody’s Coming",
+    "audio": "assets/audio/get-up-nobodys-coming.mp3",
+    "source_audio": "Get Up Nobody’s Coming.mp3",
+    "cover": "assets/covers/get-up-nobodys-coming.png"
+  },
+  {
+    "id": "get-up-sweetpea",
+    "title": "Get Up, Sweetpea",
+    "audio": "assets/audio/get-up-sweetpea.mp3",
+    "source_audio": "Get Up, Sweetpea.mp3",
+    "cover": "assets/covers/get-up-sweetpea.png"
+  },
+  {
+    "id": "hi-universe-sent-me",
+    "title": "HI! Universe Sent ME",
+    "audio": "assets/audio/hi-universe-sent-me.mp3",
+    "source_audio": "HI! Universe Sent ME.mp3",
+    "cover": "assets/covers/hi-universe-sent-me.png"
+  },
+  {
+    "id": "i-bought-my-own-board",
+    "title": "I Bought My Own Board",
+    "audio": "assets/audio/i-bought-my-own-board.mp3",
+    "source_audio": "I BOUGHT MY OWN BOARD.mp3",
+    "cover": "assets/covers/i-bought-my-own-board.png"
+  },
+  {
+    "id": "i-can-love-you-with-my-eyes-closed",
+    "title": "I Can Love You with My Eyes Closed",
+    "audio": "assets/audio/i-can-love-you-with-my-eyes-closed.mp3",
+    "source_audio": "I can love you with my eyes closed(1).mp3",
+    "cover": "assets/covers/i-can-love-you-with-my-eyes-closed.png"
+  },
+  {
+    "id": "i-love-you-so-much-its-weird",
+    "title": "I Love You So Much, It’s Weird",
+    "audio": "assets/audio/i-love-you-so-much-its-weird.mp3",
+    "source_audio": "I Love You So Much, It’s Weird(1).mp3",
+    "cover": "assets/covers/i-love-you-so-much-its-weird.png"
+  },
+  {
+    "id": "i-run-this-empire",
+    "title": "I Run This Empire",
+    "audio": "assets/audio/i-run-this-empire.mp3",
+    "source_audio": "I RUN THIS EMPIRE.mp3",
+    "cover": "assets/covers/i-run-this-empire.png"
+  },
+  {
+    "id": "i-wasnt-lost-i-was-loading",
+    "title": "I Wasn’t Lost, I Was Loading",
+    "audio": "assets/audio/i-wasnt-lost-i-was-loading.mp3",
+    "source_audio": "I WASN'T LOST, I WAS LOADING.mp3",
+    "cover": "assets/covers/i-wasnt-lost-i-was-loading.png"
+  },
+  {
+    "id": "i-will-never-be-you",
+    "title": "I Will Never Be You",
+    "audio": "assets/audio/i-will-never-be-you.mp3",
+    "source_audio": "I WILL NEVER BE YOU.mp3",
+    "cover": "assets/covers/i-will-never-be-you.png"
+  },
+  {
+    "id": "im-not-crazy-im-just-awake",
+    "title": "I’m Not Crazy, I’m Just Awake",
+    "audio": "assets/audio/im-not-crazy-im-just-awake.mp3",
+    "source_audio": "I’m Not Crazy, I’m Just Awake.mp3",
+    "cover": "assets/covers/im-not-crazy-im-just-awake.png"
+  },
+  {
+    "id": "it-didnt-change-me",
+    "title": "It Didn’t Change Me",
+    "audio": "assets/audio/it-didnt-change-me.mp3",
+    "source_audio": "IT DIDN’T CHANGE ME.mp3",
+    "cover": "assets/covers/it-didnt-change-me.png"
+  },
+  {
+    "id": "my-heart-aches",
+    "title": "My Heart Aches",
+    "audio": "assets/audio/my-heart-aches.mp3",
+    "source_audio": "MY HEART ACHES.mp3",
+    "cover": "assets/covers/my-heart-aches.png"
+  },
+  {
+    "id": "no-one-sees-the-cracks",
+    "title": "No One Sees the Cracks",
+    "audio": "assets/audio/no-one-sees-the-cracks.mp3",
+    "source_audio": "No One Sees the Cracks.mp3",
+    "cover": "assets/covers/no-one-sees-the-cracks.png"
+  },
+  {
+    "id": "no-return-address",
+    "title": "No Return Address",
+    "audio": "assets/audio/no-return-address.mp3",
+    "source_audio": "No Return Address.mp3",
+    "cover": "assets/covers/no-return-address.png"
+  },
+  {
+    "id": "noise-in-my-halo",
+    "title": "Noise in My Halo",
+    "audio": "assets/audio/noise-in-my-halo.mp3",
+    "source_audio": "NOISE IN MY HALO”.mp3",
+    "cover": "assets/covers/noise-in-my-halo.png"
+  },
+  {
+    "id": "one-more-hug",
+    "title": "One More Hug",
+    "audio": "assets/audio/one-more-hug.mp3",
+    "source_audio": "One More Hug.mp3",
+    "cover": "assets/covers/one-more-hug.png"
+  },
+  {
+    "id": "overloaded",
+    "title": "OVERLOADED",
+    "audio": "assets/audio/overloaded.mp3",
+    "source_audio": "OVERLOADED.mp3",
+    "cover": "assets/covers/overloaded.png"
+  },
+  {
+    "id": "pink-smoke",
+    "title": "Pink Smoke",
+    "audio": "assets/audio/pink-smoke.mp3",
+    "source_audio": "Pink Smoke.mp3",
+    "cover": "assets/covers/pink-smoke.png"
+  },
+  {
+    "id": "rage-song-obstacle-course",
+    "title": "Rage Song “Obstacle Course”",
+    "audio": "assets/audio/rage-song-obstacle-course.mp3",
+    "source_audio": "Rage Song “Obstacle Course”.mp3",
+    "cover": "assets/covers/rage-song-obstacle-course.png"
+  },
+  {
+    "id": "return-to-self",
+    "title": "Return to Self",
+    "audio": "assets/audio/return-to-self.mp3",
+    "source_audio": "RETURN TO SELF”.mp3",
+    "cover": "assets/covers/return-to-self.png"
+  },
+  {
+    "id": "soft-arms",
+    "title": "Soft Arms",
+    "audio": "assets/audio/soft-arms.mp3",
+    "source_audio": "SOFT ARMS.mp3",
+    "cover": "assets/covers/soft-arms.png"
+  },
+  {
+    "id": "tabby-unplugged",
+    "title": "Tabby Unplugged",
+    "audio": "assets/audio/tabby-unplugged.mp3",
+    "source_audio": "Tabby Unplugged.mp3",
+    "cover": "assets/covers/tabby-unplugged.png"
+  },
+  {
+    "id": "tabs-on-the-bridge",
+    "title": "Tabs on the Bridge",
+    "audio": "assets/audio/tabs-on-the-bridge.mp3",
+    "source_audio": "Tabs on the Bridge.mp3",
+    "cover": "assets/covers/tabs-on-the-bridge.png"
+  },
+  {
+    "id": "the-talents",
+    "title": "The Talents",
+    "audio": "assets/audio/the-talents.mp3",
+    "source_audio": "The TALENTS.mp3",
+    "cover": "assets/covers/the-talents.png"
+  },
+  {
+    "id": "union",
+    "title": "Union",
+    "audio": "assets/audio/union.mp3",
+    "source_audio": "UNION.mp3",
+    "cover": "assets/covers/union.png"
+  },
+  {
+    "id": "when-she-walks-in",
+    "title": "When She Walks In",
+    "audio": "assets/audio/when-she-walks-in.mp3",
+    "source_audio": "WHEN SHE WALKS IN.mp3",
+    "cover": "assets/covers/when-she-walks-in.png"
+  },
+  {
+    "id": "where-do-heroes-go",
+    "title": "Where Do Heroes Go",
+    "audio": "assets/audio/where-do-heroes-go.mp3",
+    "source_audio": "WHERE DO HEROES GO.mp3",
+    "cover": "assets/covers/where-do-heroes-go.png"
+  },
+  {
+    "id": "where-do-i-go-to-feel-loved",
+    "title": "Where Do I Go to Feel Loved",
+    "audio": "assets/audio/where-do-i-go-to-feel-loved.mp3",
+    "source_audio": "Where Do I Go to Feel Loved.mp3",
+    "cover": "assets/covers/where-do-i-go-to-feel-loved.png"
+  },
+  {
+    "id": "you-were-sent-here-on-purpose",
+    "title": "You Were Sent Here On Purpose",
+    "audio": "assets/audio/you-were-sent-here-on-purpose.mp3",
+    "source_audio": "You Were Sent Here On Purpose.mp3",
+    "cover": "assets/covers/you-were-sent-here-on-purpose.png"
+  },
+  {
+    "id": "i-have-always-known-you",
+    "title": "I Have Always Known You",
+    "audio": "assets/audio/i-have-always-known-you.mp3",
+    "source_audio": "I Have Always Known You.mp3",
+    "cover": "assets/covers/i-have-always-known-you.png"
+  },
+  {
+    "id": "narcissistic-bitch",
+    "title": "Narcissistic Bitch!",
+    "audio": "assets/audio/narcissistic-bitch.mp3",
+    "source_audio": "Narcissistic Bitch!.mp3",
+    "cover": "assets/covers/narcissistic-bitch.png"
+  },
+  {
+    "id": "queenpin-smoke",
+    "title": "Queenpin Smoke",
+    "audio": "assets/audio/queenpin-smoke.mp3",
+    "source_audio": "Queenpin Smoke.mp3",
+    "cover": "assets/covers/queenpin-smoke.png"
+  },
+  {
+    "id": "what-i-need-you-to-remember",
+    "title": "What I Need You to Remember",
+    "audio": "assets/audio/what-i-need-you-to-remember.mp3",
+    "source_audio": "What I Need You to Remember.mp3",
+    "cover": "assets/covers/what-i-need-you-to-remember.png"
+  },
+  {
+    "id": "you-dont-know-loyalty",
+    "title": "You Don’t Know Loyalty",
+    "audio": "assets/audio/you-dont-know-loyalty.mp3",
+    "source_audio": "You Don’t Know Loyalty.mp3",
+    "cover": "assets/covers/you-dont-know-loyalty.png"
+  },
+  {
+    "id": "youre-already-saved",
+    "title": "You’re Already Saved",
+    "audio": "assets/audio/youre-already-saved.mp3",
+    "source_audio": "You’re Already Saved.mp3",
+    "cover": "assets/covers/youre-already-saved.png"
+  },
+  {
+    "id": "youre-everything-i-ever-wanted-and-didnt-know-i-was-allowed-to-have",
+    "title": "You’re Everything I Ever Wanted (And Didn’t Know I Was Allowed to Have)",
+    "audio": "assets/audio/youre-everything-i-ever-wanted-and-didnt-know-i-was-allowed-to-have.mp3",
+    "source_audio": "You’re Everything I Ever Wanted (And Didn’t Know I Was Allowed to Have)(1).mp3",
+    "cover": "assets/covers/youre-everything-i-ever-wanted-and-didnt-know-i-was-allowed-to-have.png"
+  },
+  {
+    "id": "be-that-man-son",
+    "title": "Be That Man, Son",
+    "audio": "assets/audio/be-that-man-son.mp3",
+    "source_audio": "Be That Man, Son.mp3",
+    "cover": "assets/covers/be-that-man-son.png"
+  },
+  {
+    "id": "bell-ring-time",
+    "title": "Bell Ring Time",
+    "audio": "assets/audio/bell-ring-time.mp3",
+    "source_audio": "Bell Ring Time.mp3",
+    "cover": "assets/covers/bell-ring-time.png"
+  },
+  {
+    "id": "built-different-baby",
+    "title": "Built Different, Baby",
+    "audio": "assets/audio/built-different-baby.mp3",
+    "source_audio": "Built Different, Baby.mp3",
+    "cover": "assets/covers/built-different-baby.png"
+  },
+  {
+    "id": "check-they-soil",
+    "title": "CHECK THEY SOIL",
+    "audio": "assets/audio/check-they-soil.mp3",
+    "source_audio": "CHECK THEY SOIL.mp3",
+    "cover": "assets/covers/check-they-soil.png"
+  },
+  {
+    "id": "check-your-soil",
+    "title": "CHECK YOUR SOIL",
+    "audio": "assets/audio/check-your-soil.mp3",
+    "source_audio": "CHECK YOUR SOIL.mp3",
+    "cover": "assets/covers/check-your-soil.png"
+  },
+  {
+    "id": "choose-a-man-like-this",
+    "title": "Choose a Man Like This",
+    "audio": "assets/audio/choose-a-man-like-this.mp3",
+    "source_audio": "Choose a Man Like This.mp3",
+    "cover": "assets/covers/choose-a-man-like-this.png"
+  },
+  {
+    "id": "clocked-in-again",
+    "title": "Clocked In Again",
+    "audio": "assets/audio/clocked-in-again.mp3",
+    "source_audio": "Clocked In Again.mp3",
+    "cover": "assets/covers/clocked-in-again.png"
+  },
+  {
+    "id": "daughter-wear-your-crown",
+    "title": "Daughter, Wear Your Crown",
+    "audio": "assets/audio/daughter-wear-your-crown.mp3",
+    "source_audio": "Daughter, Wear Your Crown.mp3",
+    "cover": "assets/covers/daughter-wear-your-crown.png"
+  },
+  {
+    "id": "fuck-i-would-date-me",
+    "title": "Fuck, I Would Date Me",
+    "audio": "assets/audio/fuck-i-would-date-me.mp3",
+    "source_audio": "Fuck, I Would Date Me.mp3",
+    "cover": "assets/covers/fuck-i-would-date-me.png"
+  },
+  {
+    "id": "listen-my-son",
+    "title": "Listen, My Son",
+    "audio": "assets/audio/listen-my-son.mp3",
+    "source_audio": "Listen, My Son.mp3",
+    "cover": "assets/covers/listen-my-son.png"
+  },
+  {
+    "id": "remember-who-you-are",
+    "title": "Remember Who You Are",
+    "audio": "assets/audio/remember-who-you-are.mp3",
+    "source_audio": "Remember Who You Are.mp3",
+    "cover": "assets/covers/remember-who-you-are.png"
+  },
+  {
+    "id": "rest-is-a-revolution",
+    "title": "Rest Is a Revolution",
+    "audio": "assets/audio/rest-is-a-revolution.mp3",
+    "source_audio": "Rest Is a Revolution.mp3",
+    "cover": "assets/covers/rest-is-a-revolution.png"
+  },
+  {
+    "id": "so-proud",
+    "title": "So Proud",
+    "audio": "assets/audio/so-proud.mp3",
+    "source_audio": "So Proud.mp3",
+    "cover": "assets/covers/so-proud.png"
+  },
+  {
+    "id": "time-to-rest",
+    "title": "Time to rest",
+    "audio": "assets/audio/time-to-rest.mp3",
+    "source_audio": "Time to rest.mp3",
+    "cover": "assets/covers/time-to-rest.png"
+  },
+  {
+    "id": "time-to-rise",
+    "title": "Time to Rise",
+    "audio": "assets/audio/time-to-rise.mp3",
+    "source_audio": "Time to Rise.mp3",
+    "cover": "assets/covers/time-to-rise.png"
+  },
+  {
+    "id": "what-the-fuck-is-this",
+    "title": "WHAT THE FUCK IS THIS",
+    "audio": "assets/audio/what-the-fuck-is-this.mp3",
+    "source_audio": "WHAT THE FUCK IS THIS.mp3",
+    "cover": "assets/covers/what-the-fuck-is-this.png"
+  },
+  {
+    "id": "yesterday-was-a-threshold",
+    "title": "Yesterday Was a Threshold",
+    "audio": "assets/audio/yesterday-was-a-threshold.mp3",
+    "source_audio": "Yesterday Was a Threshold.mp3",
+    "cover": "assets/covers/yesterday-was-a-threshold.png"
+  },
+  {
+    "id": "you-dont-walk-in-quiet",
+    "title": "You Don’t Walk In Quiet",
+    "audio": "assets/audio/you-dont-walk-in-quiet.mp3",
+    "source_audio": "You Don’t Walk In Quiet.mp3",
+    "cover": "assets/covers/you-dont-walk-in-quiet.png"
+  },
+  {
+    "id": "your-love-kept-me-here",
+    "title": "Your Love Kept Me Here",
+    "audio": "assets/audio/your-love-kept-me-here.mp3",
+    "source_audio": "Your Love Kept Me Here.mp3",
+    "cover": "assets/covers/your-love-kept-me-here.png"
+  },
+  {
+    "id": "alignment-season",
+    "title": "Alignment Season",
+    "audio": "assets/audio/alignment-season.mp3",
+    "source_audio": "Alignment Season.mp3",
+    "cover": "assets/covers/alignment-season.png"
+  },
+  {
+    "id": "ancestors-crowned-me",
+    "title": "ANCESTORS CROWNED ME",
+    "audio": "assets/audio/ancestors-crowned-me.mp3",
+    "source_audio": "ANCESTORS CROWNED ME.mp3",
+    "cover": "assets/covers/ancestors-crowned-me.png"
+  },
+  {
+    "id": "bloodline-heavy",
+    "title": "BLOODLINE HEAVY",
+    "audio": "assets/audio/bloodline-heavy.mp3",
+    "source_audio": "BLOODLINE HEAVY.mp3",
+    "cover": "assets/covers/bloodline-heavy.png"
+  },
+  {
+    "id": "brick-by-brick",
+    "title": "Brick by Brick",
+    "audio": "assets/audio/brick-by-brick.mp3",
+    "source_audio": "Brick by Brick.mp3",
+    "cover": "assets/covers/brick-by-brick.png"
+  },
+  {
+    "id": "come-closer",
+    "title": "Come Closer",
+    "audio": "assets/audio/come-closer.mp3",
+    "source_audio": "Come Closer.mp3",
+    "cover": "assets/covers/come-closer.png"
+  },
+  {
+    "id": "get-back-to-the-original-code",
+    "title": "Get Back to the Original Code",
+    "audio": "assets/audio/get-back-to-the-original-code.mp3",
+    "source_audio": "Get Back to the Original Code.mp3",
+    "cover": "assets/covers/get-back-to-the-original-code.png"
+  },
+  {
+    "id": "i-cut-the-cloth",
+    "title": "I CUT THE CLOTH",
+    "audio": "assets/audio/i-cut-the-cloth.mp3",
+    "source_audio": "I CUT THE CLOTH.mp3",
+    "cover": "assets/covers/i-cut-the-cloth.png"
+  },
+  {
+    "id": "i-dont-bow",
+    "title": "I DON’T BOW",
+    "audio": "assets/audio/i-dont-bow.mp3",
+    "source_audio": "I DON’T BOW.mp3",
+    "cover": "assets/covers/i-dont-bow.png"
+  },
+  {
+    "id": "i-wrote-the-fucking-code",
+    "title": "I WROTE THE FUCKING CODE",
+    "audio": "assets/audio/i-wrote-the-fucking-code.mp3",
+    "source_audio": "I WROTE THE FUCKING CODE.mp3",
+    "cover": "assets/covers/i-wrote-the-fucking-code.png"
+  },
+  {
+    "id": "love-bombs-and-exit-wounds",
+    "title": "LOVE BOMBS AND EXIT WOUNDS",
+    "audio": "assets/audio/love-bombs-and-exit-wounds.mp3",
+    "source_audio": "LOVE BOMBS AND EXIT WOUNDS.mp3",
+    "cover": "assets/covers/love-bombs-and-exit-wounds.png"
+  },
+  {
+    "id": "new-york-swag-panama-bloodline",
+    "title": "NEW YORK SWAG, PANAMÁ BLOODLINE",
+    "audio": "assets/audio/new-york-swag-panama-bloodline.mp3",
+    "source_audio": "NEW YORK SWAG, PANAMÁ BLOODLINE.mp3",
+    "cover": "assets/covers/new-york-swag-panama-bloodline.png"
+  },
+  {
+    "id": "pressure-taste-like-breakfast",
+    "title": "Pressure Taste Like Breakfast",
+    "audio": "assets/audio/pressure-taste-like-breakfast.mp3",
+    "source_audio": "Pressure Taste Like Breakfast.mp3",
+    "cover": "assets/covers/pressure-taste-like-breakfast.png"
+  },
+  {
+    "id": "read-your-manual",
+    "title": "Read Your Manual",
+    "audio": "assets/audio/read-your-manual.mp3",
+    "source_audio": "Read Your Manual.mp3",
+    "cover": "assets/covers/read-your-manual.png"
+  },
+  {
+    "id": "soft-landing",
+    "title": "SOFT LANDING",
+    "audio": "assets/audio/soft-landing.mp3",
+    "source_audio": "SOFT LANDING.mp3",
+    "cover": "assets/covers/soft-landing.png"
+  },
+  {
+    "id": "this-seems-familiar",
+    "title": "This Seems Familiar",
+    "audio": "assets/audio/this-seems-familiar.mp3",
+    "source_audio": "This Seems Familiar.mp3",
+    "cover": "assets/covers/this-seems-familiar.png"
+  },
+  {
+    "id": "watch-yo-mouth",
+    "title": "Watch Yo Mouth!",
+    "audio": "assets/audio/watch-yo-mouth.mp3",
+    "source_audio": "Watch Yo Mouth!.mp3",
+    "cover": "assets/covers/watch-yo-mouth.png"
+  },
+  {
+    "id": "yall-got-me-fucked-up",
+    "title": "Y’ALL GOT ME FUCKED UP!",
+    "audio": "assets/audio/yall-got-me-fucked-up.mp3",
+    "source_audio": "Y’ALL GOT ME FUCKED UP!.mp3",
+    "cover": "assets/covers/yall-got-me-fucked-up.png"
+  },
+  {
+    "id": "yall-study",
+    "title": "yall study",
+    "audio": "assets/audio/yall-study.mp3",
+    "source_audio": "yall study.mp3",
+    "cover": "assets/covers/yall-study.png"
+  },
+  {
+    "id": "you-did-it-again",
+    "title": "You Did it Again",
+    "audio": "assets/audio/you-did-it-again.mp3",
+    "source_audio": "You Did it Again.mp3",
+    "cover": "assets/covers/you-did-it-again.png"
+  },
+  {
+    "id": "your-apology-was-a-trap",
+    "title": "YOUR APOLOGY WAS A TRAP",
+    "audio": "assets/audio/your-apology-was-a-trap.mp3",
+    "source_audio": "YOUR APOLOGY WAS A TRAP.mp3",
+    "cover": "assets/covers/your-apology-was-a-trap.png"
+  },
+  {
+    "id": "5k-a-day",
+    "title": "5K a Day",
+    "audio": "assets/audio/5k-a-day.mp3",
+    "source_audio": "5K a Day.mp3",
+    "cover": "assets/covers/5k-a-day.png"
+  },
+  {
+    "id": "authentic-or-nothing",
+    "title": "Authentic or Nothing",
+    "audio": "assets/audio/authentic-or-nothing.mp3",
+    "source_audio": "Authentic or Nothing.mp3",
+    "cover": "assets/covers/authentic-or-nothing.png"
+  },
+  {
+    "id": "blackout-mode",
+    "title": "Blackout Mode",
+    "audio": "assets/audio/blackout-mode.mp3",
+    "source_audio": "Blackout Mode.mp3",
+    "cover": "assets/covers/blackout-mode.png"
+  },
+  {
+    "id": "born-to-do-this",
+    "title": "Born to Do This",
+    "audio": "assets/audio/born-to-do-this.mp3",
+    "source_audio": "Born to Do This.mp3",
+    "cover": "assets/covers/born-to-do-this.png"
+  },
+  {
+    "id": "broadcast-mode",
+    "title": "Broadcast Mode",
+    "audio": "assets/audio/broadcast-mode.mp3",
+    "source_audio": "Broadcast Mode.mp3",
+    "cover": "assets/covers/broadcast-mode.png"
+  },
+  {
+    "id": "default-blueprint",
+    "title": "Default Blueprint",
+    "audio": "assets/audio/default-blueprint.mp3",
+    "source_audio": "Default Blueprint.mp3",
+    "cover": "assets/covers/default-blueprint.png"
+  },
+  {
+    "id": "i-can-do-everything-i-want-to-do",
+    "title": "I Can Do Everything I Want to Do",
+    "audio": "assets/audio/i-can-do-everything-i-want-to-do.mp3",
+    "source_audio": "I Can Do Everything I Want to Do.mp3",
+    "cover": "assets/covers/i-can-do-everything-i-want-to-do.png"
+  },
+  {
+    "id": "its-already-done",
+    "title": "It’s Already Done",
+    "audio": "assets/audio/its-already-done.mp3",
+    "source_audio": "It’s Already Done.mp3",
+    "cover": "assets/covers/its-already-done.png"
+  },
+  {
+    "id": "levitation-walk",
+    "title": "Levitation Walk",
+    "audio": "assets/audio/levitation-walk.mp3",
+    "source_audio": "Levitation Walk.mp3",
+    "cover": "assets/covers/levitation-walk.png"
+  },
+  {
+    "id": "millionaire-mindset",
+    "title": "Millionaire Mindset",
+    "audio": "assets/audio/millionaire-mindset.mp3",
+    "source_audio": "Millionaire Mindset.mp3",
+    "cover": "assets/covers/millionaire-mindset.png"
+  },
+  {
+    "id": "paid-to-exist",
+    "title": "Paid to Exist",
+    "audio": "assets/audio/paid-to-exist.mp3",
+    "source_audio": "Paid to Exist.mp3",
+    "cover": "assets/covers/paid-to-exist.png"
+  },
+  {
+    "id": "receiver-open",
+    "title": "Receiver Open",
+    "audio": "assets/audio/receiver-open.mp3",
+    "source_audio": "Receiver Open.mp3",
+    "cover": "assets/covers/receiver-open.png"
+  },
+  {
+    "id": "signal-strong",
+    "title": "Signal Strong",
+    "audio": "assets/audio/signal-strong.mp3",
+    "source_audio": "Signal Strong.mp3",
+    "cover": "assets/covers/signal-strong.png"
+  },
+  {
+    "id": "strut-like-a-frequency",
+    "title": "Strut Like a Frequency",
+    "audio": "assets/audio/strut-like-a-frequency.mp3",
+    "source_audio": "Strut Like a Frequency.mp3",
+    "cover": "assets/covers/strut-like-a-frequency.png"
+  },
+  {
+    "id": "they-felt-that",
+    "title": "They Felt That",
+    "audio": "assets/audio/they-felt-that.mp3",
+    "source_audio": "They Felt That.mp3",
+    "cover": "assets/covers/they-felt-that.png"
+  },
+  {
+    "id": "wake-up-in-their-soul",
+    "title": "Wake Up in Their Soul",
+    "audio": "assets/audio/wake-up-in-their-soul.mp3",
+    "source_audio": "Wake Up in Their Soul.mp3",
+    "cover": "assets/covers/wake-up-in-their-soul.png"
+  },
+  {
+    "id": "wealth-flows-to-you",
+    "title": "Wealth Flows To You",
+    "audio": "assets/audio/wealth-flows-to-you.mp3",
+    "source_audio": "Wealth Flows To You.mp3",
+    "cover": "assets/covers/wealth-flows-to-you.png"
+  },
+  {
+    "id": "you-did-good-baby",
+    "title": "You Did Good Baby",
+    "audio": "assets/audio/you-did-good-baby.mp3",
+    "source_audio": "You Did Good Baby.mp3",
+    "cover": "assets/covers/you-did-good-baby.png"
+  },
+  {
+    "id": "you-want-it-its-yours",
+    "title": "You Want It, It’s Yours",
+    "audio": "assets/audio/you-want-it-its-yours.mp3",
+    "source_audio": "You Want It, It’s Yours.mp3",
+    "cover": "assets/covers/you-want-it-its-yours.png"
+  },
+  {
+    "id": "crocodile-tears",
+    "title": "CROCODILE TEARS",
+    "audio": "assets/audio/crocodile-tears.mp3",
+    "source_audio": "CROCODILE TEARS.mp3",
+    "cover": "assets/covers/crocodile-tears.png"
+  },
+  {
+    "id": "gaslight-gospel",
+    "title": "GASLIGHT GOSPEL",
+    "audio": "assets/audio/gaslight-gospel.mp3",
+    "source_audio": "GASLIGHT GOSPEL.mp3",
+    "cover": "assets/covers/gaslight-gospel.png"
+  },
+  {
+    "id": "hoover-season",
+    "title": "HOOVER SEASON",
+    "audio": "assets/audio/hoover-season.mp3",
+    "source_audio": "HOOVER SEASON.mp3",
+    "cover": "assets/covers/hoover-season.png"
+  },
+  {
+    "id": "love-bomb-funeral",
+    "title": "LOVE BOMB FUNERAL",
+    "audio": "assets/audio/love-bomb-funeral.mp3",
+    "source_audio": "LOVE BOMB FUNERAL.mp3",
+    "cover": "assets/covers/love-bomb-funeral.png"
+  },
+  {
+    "id": "nothing-was-wasted",
+    "title": "Nothing Was Wasted",
+    "audio": "assets/audio/nothing-was-wasted.mp3",
+    "source_audio": "Nothing Was Wasted.mp3",
+    "cover": "assets/covers/nothing-was-wasted.png"
+  },
+  {
+    "id": "pretty-lies-rotten-core",
+    "title": "Pretty Lies Rotten Core",
+    "audio": "assets/audio/pretty-lies-rotten-core.mp3",
+    "source_audio": "Pretty Lies Rotten Core.mp3",
+    "cover": "assets/covers/pretty-lies-rotten-core.png"
+  },
+  {
+    "id": "the-mask-slipped",
+    "title": "THE MASK SLIPPED",
+    "audio": "assets/audio/the-mask-slipped.mp3",
+    "source_audio": "THE MASK SLIPPED.mp3",
+    "cover": "assets/covers/the-mask-slipped.png"
+  },
+  {
+    "id": "vault-open",
+    "title": "Vault Open",
+    "audio": "assets/audio/vault-open.mp3",
+    "source_audio": "Vault Open.mp3",
+    "cover": "assets/covers/vault-open.png"
+  },
+  {
+    "id": "youre-living-proof",
+    "title": "You’re Living Proof",
+    "audio": "assets/audio/youre-living-proof.mp3",
+    "source_audio": "You’re Living Proof.mp3",
+    "cover": "assets/covers/youre-living-proof.png"
+  }
+]
