@@ -3252,6 +3252,35 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
     line-height:1.2 !important;
   }
 }
+
+
+/* v1.90 — restore Add to Playlist buttons in Library */
+#library .track-card .add-playlist-btn,
+.library-section .track-card .add-playlist-btn{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:100% !important;
+  margin-top:8px !important;
+  min-height:34px !important;
+  padding:7px 10px !important;
+  border-radius:999px !important;
+  font-size:12px !important;
+  font-weight:800 !important;
+}
+#library .track-card .card-actions,
+.library-section .track-card .card-actions{
+  display:flex !important;
+  width:100% !important;
+}
+@media (max-width:760px){
+  #library .track-card .add-playlist-btn,
+  .library-section .track-card .add-playlist-btn{
+    min-height:32px !important;
+    padding:6px 8px !important;
+    font-size:11px !important;
+  }
+}
 </style>
 </head>
 <body>
