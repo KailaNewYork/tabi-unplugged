@@ -3685,26 +3685,28 @@ function renderHomeSessions(){
 document.addEventListener('DOMContentLoaded', renderHomeSessions);
 
 
-// v1.31 header search
+// v1.67 working global header search
 const headerSearch = document.getElementById('headerSearch');
 if(headerSearch){
   headerSearch.addEventListener('input', e => {
     const value = e.target.value;
-    const librarySearch =
-      document.getElementById('searchInput') ||
-      document.getElementById('songSearch') ||
-      document.querySelector('.search input[type="search"]');
+    const librarySearch = document.getElementById('searchInput');
 
     if(librarySearch){
       librarySearch.value = value;
       librarySearch.dispatchEvent(new Event('input', {bubbles:true}));
     }
+
+    // The header search is global, so make the filtered Library visible as soon as the user types.
+    if(value.trim()){
+      navigateMainSection('#librarySection');
+    }
   });
 
   headerSearch.addEventListener('keydown', e => {
-    if(e.key === 'Enter'){
-      const libraryNav = document.querySelector('[data-view="library"]');
-      if(libraryNav) libraryNav.click();
+    if(e.key === 'Enter' && headerSearch.value.trim()){
+      e.preventDefault();
+      navigateMainSection('#librarySection');
     }
   });
 }
