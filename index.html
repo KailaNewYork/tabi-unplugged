@@ -1830,6 +1830,40 @@ body.song-page-active main>*:not(#songPageView){display:none!important}
 .session-track-row:hover{background:rgba(243,197,91,.055)}
 @media(max-width:760px){.context-search-row{justify-content:stretch}.context-search{width:100%}}
 
+
+/* v1.57 — listener playlist ordering */
+.playlist-reorder-note{
+  margin:0 0 12px;
+  color:var(--muted);
+  font-size:12px;
+}
+.track-card.playlist-reorderable{cursor:grab}
+.track-card.playlist-reorderable:active{cursor:grabbing}
+.track-card.playlist-reorderable.dragging{opacity:.42;transform:scale(.98)}
+.track-card.playlist-reorderable.drag-over{
+  outline:2px solid rgba(243,197,91,.55);
+  outline-offset:4px;
+}
+.reorder-handle{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  color:var(--gold);
+  cursor:grab;
+  user-select:none;
+}
+.reorder-handle::before{
+  content:"⋮⋮";
+  letter-spacing:-3px;
+  font-weight:900;
+}
+.move-track-btn{
+  min-width:34px;
+  padding-left:8px!important;
+  padding-right:8px!important;
+}
+@media(max-width:760px){.reorder-handle{display:none}}
+
 </style>
 </head>
 <body>
@@ -1938,6 +1972,7 @@ body.song-page-active main>*:not(#songPageView){display:none!important}
           <input id="playlistScopedSearch" type="search" placeholder="Search this playlist" autocomplete="off" />
         </label>
       </div>
+      <p class="playlist-reorder-note" id="playlistReorderNote">Drag songs to reorder your playlist. On touch devices, use ↑ and ↓.</p>
       <div class="track-grid" id="playlistTrackGrid"></div>
     </section>
 
@@ -2316,7 +2351,7 @@ function trackCard(track, context='library'){
     </div>
     <div class="card-actions">
       <button class="mini-btn add-playlist-btn">＋ Playlist</button>
-      ${context === 'playlist' ? '<button class="mini-btn remove-track-btn">Remove</button>' : ''}
+      ${context === 'playlist' ? '<span class="mini-btn reorder-handle" title="Drag to reorder">Drag</span><button class="mini-btn move-track-btn move-up-btn" title="Move up">↑</button><button class="mini-btn move-track-btn move-down-btn" title="Move down">↓</button><button class="mini-btn remove-track-btn">Remove</button>' : ''}
     </div>`;
   card.querySelector('.card-play').addEventListener('click', (e) => {
     e.stopPropagation();
@@ -2325,6 +2360,13 @@ function trackCard(track, context='library'){
   card.querySelector('.add-playlist-btn').addEventListener('click', (e) => { e.stopPropagation(); openAddToPlaylist(track.id); });
   const remove = card.querySelector('.remove-track-btn');
   if (remove) remove.addEventListener('click', (e) => { e.stopPropagation(); removeFromSelectedPlaylist(track.id); });
+
+  const moveUp = card.querySelector('.move-up-btn');
+  if (moveUp) moveUp.addEventListener('click', (e) => { e.stopPropagation(); movePlaylistTrack(track.id, -1); });
+
+  const moveDown = card.querySelector('.move-down-btn');
+  if (moveDown) moveDown.addEventListener('click', (e) => { e.stopPropagation(); movePlaylistTrack(track.id, 1); });
+
   card.addEventListener('click', (e) => {
     if (e.target.closest('button')) return;
     openSongPage(track.id, context, true, true);
@@ -2379,7 +2421,88 @@ function renderPlaylistView(){
     playlistTrackGrid.innerHTML = '<div class="empty-state">No songs in this playlist match your search.</div>';
   } else {
     plTracks.forEach(t => playlistTrackGrid.appendChild(trackCard(t, 'playlist')));
+    const reorderNote = document.getElementById('playlistReorderNote');
+    if (q) {
+      playlistTrackGrid.querySelectorAll('.move-track-btn').forEach(btn => btn.disabled = true);
+      if (reorderNote) reorderNote.textContent = 'Clear the playlist search to reorder songs.';
+    } else {
+      if (reorderNote) reorderNote.textContent = 'Drag songs to reorder your playlist. On touch devices, use ↑ and ↓.';
+      wirePlaylistReordering(pl);
+    }
   }
+}
+
+function movePlaylistTrack(trackId, direction){
+  const pl = getPlaylist(selectedPlaylistId);
+  if(!pl || !Array.isArray(pl.trackIds)) return;
+  const from = pl.trackIds.indexOf(trackId);
+  if(from < 0) return;
+  const to = from + direction;
+  if(to < 0 || to >= pl.trackIds.length) return;
+  [pl.trackIds[from], pl.trackIds[to]] = [pl.trackIds[to], pl.trackIds[from]];
+  savePlaylists();
+  renderPlaylists();
+  renderPlaylistView();
+}
+
+function wirePlaylistReordering(pl){
+  if(!pl || !playlistTrackGrid) return;
+  let draggedId = null;
+
+  playlistTrackGrid.querySelectorAll('.track-card').forEach(card => {
+    card.classList.add('playlist-reorderable');
+    card.draggable = true;
+
+    card.addEventListener('dragstart', e => {
+      if(e.target.closest('button')) {
+        e.preventDefault();
+        return;
+      }
+      draggedId = card.dataset.id;
+      card.classList.add('dragging');
+      if(e.dataTransfer){
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', draggedId || '');
+      }
+    });
+
+    card.addEventListener('dragend', () => {
+      card.classList.remove('dragging');
+      playlistTrackGrid.querySelectorAll('.track-card').forEach(c => c.classList.remove('drag-over'));
+
+      const orderedIds = [...playlistTrackGrid.querySelectorAll('.track-card')]
+        .map(c => c.dataset.id)
+        .filter(Boolean);
+
+      if(orderedIds.length === pl.trackIds.length){
+        pl.trackIds = orderedIds;
+        savePlaylists();
+        renderPlaylists();
+        renderPlaylistView();
+      }
+      draggedId = null;
+    });
+
+    card.addEventListener('dragover', e => {
+      if(!draggedId || draggedId === card.dataset.id) return;
+      e.preventDefault();
+      card.classList.add('drag-over');
+
+      const dragged = [...playlistTrackGrid.querySelectorAll('.track-card')]
+        .find(c => c.dataset.id === draggedId);
+      if(!dragged || dragged === card) return;
+
+      const rect = card.getBoundingClientRect();
+      const after = e.clientY > rect.top + rect.height/2;
+      playlistTrackGrid.insertBefore(dragged, after ? card.nextSibling : card);
+    });
+
+    card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
+    card.addEventListener('drop', e => {
+      e.preventDefault();
+      card.classList.remove('drag-over');
+    });
+  });
 }
 
 function openModal(mode){
@@ -2714,6 +2837,21 @@ function wireMainNavigation(){
 }
 wireMainNavigation();
 
+
+// v1.57 — order-aware storage hooks for the future private admin panel.
+const TU_LIBRARY_ORDER_KEY = 'tabiUnplugged.libraryOrder.v1';
+
+function getSavedLibraryOrder(){
+  try{
+    const saved = JSON.parse(localStorage.getItem(TU_LIBRARY_ORDER_KEY) || '[]');
+    return Array.isArray(saved) ? saved : [];
+  }catch(e){ return []; }
+}
+function saveLibraryOrder(trackIds){
+  if(Array.isArray(trackIds)){
+    localStorage.setItem(TU_LIBRARY_ORDER_KEY, JSON.stringify(trackIds));
+  }
+}
 
 // --- Tabi Sessions public experience ---
 const TU_SESSION_KEY = 'tabiUnplugged.sessions.v1';
