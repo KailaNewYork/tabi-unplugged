@@ -3897,10 +3897,10 @@ function trackCard(track, context='library'){
       <strong title="${track.title}">${track.title}</strong>
       <span>${track.artist}</span>
     </div>
-    <div class="card-actions">
+    <div class="card-actions" style="display:flex !important;width:100% !important;">
       ${context === 'playlist'
         ? '<button class="mini-btn remove-track-btn">Remove</button>'
-        : '<button class="mini-btn add-playlist-btn">＋ Playlist</button>'}
+        : '<button class="mini-btn add-playlist-btn" style="display:inline-flex !important;align-items:center !important;justify-content:center !important;width:100% !important;margin-top:8px !important;min-height:34px !important;padding:7px 10px !important;border-radius:999px !important;font-size:12px !important;font-weight:800 !important;">＋ Add to Playlist</button>'}
     </div>`;
   card.querySelector('.card-play').addEventListener('click', (e) => {
     e.stopPropagation();
