@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#090713" />
   <title>Tabi Unplugged</title>
-  <meta name="tabi-build" content="v1.63-cover-library" />
   <style>
 :root{
   --bg:#08070e;
@@ -1832,348 +1831,311 @@ body.song-page-active main>*:not(#songPageView){display:none!important}
 @media(max-width:760px){.context-search-row{justify-content:stretch}.context-search{width:100%}}
 
 
-/* v1.57 — listener playlist ordering */
-.playlist-reorder-note{
-  margin:0 0 12px;
-  color:var(--muted);
-  font-size:12px;
-}
-.track-card.playlist-reorderable{cursor:grab}
-.track-card.playlist-reorderable:active{cursor:grabbing}
-.track-card.playlist-reorderable.dragging{opacity:.42;transform:scale(.98)}
-.track-card.playlist-reorderable.drag-over{
-  outline:2px solid rgba(243,197,91,.55);
-  outline-offset:4px;
-}
-.reorder-handle{
-  display:inline-flex;
-  align-items:center;
-  gap:5px;
-  color:var(--gold);
-  cursor:grab;
-  user-select:none;
-}
-.reorder-handle::before{
-  content:"⋮⋮";
-  letter-spacing:-3px;
-  font-weight:900;
-}
-.move-track-btn{
-  min-width:34px;
-  padding-left:8px!important;
-  padding-right:8px!important;
-}
-@media(max-width:760px){.reorder-handle{display:none}}
 
-
-/* v1.58 — playlist experience cleanup + custom covers */
-body.playlist-detail-active #playlists{display:none!important}
-
-.playlist-view-actions{
-  flex-wrap:wrap;
+/* v1.68 — mobile responsive hardening without changing desktop */
+html.tu-mobile body{
+  overflow-x:hidden !important;
+  padding-bottom:182px !important;
 }
-.playlist-cover-btn{
-  border:1px solid rgba(243,197,91,.3);
-  background:rgba(243,197,91,.06);
-  color:var(--cream);
-  border-radius:999px;
-  padding:11px 17px;
+html.tu-mobile .topbar.service-nav{
+  display:flex !important;
+  flex-wrap:wrap !important;
+  align-items:flex-start !important;
+  justify-content:flex-start !important;
+  gap:12px !important;
+  padding:12px 14px !important;
 }
-.playlist-cover-btn:hover{
-  background:rgba(243,197,91,.12);
-  border-color:rgba(243,197,91,.5);
+html.tu-mobile .nav-left{
+  width:100% !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:flex-start !important;
+  gap:10px !important;
 }
-
-.playlist-custom-cover{
-  width:100%;height:100%;
-  display:flex;align-items:center;justify-content:center;
-  text-align:center;padding:13%;
-  position:relative;overflow:hidden;
-  color:#fff8e8;
+html.tu-mobile .brand-lockup{
+  gap:10px !important;
 }
-.playlist-custom-cover::after{
-  content:"";
-  position:absolute;inset:8%;
-  border:1px solid rgba(255,255,255,.18);
-  border-radius:16px;
-  pointer-events:none;
-}
-.playlist-custom-cover span{
-  position:relative;z-index:1;
-  font-family:Georgia,"Times New Roman",serif;
-  font-size:clamp(16px,2vw,31px);
-  line-height:1.04;
-  text-wrap:balance;
-  text-shadow:0 3px 18px rgba(0,0,0,.38);
-}
-.playlist-custom-cover.compact span{font-size:clamp(12px,1.35vw,20px)}
-.playlist-custom-cover.theme-gold{
-  background:radial-gradient(circle at 28% 22%,rgba(255,227,147,.42),transparent 26%),
-             linear-gradient(145deg,#6e4510,#17100a 64%,#050505);
-}
-.playlist-custom-cover.theme-purple{
-  background:radial-gradient(circle at 25% 20%,rgba(184,130,255,.48),transparent 28%),
-             linear-gradient(145deg,#321560,#100b1a 68%,#07060b);
-}
-.playlist-custom-cover.theme-night{
-  background:radial-gradient(circle at 74% 24%,rgba(76,99,255,.35),transparent 30%),
-             linear-gradient(160deg,#11183b,#070910 65%,#020204);
-}
-.playlist-custom-cover.theme-pink{
-  background:radial-gradient(circle at 30% 24%,rgba(255,157,209,.4),transparent 28%),
-             linear-gradient(145deg,#5e173b,#160a13 68%,#050304);
-}
-
-.cover-builder-card{width:min(720px,100%)}
-.cover-builder-grid{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:12px;
-  margin:16px 0 18px;
-}
-.cover-theme-option{
-  border:1px solid var(--line);
-  background:rgba(255,255,255,.025);
-  color:var(--cream);
-  border-radius:16px;
-  padding:8px;
-}
-.cover-theme-option.selected{
-  border-color:rgba(243,197,91,.58);
-  box-shadow:0 0 0 2px rgba(243,197,91,.08);
-}
-.cover-theme-preview{
-  aspect-ratio:1;
-  border-radius:11px;
-  overflow:hidden;
-}
-.cover-theme-option small{
-  display:block;
-  margin-top:7px;
-  color:var(--muted);
-}
-.cover-builder-actions{
-  display:flex;
-  gap:10px;
-  margin-top:72px;
-  flex-wrap:wrap;
-}
-.cover-builder-actions .primary-btn,
-.cover-builder-actions .secondary-btn{margin:0}
-
-.playlist-reorder-note{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:10px 13px;
-  border:1px solid rgba(243,197,91,.14);
-  border-radius:12px;
-  background:rgba(243,197,91,.035);
-}
-.playlist-reorder-note::before{
-  content:"↕";
-  color:var(--gold);
-  font-weight:900;
-}
-.track-card.playlist-reorderable{
-  border-radius:12px;
-}
-.track-card.playlist-reorderable .reorder-handle{
-  background:rgba(243,197,91,.08);
-  border-color:rgba(243,197,91,.28);
-}
-.track-card.playlist-reorderable.dragging{
-  opacity:.3!important;
-  outline:2px dashed rgba(243,197,91,.45);
-}
-@media(max-width:760px){
-  .cover-builder-grid{grid-template-columns:repeat(2,1fr)}
-}
-
-
-/* v1.59 — playlist cleanup */
-body.playlist-detail-active #playlists{
-  display:none !important;
-}
-body.playlist-detail-active #playlistView{
-  padding-top:18px !important;
-}
-
-/* Cleaner per-song controls */
-.track-card .reorder-handle,
-.track-card .add-playlist-btn{
-  display:none !important;
-}
-.track-card .card-actions{
-  gap:8px !important;
-  flex-wrap:wrap;
-}
-.track-card .move-track-btn,
-.track-card .remove-track-btn{
-  font-size:12px !important;
-  min-height:34px !important;
-  padding:7px 11px !important;
-}
-.track-card .move-track-btn{
-  min-width:38px;
-}
-
-/* Playlist cover uploader */
-.cover-upload-row{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  align-items:center;
-  margin-top:14px;
-}
-.cover-upload-label{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  border:1px solid rgba(243,197,91,.30);
-  background:rgba(243,197,91,.06);
-  color:var(--cream);
-  border-radius:999px;
-  padding:11px 17px;
-  cursor:pointer;
-  font-weight:700;
-}
-.cover-upload-label:hover{
-  background:rgba(243,197,91,.12);
-  border-color:rgba(243,197,91,.5);
-}
-.cover-upload-label input{display:none}
-.playlist-upload-cover{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  display:block;
-}
-.cover-builder-preview{
-  width:180px;
-  aspect-ratio:1;
-  overflow:hidden;
-  border-radius:18px;
-  border:1px solid rgba(243,197,91,.18);
-  margin:18px 0 4px;
-  background:#15121f;
-}
-.cover-builder-preview > *{
-  width:100%;
-  height:100%;
-}
-
-
-/* v1.60 — playlist gets its own page below the hero */
-body.playlist-detail-active .quick-listen,
-body.playlist-detail-active #sessionsView,
-body.playlist-detail-active #playlists,
-body.playlist-detail-active #librarySection{
-  display:none !important;
-}
-
-body.playlist-detail-active #home{
-  display:block !important;
-}
-
-body.playlist-detail-active #playlistView{
-  display:block !important;
-  padding:54px 0 82px !important;
-  margin-top:0 !important;
-  border-top:1px solid rgba(255,255,255,.06);
-}
-
-body.playlist-detail-active .playlist-view-head{
-  grid-template-columns:auto 260px minmax(0,1fr) auto !important;
-  gap:34px !important;
-  align-items:center !important;
-}
-
-body.playlist-detail-active .playlist-view-cover{
-  width:260px !important;
-  height:260px !important;
-  border-radius:22px !important;
-}
-
-body.playlist-detail-active .playlist-view-copy h3{
-  font-size:46px !important;
+html.tu-mobile .brand-lockup h1{
+  font-size:20px !important;
   line-height:1.02 !important;
-  margin:8px 0 10px !important;
+  margin-top:2px !important;
 }
-
-body.playlist-detail-active .playlist-view-copy p{
-  font-size:18px !important;
+html.tu-mobile .service-nav .eyebrow{
+  font-size:8px !important;
+  letter-spacing:.18em !important;
 }
-
-body.playlist-detail-active .playlist-play-actions{
-  margin:30px 0 22px !important;
+html.tu-mobile .main-nav{
+  display:flex !important;
+  width:100% !important;
+  gap:16px !important;
+  overflow-x:auto !important;
+  white-space:nowrap !important;
+  padding:0 0 4px !important;
+  scrollbar-width:none;
 }
-
-@media(max-width:900px){
-  body.playlist-detail-active .playlist-view-head{
+html.tu-mobile .main-nav::-webkit-scrollbar{
+  display:none;
+}
+html.tu-mobile .main-nav a{
+  flex:0 0 auto !important;
+  font-size:14px !important;
+  padding:8px 0 !important;
+}
+html.tu-mobile .main-nav .back-to-tabi{
+  display:none !important;
+}
+html.tu-mobile .header-search-wrap{
+  order:3 !important;
+  width:100% !important;
+  flex:1 1 100% !important;
+  margin-left:0 !important;
+  display:flex !important;
+}
+html.tu-mobile .top-actions{
+  width:100% !important;
+  display:grid !important;
+  grid-template-columns:1fr 1fr !important;
+  gap:10px !important;
+}
+html.tu-mobile .top-actions button,
+html.tu-mobile .top-actions .btn,
+html.tu-mobile .primary-btn,
+html.tu-mobile .secondary-btn,
+html.tu-mobile .ghost-btn,
+html.tu-mobile .danger-btn,
+html.tu-mobile .text-link{
+  font-size:14px !important;
+}
+html.tu-mobile .top-actions button,
+html.tu-mobile .top-actions .btn{
+  width:100% !important;
+  justify-content:center !important;
+  padding:10px 14px !important;
+}
+html.tu-mobile main{
+  padding-left:14px !important;
+  padding-right:14px !important;
+  padding-top:16px !important;
+}
+html.tu-mobile .hero-service.hero-brand-banner{
+  margin-bottom:26px !important;
+}
+html.tu-mobile .hero-brand-image{
+  width:100% !important;
+  min-height:0 !important;
+  height:auto !important;
+  object-fit:cover !important;
+  border-radius:18px !important;
+}
+html.tu-mobile .quick-listen.service-row{
+  padding-bottom:28px !important;
+}
+html.tu-mobile .playlist-section{
+  padding:30px 0 34px !important;
+}
+html.tu-mobile .library-section{
+  padding:34px 0 56px !important;
+}
+html.tu-mobile .row-head,
+html.tu-mobile .section-head,
+html.tu-mobile .playlist-head,
+html.tu-mobile .quick-listen-head{
+  flex-direction:column !important;
+  align-items:flex-start !important;
+  gap:10px !important;
+}
+html.tu-mobile .row-head h3,
+html.tu-mobile .section-head h3,
+html.tu-mobile .playlist-head h3,
+html.tu-mobile .sessions-public-head h2,
+html.tu-mobile .library-section .section-head h3{
+  font-size:clamp(18px,8vw,32px) !important;
+  line-height:1.05 !important;
+  margin:0 !important;
+}
+html.tu-mobile .row-head p,
+html.tu-mobile .section-head p,
+html.tu-mobile .playlist-head p,
+html.tu-mobile .sessions-public-head p{
+  font-size:13px !important;
+  line-height:1.4 !important;
+  margin:4px 0 0 !important;
+}
+html.tu-mobile .service-rail,
+html.tu-mobile .playlist-grid,
+html.tu-mobile .track-grid,
+html.tu-mobile .public-sessions-grid,
+html.tu-mobile .cover-song-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:12px !important;
+}
+html.tu-mobile .quick-track,
+html.tu-mobile .playlist-card,
+html.tu-mobile .track-card,
+html.tu-mobile .public-session-card{
+  min-width:0 !important;
+}
+html.tu-mobile .service-rail .quick-track strong,
+html.tu-mobile .card-meta strong,
+html.tu-mobile .playlist-card strong,
+html.tu-mobile .public-session-card h3,
+html.tu-mobile .home-session-card h3{
+  white-space:normal !important;
+  overflow:visible !important;
+  text-overflow:clip !important;
+  line-height:1.25 !important;
+}
+html.tu-mobile .service-rail .quick-track small,
+html.tu-mobile .card-meta span,
+html.tu-mobile .playlist-card small,
+html.tu-mobile .public-session-card small,
+html.tu-mobile .home-session-card small{
+  line-height:1.3 !important;
+}
+html.tu-mobile .playlist-empty{
+  grid-column:1 / -1 !important;
+  min-height:140px !important;
+}
+html.tu-mobile .playlist-view{
+  padding:18px 0 184px !important;
+}
+html.tu-mobile .playlist-view-head{
+  display:grid !important;
+  grid-template-columns:1fr !important;
+  align-items:start !important;
+  gap:16px !important;
+}
+html.tu-mobile .playlist-view-cover{
+  width:132px !important;
+}
+html.tu-mobile .playlist-view-copy h3{
+  font-size:clamp(34px,13vw,54px) !important;
+  line-height:.95 !important;
+  overflow-wrap:anywhere !important;
+  margin:6px 0 8px !important;
+}
+html.tu-mobile .playlist-view-actions,
+html.tu-mobile .playlist-play-actions,
+html.tu-mobile .card-actions{
+  display:flex !important;
+  flex-wrap:wrap !important;
+  gap:10px !important;
+}
+html.tu-mobile .playlist-view-actions > *,
+html.tu-mobile .playlist-play-actions > *{
+  flex:1 1 auto !important;
+}
+html.tu-mobile .context-search-row{
+  justify-content:stretch !important;
+}
+html.tu-mobile .context-search,
+html.tu-mobile .search-wrap{
+  width:100% !important;
+}
+html.tu-mobile .search-wrap input,
+html.tu-mobile #playlistScopedSearch,
+html.tu-mobile #searchInput{
+  width:100% !important;
+}
+html.tu-mobile .library-tools{
+  width:100% !important;
+  display:flex !important;
+  flex-direction:column !important;
+  gap:10px !important;
+}
+html.tu-mobile .library-tools select{
+  width:100% !important;
+  height:46px !important;
+}
+html.tu-mobile .modal-backdrop{
+  padding:12px !important;
+}
+html.tu-mobile .modal-card,
+html.tu-mobile .cover-modal-card{
+  width:min(94vw,680px) !important;
+  max-height:min(calc(var(--app-vh,1vh) * 88),88vh) !important;
+  border-radius:20px !important;
+  padding:18px 14px 16px !important;
+}
+html.tu-mobile .modal-card h3{
+  font-size:28px !important;
+  margin-bottom:18px !important;
+}
+html.tu-mobile .cover-choice-list{
+  grid-template-columns:1fr !important;
+  gap:10px !important;
+}
+html.tu-mobile .cover-choice{
+  grid-template-columns:70px 1fr !important;
+  gap:12px !important;
+}
+html.tu-mobile .cover-choice-preview{
+  width:70px !important;
+}
+html.tu-mobile .player-shell{
+  left:8px !important;
+  right:8px !important;
+  bottom:8px !important;
+  padding:10px 12px 12px !important;
+  border-radius:20px !important;
+  grid-template-columns:1fr !important;
+  gap:8px !important;
+  min-height:0 !important;
+}
+html.tu-mobile .player-track,
+html.tu-mobile .volume-wrap{
+  display:none !important;
+}
+html.tu-mobile .player-buttons{
+  gap:10px !important;
+}
+html.tu-mobile .progress-row{
+  grid-template-columns:30px 1fr 30px !important;
+  gap:6px !important;
+}
+html.tu-mobile .song-page-view{
+  padding:18px 0 184px !important;
+}
+html.tu-mobile .song-page-layout{
+  grid-template-columns:1fr !important;
+  gap:24px !important;
+}
+html.tu-mobile .song-page-art-wrap{
+  width:min(100%,440px) !important;
+  justify-self:center !important;
+}
+html.tu-mobile .song-page-title{
+  font-size:clamp(32px,11vw,48px) !important;
+}
+html.tu-mobile .song-page-controls{
+  gap:8px !important;
+}
+html.tu-mobile .song-page-volume input{
+  width:100% !important;
+  max-width:180px !important;
+}
+@media (max-width:520px){
+  html.tu-mobile .top-actions{
     grid-template-columns:1fr !important;
   }
-  body.playlist-detail-active .playlist-view-cover{
-    width:min(72vw,320px) !important;
-    height:auto !important;
-    aspect-ratio:1 !important;
+  html.tu-mobile .service-rail,
+  html.tu-mobile .playlist-grid,
+  html.tu-mobile .track-grid,
+  html.tu-mobile .public-sessions-grid,
+  html.tu-mobile .cover-song-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+  html.tu-mobile .playlist-play-actions{
+    display:grid !important;
+    grid-template-columns:1fr 1fr !important;
+  }
+  html.tu-mobile .playlist-play-actions > :first-child{
+    grid-column:1 / -1 !important;
+  }
+  html.tu-mobile .main-nav a{
+    font-size:13px !important;
   }
 }
-
-
-/* v1.61 — move Back to All Songs above playlist cover */
-body.playlist-detail-active .playlist-view-head{
-  position:relative;
-  padding-top:72px !important;
-}
-
-body.playlist-detail-active #backToLibrary{
-  position:absolute !important;
-  top:0 !important;
-  left:0 !important;
-  margin:0 !important;
-  z-index:2;
-}
-
-@media(max-width:900px){
-  body.playlist-detail-active .playlist-view-head{
-    padding-top:68px !important;
-  }
-}
-
-
-/* v1.62 FIXED — mouse + finger drag, clean controls */
-.track-card.playlist-reorderable{
-  cursor:grab !important;
-  touch-action:none;
-  user-select:none;
-  -webkit-user-select:none;
-}
-.track-card.playlist-reorderable:active{cursor:grabbing !important}
-.track-card.playlist-reorderable.dragging{
-  opacity:.36 !important;
-  transform:scale(.98) !important;
-  outline:2px dashed rgba(243,197,91,.55);
-  outline-offset:4px;
-  z-index:5;
-}
-.track-card .move-track-btn,
-.track-card .reorder-handle{display:none !important}
-
-
-/* v1.63 — playlist cover library */
-.cover-builder-card{width:min(920px,100%)!important}
-.cover-preset-section{margin-top:18px}
-.cover-preset-title{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:12px}
-.cover-preset-title strong{font-size:16px}.cover-preset-title span{font-size:11px;color:var(--muted)}
-.playlist-cover-preset-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 20px}
-.playlist-cover-preset{border:1px solid var(--line);background:rgba(255,255,255,.025);color:var(--cream);border-radius:16px;padding:8px;text-align:left;transition:.16s}
-.playlist-cover-preset:hover,.playlist-cover-preset.selected{border-color:rgba(243,197,91,.55);background:rgba(243,197,91,.06);transform:translateY(-2px)}
-.playlist-cover-preset img{display:block;width:100%;aspect-ratio:1;object-fit:cover;border-radius:11px;background:#15121f}
-.playlist-cover-preset strong{display:block;font-size:12px;line-height:1.2;margin:8px 2px 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cover-custom-divider{border-top:1px solid var(--line);margin:22px 0 18px;padding-top:18px}
-.cover-builder-preview img{width:100%;height:100%;object-fit:cover;display:block}
-@media(max-width:760px){.playlist-cover-preset-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 </style>
 </head>
@@ -2268,7 +2230,6 @@ body.playlist-detail-active #backToLibrary{
           <p id="playlistViewMeta"></p>
         </div>
         <div class="playlist-view-actions">
-          <button class="playlist-cover-btn" id="changePlaylistCoverBtn">Change Cover</button>
           <button class="secondary-btn" id="renamePlaylistBtn">Rename</button>
           <button class="danger-btn" id="deletePlaylistBtn">Delete</button>
         </div>
@@ -2284,7 +2245,6 @@ body.playlist-detail-active #backToLibrary{
           <input id="playlistScopedSearch" type="search" placeholder="Search this playlist" autocomplete="off" />
         </label>
       </div>
-      <p class="playlist-reorder-note" id="playlistReorderNote">Drag songs to reorder your playlist.</p>
       <div class="track-grid" id="playlistTrackGrid"></div>
     </section>
 
@@ -2431,110 +2391,6 @@ body.playlist-detail-active #backToLibrary{
     </div>
   </div>
 
-
-  <div class="modal-backdrop hidden" id="playlistCoverModal" role="dialog" aria-modal="true" aria-labelledby="playlistCoverModalTitle">
-    <div class="modal-card cover-builder-card">
-      <button class="modal-close" id="closePlaylistCoverModal" aria-label="Close">×</button>
-      <span class="eyebrow">PLAYLIST COVER</span>
-      <h3 id="playlistCoverModalTitle">Make It Yours</h3>
-      <p class="modal-copy">Choose a Tabi cover, make a text cover, use the first song artwork, or upload your own image.</p>
-
-      <div class="cover-preset-section">
-        <div class="cover-preset-title"><strong>Tabi Cover Library</strong><span>Pick a vibe</span></div>
-        <div class="playlist-cover-preset-grid" id="playlistCoverPresetGrid">
-          <button type="button" class="playlist-cover-preset" data-cover-id="my-favorites" data-cover-src="assets/images/playlist-covers/rose-gold-crystal-favorites.png" aria-label="Use My Favorites cover">
-            <img src="assets/images/playlist-covers/rose-gold-crystal-favorites.png" alt="My Favorites playlist cover">
-            <strong>My Favorites</strong>
-          </button>
-          <button type="button" class="playlist-cover-preset" data-cover-id="go-to-list" data-cover-src="assets/images/playlist-covers/golden-crystal-go-to-list.png" aria-label="Use Go-To List cover">
-            <img src="assets/images/playlist-covers/golden-crystal-go-to-list.png" alt="Go-To List playlist cover">
-            <strong>Go-To List</strong>
-          </button>
-          <button type="button" class="playlist-cover-preset" data-cover-id="boundaries-activated" data-cover-src="assets/images/playlist-covers/boundaries-activated-red-jasper-glow.png" aria-label="Use Boundaries Activated cover">
-            <img src="assets/images/playlist-covers/boundaries-activated-red-jasper-glow.png" alt="Boundaries Activated playlist cover">
-            <strong>Boundaries Activated</strong>
-          </button>
-          <button type="button" class="playlist-cover-preset" data-cover-id="healing-mode" data-cover-src="assets/images/playlist-covers/healing-mode-emerald-serenity.png" aria-label="Use Healing Mode cover">
-            <img src="assets/images/playlist-covers/healing-mode-emerald-serenity.png" alt="Healing Mode playlist cover">
-            <strong>Healing Mode</strong>
-          </button>
-          <button type="button" class="playlist-cover-preset" data-cover-id="soft-life" data-cover-src="assets/images/playlist-covers/soft-life-emerald-celestial-glow.png" aria-label="Use Soft Life cover">
-            <img src="assets/images/playlist-covers/soft-life-emerald-celestial-glow.png" alt="Soft Life playlist cover">
-            <strong>Soft Life</strong>
-          </button>
-          <button type="button" class="playlist-cover-preset" data-cover-id="cosmic-reset" data-cover-src="assets/images/playlist-covers/cosmic-reset-celestial-healing-playlist.png" aria-label="Use Cosmic Reset cover">
-            <img src="assets/images/playlist-covers/cosmic-reset-celestial-healing-playlist.png" alt="Cosmic Reset playlist cover">
-            <strong>Cosmic Reset</strong>
-          </button>
-          <button type="button" class="playlist-cover-preset" data-cover-id="power-playlist" data-cover-src="assets/images/playlist-covers/power-playlist-celestial-amberuxe.png" aria-label="Use Power Playlist cover">
-            <img src="assets/images/playlist-covers/power-playlist-celestial-amberuxe.png" alt="Power Playlist playlist cover">
-            <strong>Power Playlist</strong>
-          </button>
-          <button type="button" class="playlist-cover-preset" data-cover-id="love-frequency" data-cover-src="assets/images/playlist-covers/cosmic-love-frequency-with-amethyst-crystals.png" aria-label="Use Love Frequency cover">
-            <img src="assets/images/playlist-covers/cosmic-love-frequency-with-amethyst-crystals.png" alt="Love Frequency playlist cover">
-            <strong>Love Frequency</strong>
-          </button>
-          <button type="button" class="playlist-cover-preset" data-cover-id="money-moves" data-cover-src="assets/images/playlist-covers/gilded-cosmic-money-moves.png" aria-label="Use Money Moves cover">
-            <img src="assets/images/playlist-covers/gilded-cosmic-money-moves.png" alt="Money Moves playlist cover">
-            <strong>Money Moves</strong>
-          </button>
-          <button type="button" class="playlist-cover-preset" data-cover-id="fuck-around-and-find-out" data-cover-src="assets/images/playlist-covers/crowned-duckling-find-out.png" aria-label="Use Fuck Around and Find Out cover">
-            <img src="assets/images/playlist-covers/crowned-duckling-find-out.png" alt="Fuck Around and Find Out playlist cover">
-            <strong>Fuck Around and Find Out</strong>
-          </button>
-          <button type="button" class="playlist-cover-preset" data-cover-id="strut-frequency" data-cover-src="assets/images/playlist-covers/strut-frequency-cosmic-crystal-luxe.png" aria-label="Use Strut Frequency cover">
-            <img src="assets/images/playlist-covers/strut-frequency-cosmic-crystal-luxe.png" alt="Strut Frequency playlist cover">
-            <strong>Strut Frequency</strong>
-          </button>
-          <button type="button" class="playlist-cover-preset" data-cover-id="grounding" data-cover-src="assets/images/playlist-covers/cosmic-grounding-obsidian-and-gold.png" aria-label="Use Grounding cover">
-            <img src="assets/images/playlist-covers/cosmic-grounding-obsidian-and-gold.png" alt="Grounding playlist cover">
-            <strong>Grounding</strong>
-          </button>
-          <button type="button" class="playlist-cover-preset" data-cover-id="calms-nervous-system" data-cover-src="assets/images/playlist-covers/calms-nervous-system-celestial-crystals.png" aria-label="Use Calms Nervous System cover">
-            <img src="assets/images/playlist-covers/calms-nervous-system-celestial-crystals.png" alt="Calms Nervous System playlist cover">
-            <strong>Calms Nervous System</strong>
-          </button>
-        </div>
-      </div>
-
-      <div class="cover-custom-divider">
-        <div class="cover-preset-title"><strong>Make Your Own</strong><span>Optional</span></div>
-        <div class="cover-builder-preview" id="playlistCoverPreview"></div>
-
-        <label class="field-label" for="playlistCoverText">Cover wording</label>
-        <input class="text-input" id="playlistCoverText" maxlength="42" placeholder="Type your playlist title or your own wording" />
-
-        <div class="cover-builder-grid" id="playlistCoverThemes">
-          <button type="button" class="cover-theme-option selected" data-theme="gold">
-            <div class="cover-theme-preview playlist-custom-cover theme-gold"><span>MY PLAYLIST</span></div>
-            <small>Gold</small>
-          </button>
-          <button type="button" class="cover-theme-option" data-theme="purple">
-            <div class="cover-theme-preview playlist-custom-cover theme-purple"><span>MY PLAYLIST</span></div>
-            <small>Purple</small>
-          </button>
-          <button type="button" class="cover-theme-option" data-theme="night">
-            <div class="cover-theme-preview playlist-custom-cover theme-night"><span>MY PLAYLIST</span></div>
-            <small>Night</small>
-          </button>
-          <button type="button" class="cover-theme-option" data-theme="pink">
-            <div class="cover-theme-preview playlist-custom-cover theme-pink"><span>MY PLAYLIST</span></div>
-            <small>Pink</small>
-          </button>
-        </div>
-      </div>
-
-      <div class="cover-builder-actions">
-        <button class="primary-btn" id="savePlaylistCoverBtn" type="button">Use Text Cover</button>
-        <button class="secondary-btn" id="useFirstSongCoverBtn" type="button">Use First Song Artwork</button>
-        <label class="cover-upload-label">
-          Upload Your Own Cover
-          <input id="playlistCoverUpload" type="file" accept="image/png,image/jpeg,image/webp" />
-        </label>
-      </div>
-    </div>
-  </div>
-
   <script>
 window.TABI_TRACKS = [
   { id:'agnes-the-attitude', title:'Agnes & The ATTITUDE', artist:'Tabi Unplugged', audio:'assets/audio/agnes-the-attitude.mp3', cover:'assets/covers/agnes-the-attitude.png' },
@@ -2662,7 +2518,6 @@ window.TABI_TRACKS = [
 
 </script>
   <script>
-console.info('Tabi Unplugged build v1.63-cover-library');
 const tracks = [...window.TABI_TRACKS].filter(track => track.published !== false);
 const audio = document.getElementById('audio');
 const trackGrid = document.getElementById('trackGrid');
@@ -2728,15 +2583,8 @@ function loadPlaylists(){
     const saved = JSON.parse(localStorage.getItem(PLAYLIST_KEY) || '[]');
     return Array.isArray(saved)
       ? saved.map(p => {
-          const safe = p || {};
-          return {
-            ...safe,
-            coverMode: ['custom','upload','preset'].includes(safe.coverMode) ? safe.coverMode : 'first',
-            coverText: typeof safe.coverText === 'string' ? safe.coverText.slice(0,42) : '',
-            coverTheme: ['gold','purple','night','pink'].includes(safe.coverTheme) ? safe.coverTheme : 'gold',
-            coverImage: typeof safe.coverImage === 'string' ? safe.coverImage : '',
-            coverPreset: typeof safe.coverPreset === 'string' ? safe.coverPreset : ''
-          };
+          const {coverMode, coverTrackId, ...safePlaylist} = p || {};
+          return safePlaylist;
         })
       : [];
   } catch { return []; }
@@ -2750,25 +2598,12 @@ function tracksForPlaylist(pl){ return (pl?.trackIds || []).map(id => tracks.fin
 function playlistCoverInfo(pl){
   const plTracks = tracksForPlaylist(pl);
   if (!pl) return {mode:'text', src:null, title:'Playlist'};
-  if (pl.coverMode === 'preset' && pl.coverImage){
-    return {mode:'preset', src:pl.coverImage, title:pl.name};
-  }
-  if (pl.coverMode === 'upload' && pl.coverImage){
-    return {mode:'upload', src:pl.coverImage, title:pl.name};
-  }
-  if (pl.coverMode === 'custom' && pl.coverText){
-    return {mode:'custom', text:pl.coverText, theme:pl.coverTheme || 'gold', title:pl.name};
-  }
   if (!plTracks.length) return {mode:'text', src:null, title:pl.name};
   return {mode:'image', src:plTracks[0].cover, title:pl.name};
 }
 function playlistCoverMarkup(pl, compact=false){
   const info = playlistCoverInfo(pl);
-  if (info.mode === 'image' || info.mode === 'preset') return `<img src="${info.src}" alt="${escapeHtml(pl.name)} playlist cover">`;
-  if (info.mode === 'upload') return `<img class="playlist-upload-cover" src="${info.src}" alt="${escapeHtml(pl.name)} custom playlist cover">`;
-  if (info.mode === 'custom'){
-    return `<div class="playlist-custom-cover theme-${info.theme}${compact ? ' compact' : ''}"><span>${escapeHtml(info.text)}</span></div>`;
-  }
+  if (info.mode === 'image') return `<img src="${info.src}" alt="${escapeHtml(pl.name)} playlist cover">`;
   return `<div class="playlist-text-cover${compact ? ' compact' : ''}"><span>${escapeHtml(pl.name)}</span><small>TABI UNPLUGGED</small></div>`;
 }
 
@@ -2787,19 +2622,16 @@ function trackCard(track, context='library'){
       <span>${track.artist}</span>
     </div>
     <div class="card-actions">
-      ${context === 'playlist'
-        ? '<button class="mini-btn remove-track-btn">Remove</button>'
-        : '<button class="mini-btn add-playlist-btn">＋ Playlist</button>'}
+      <button class="mini-btn add-playlist-btn">＋ Playlist</button>
+      ${context === 'playlist' ? '<button class="mini-btn remove-track-btn">Remove</button>' : ''}
     </div>`;
   card.querySelector('.card-play').addEventListener('click', (e) => {
     e.stopPropagation();
     openSongPage(track.id, context, true, true);
   });
-  const addPlaylistBtn = card.querySelector('.add-playlist-btn');
-  if (addPlaylistBtn) addPlaylistBtn.addEventListener('click', (e) => { e.stopPropagation(); openAddToPlaylist(track.id); });
+  card.querySelector('.add-playlist-btn').addEventListener('click', (e) => { e.stopPropagation(); openAddToPlaylist(track.id); });
   const remove = card.querySelector('.remove-track-btn');
   if (remove) remove.addEventListener('click', (e) => { e.stopPropagation(); removeFromSelectedPlaylist(track.id); });
-
   card.addEventListener('click', (e) => {
     if (e.target.closest('button')) return;
     openSongPage(track.id, context, true, true);
@@ -2832,20 +2664,8 @@ function renderPlaylists(){
   });
 }
 
-function openPlaylist(id){
-  selectedPlaylistId = id;
-  document.body.classList.add('playlist-detail-active');
-  renderPlaylistView();
-  playlistView.classList.remove('hidden');
-  librarySection.classList.add('hidden');
-  setTimeout(()=>playlistView.scrollIntoView({behavior:'smooth', block:'start'}),20);
-}
-function closePlaylistView(){
-  selectedPlaylistId = null;
-  document.body.classList.remove('playlist-detail-active');
-  playlistView.classList.add('hidden');
-  librarySection.classList.remove('hidden');
-}
+function openPlaylist(id){ selectedPlaylistId = id; renderPlaylistView(); playlistView.classList.remove('hidden'); librarySection.classList.add('hidden'); playlistView.scrollIntoView({behavior:'smooth', block:'start'}); }
+function closePlaylistView(){ selectedPlaylistId = null; playlistView.classList.add('hidden'); librarySection.classList.remove('hidden'); }
 function renderPlaylistView(){
   const pl = getPlaylist(selectedPlaylistId); if (!pl) return closePlaylistView();
   const allPlaylistTracks = tracksForPlaylist(pl);
@@ -2856,7 +2676,7 @@ function renderPlaylistView(){
     : allPlaylistTracks;
 
   playlistViewTitle.textContent = pl.name;
-  playlistViewMeta.textContent = `${allPlaylistTracks.length} ${allPlaylistTracks.length===1?'song':'songs'} · personal playlist`;
+  playlistViewMeta.textContent = `${allPlaylistTracks.length} ${allPlaylistTracks.length===1?'song':'songs'} · saved on this device`;
   playlistViewCover.innerHTML = playlistCoverMarkup(pl);
   playlistTrackGrid.innerHTML = '';
 
@@ -2866,250 +2686,8 @@ function renderPlaylistView(){
     playlistTrackGrid.innerHTML = '<div class="empty-state">No songs in this playlist match your search.</div>';
   } else {
     plTracks.forEach(t => playlistTrackGrid.appendChild(trackCard(t, 'playlist')));
-    const reorderNote = document.getElementById('playlistReorderNote');
-    if (q) {
-            if (reorderNote) reorderNote.textContent = 'Clear the playlist search to reorder songs.';
-    } else {
-      if (reorderNote) reorderNote.textContent = 'Drag songs to reorder your playlist.';
-      wirePlaylistReordering(pl);
-    }
   }
 }
-
-
-
-function wirePlaylistReordering(pl){
-  if(!pl || !playlistTrackGrid) return;
-
-  const saveCurrentOrder = () => {
-    const orderedIds = [...playlistTrackGrid.querySelectorAll('.track-card')]
-      .map(c => c.dataset.id)
-      .filter(Boolean);
-    if(orderedIds.length === pl.trackIds.length){
-      pl.trackIds = orderedIds;
-      savePlaylists();
-      renderPlaylists();
-    }
-  };
-
-  const placeCard = (dragged, target, x, y) => {
-    if(!dragged || !target || dragged === target) return;
-    const rect = target.getBoundingClientRect();
-    const after = Math.abs(x - (rect.left + rect.width/2)) >= Math.abs(y - (rect.top + rect.height/2))
-      ? x > rect.left + rect.width/2
-      : y > rect.top + rect.height/2;
-    playlistTrackGrid.insertBefore(dragged, after ? target.nextSibling : target);
-  };
-
-  let draggedId = null;
-
-  playlistTrackGrid.querySelectorAll('.track-card').forEach(card => {
-    card.classList.add('playlist-reorderable');
-    card.draggable = true;
-
-    card.addEventListener('dragstart', e => {
-      if(e.target.closest('button')){
-        e.preventDefault();
-        return;
-      }
-      draggedId = card.dataset.id;
-      card.classList.add('dragging');
-      if(e.dataTransfer){
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/plain', draggedId || '');
-      }
-    });
-
-    card.addEventListener('dragover', e => {
-      if(!draggedId) return;
-      e.preventDefault();
-      const dragged = [...playlistTrackGrid.querySelectorAll('.track-card')]
-        .find(c => c.dataset.id === draggedId);
-      placeCard(dragged, card, e.clientX, e.clientY);
-    });
-
-    card.addEventListener('dragend', () => {
-      card.classList.remove('dragging');
-      saveCurrentOrder();
-      draggedId = null;
-      renderPlaylistView();
-    });
-  });
-
-  let touchDragged = null;
-
-  const cardAt = (x, y) => {
-    const el = document.elementFromPoint(x, y);
-    return el?.closest?.('.track-card') || null;
-  };
-
-  playlistTrackGrid.querySelectorAll('.track-card').forEach(card => {
-    card.addEventListener('touchstart', e => {
-      if(e.target.closest('button') || e.touches.length !== 1) return;
-      e.preventDefault();
-      touchDragged = card;
-      card.classList.add('dragging');
-    }, {passive:false});
-
-    card.addEventListener('touchmove', e => {
-      if(!touchDragged || e.touches.length !== 1) return;
-      e.preventDefault();
-      const touch = e.touches[0];
-      const target = cardAt(touch.clientX, touch.clientY);
-      if(target && target !== touchDragged){
-        placeCard(touchDragged, target, touch.clientX, touch.clientY);
-      }
-    }, {passive:false});
-
-    card.addEventListener('touchend', e => {
-      if(!touchDragged) return;
-      e.preventDefault();
-      touchDragged.classList.remove('dragging');
-      saveCurrentOrder();
-      touchDragged = null;
-      renderPlaylistView();
-    }, {passive:false});
-
-    card.addEventListener('touchcancel', () => {
-      touchDragged?.classList.remove('dragging');
-      touchDragged = null;
-    });
-  });
-}
-
-let selectedPlaylistCoverTheme = 'gold';
-
-function updatePlaylistCoverPreview(){
-  const pl = getPlaylist(selectedPlaylistId);
-  const preview = document.getElementById('playlistCoverPreview');
-  const input = document.getElementById('playlistCoverText');
-  if(!preview || !pl) return;
-
-  const wording = (input?.value || pl.name).trim() || pl.name;
-  if((pl.coverMode === 'upload' || pl.coverMode === 'preset') && pl.coverImage){
-    preview.innerHTML = `<img class="playlist-upload-cover" src="${pl.coverImage}" alt="">`;
-  } else {
-    preview.innerHTML = `<div class="playlist-custom-cover theme-${selectedPlaylistCoverTheme}"><span>${escapeHtml(wording)}</span></div>`;
-  }
-}
-
-function openPlaylistCoverModal(){
-  const pl = getPlaylist(selectedPlaylistId);
-  if(!pl) return;
-  const modal = document.getElementById('playlistCoverModal');
-  const input = document.getElementById('playlistCoverText');
-  selectedPlaylistCoverTheme = pl.coverTheme || 'gold';
-  input.value = pl.coverMode === 'custom' && pl.coverText ? pl.coverText : pl.name.slice(0,42);
-
-  document.querySelectorAll('#playlistCoverThemes .cover-theme-option').forEach(btn => {
-    btn.classList.toggle('selected', btn.dataset.theme === selectedPlaylistCoverTheme);
-  });
-  document.querySelectorAll('#playlistCoverPresetGrid .playlist-cover-preset').forEach(btn => {
-    btn.classList.toggle('selected', pl.coverMode === 'preset' && btn.dataset.coverId === pl.coverPreset);
-  });
-
-  modal.classList.remove('hidden');
-  updatePlaylistCoverPreview();
-  setTimeout(()=>input.focus(),20);
-}
-
-
-async function saveUploadedPlaylistCover(file){
-  const pl = getPlaylist(selectedPlaylistId);
-  if(!pl || !file) return;
-  if(!/^image\/(png|jpeg|webp)$/.test(file.type)){
-    alert('Please choose a PNG, JPG, or WEBP image.');
-    return;
-  }
-
-  const dataUrl = await new Promise((resolve,reject)=>{
-    const reader = new FileReader();
-    reader.onload = ()=>resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-
-  const img = await new Promise((resolve,reject)=>{
-    const i = new Image();
-    i.onload = ()=>resolve(i);
-    i.onerror = reject;
-    i.src = dataUrl;
-  });
-
-  const canvas = document.createElement('canvas');
-  canvas.width = 640;
-  canvas.height = 640;
-  const ctx = canvas.getContext('2d');
-
-  const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
-  const w = img.width * scale;
-  const h = img.height * scale;
-  const x = (canvas.width - w) / 2;
-  const y = (canvas.height - h) / 2;
-  ctx.drawImage(img, x, y, w, h);
-
-  pl.coverMode = 'upload';
-  pl.coverImage = canvas.toDataURL('image/jpeg', .82);
-  pl.coverText = '';
-  pl.coverPreset = '';
-  savePlaylists();
-  renderPlaylists();
-  renderPlaylistView();
-  updatePlaylistCoverPreview();
-}
-
-function choosePlaylistPresetCover(button){
-  const pl = getPlaylist(selectedPlaylistId);
-  if(!pl || !button) return;
-  const src = button.dataset.coverSrc || '';
-  const preset = button.dataset.coverId || '';
-  if(!src) return;
-  pl.coverMode = 'preset';
-  pl.coverImage = src;
-  pl.coverPreset = preset;
-  pl.coverText = '';
-  savePlaylists();
-  renderPlaylists();
-  renderPlaylistView();
-  document.querySelectorAll('#playlistCoverPresetGrid .playlist-cover-preset').forEach(x=>x.classList.toggle('selected',x===button));
-  updatePlaylistCoverPreview();
-}
-
-function closePlaylistCoverModal(){
-  document.getElementById('playlistCoverModal')?.classList.add('hidden');
-}
-
-function saveCustomPlaylistCover(){
-  const pl = getPlaylist(selectedPlaylistId);
-  const input = document.getElementById('playlistCoverText');
-  if(!pl || !input) return;
-  const wording = input.value.trim().slice(0,42);
-  if(!wording) return;
-
-  pl.coverMode = 'custom';
-  pl.coverText = wording;
-  pl.coverTheme = selectedPlaylistCoverTheme;
-  pl.coverImage = '';
-  pl.coverPreset = '';
-  savePlaylists();
-  renderPlaylists();
-  renderPlaylistView();
-  closePlaylistCoverModal();
-}
-
-function useFirstSongPlaylistCover(){
-  const pl = getPlaylist(selectedPlaylistId);
-  if(!pl) return;
-  pl.coverMode = 'first';
-  pl.coverText = '';
-  pl.coverImage = '';
-  pl.coverPreset = '';
-  savePlaylists();
-  renderPlaylists();
-  renderPlaylistView();
-  closePlaylistCoverModal();
-}
-
 
 function openModal(mode){
   modalMode = mode;
@@ -3142,7 +2720,7 @@ function renderPlaylistPicker(){
 }
 function createPlaylist(name, initialTrackId=null){
   const clean = name.trim(); if (!clean) return null;
-  const pl = {id:uid(), name:clean, trackIds: initialTrackId ? [initialTrackId] : [], createdAt:Date.now(), coverMode:'first', coverText:'', coverTheme:'gold', coverImage:'', coverPreset:''};
+  const pl = {id:uid(), name:clean, trackIds: initialTrackId ? [initialTrackId] : [], createdAt:Date.now()};
   playlists.unshift(pl); savePlaylists(); renderPlaylists(); return pl;
 }
 function landInPlaylist(playlistId){
@@ -3159,7 +2737,6 @@ function landInPlaylist(playlistId){
   try{ history.replaceState({}, '', location.pathname + location.search); }catch(e){}
 
   selectedPlaylistId = playlistId;
-  document.body.classList.add('playlist-detail-active');
   const scopedSearch = document.getElementById('playlistScopedSearch');
   if(scopedSearch) scopedSearch.value = '';
 
@@ -3337,34 +2914,7 @@ document.getElementById('savePlaylistName').addEventListener('click',()=>{
 });
 playlistNameInput.addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('savePlaylistName').click();});
 document.getElementById('createFromPicker').addEventListener('click',()=>{ const trackId=pendingTrackId; openModal('create'); pendingTrackId=trackId; });
-document.getElementById('backToLibrary').addEventListener('click',closePlaylistView);
-document.getElementById('changePlaylistCoverBtn').addEventListener('click',openPlaylistCoverModal);
-document.getElementById('renamePlaylistBtn').addEventListener('click',renameSelectedPlaylist);
-document.getElementById('deletePlaylistBtn').addEventListener('click',deleteSelectedPlaylist);
-
-document.getElementById('playlistCoverPresetGrid')?.addEventListener('click',e=>{
-  const btn=e.target.closest('.playlist-cover-preset');
-  if(!btn) return;
-  choosePlaylistPresetCover(btn);
-});
-
-document.getElementById('playlistCoverThemes').addEventListener('click',e=>{
-  const btn=e.target.closest('.cover-theme-option');
-  if(!btn) return;
-  selectedPlaylistCoverTheme=btn.dataset.theme || 'gold';
-  document.querySelectorAll('#playlistCoverThemes .cover-theme-option').forEach(x=>x.classList.toggle('selected',x===btn));
-  updatePlaylistCoverPreview();
-});
-document.getElementById('playlistCoverText').addEventListener('input',updatePlaylistCoverPreview);
-document.getElementById('playlistCoverUpload').addEventListener('change',async e=>{
-  const file=e.target.files?.[0];
-  if(file) await saveUploadedPlaylistCover(file);
-  e.target.value='';
-});
-document.getElementById('savePlaylistCoverBtn').addEventListener('click',saveCustomPlaylistCover);
-document.getElementById('useFirstSongCoverBtn').addEventListener('click',useFirstSongPlaylistCover);
-document.getElementById('closePlaylistCoverModal').addEventListener('click',closePlaylistCoverModal);
-document.getElementById('playlistCoverModal').addEventListener('click',e=>{if(e.target.id==='playlistCoverModal')closePlaylistCoverModal();});
+document.getElementById('backToLibrary').addEventListener('click',closePlaylistView); document.getElementById('renamePlaylistBtn').addEventListener('click',renameSelectedPlaylist); document.getElementById('deletePlaylistBtn').addEventListener('click',deleteSelectedPlaylist);
 document.getElementById('playPlaylist').addEventListener('click',()=>playSelectedPlaylist(false)); document.getElementById('addSongsToPlaylist').addEventListener('click',openPlaylistSongModal); document.getElementById('closePlaylistSongModal').addEventListener('click',closePlaylistSongModal); document.getElementById('doneAddingSongs').addEventListener('click',closePlaylistSongModal); playlistSongModal.addEventListener('click',e=>{if(e.target===playlistSongModal)closePlaylistSongModal();}); playlistSongSearch.addEventListener('input',renderPlaylistSongPicker); document.getElementById('shufflePlaylist').addEventListener('click',()=>playSelectedPlaylist(true));
 
 
@@ -3435,7 +2985,6 @@ function navigateMainSection(href){
 
   // Always return to the main page layout, not an open playlist detail panel.
   selectedPlaylistId = null;
-  document.body.classList.remove('playlist-detail-active');
   playlistView.classList.add('hidden');
   librarySection.classList.remove('hidden');
 
@@ -3472,21 +3021,6 @@ function wireMainNavigation(){
 }
 wireMainNavigation();
 
-
-// v1.57 — order-aware storage hooks for the future private admin panel.
-const TU_LIBRARY_ORDER_KEY = 'tabiUnplugged.libraryOrder.v1';
-
-function getSavedLibraryOrder(){
-  try{
-    const saved = JSON.parse(localStorage.getItem(TU_LIBRARY_ORDER_KEY) || '[]');
-    return Array.isArray(saved) ? saved : [];
-  }catch(e){ return []; }
-}
-function saveLibraryOrder(trackIds){
-  if(Array.isArray(trackIds)){
-    localStorage.setItem(TU_LIBRARY_ORDER_KEY, JSON.stringify(trackIds));
-  }
-}
 
 // --- Tabi Sessions public experience ---
 const TU_SESSION_KEY = 'tabiUnplugged.sessions.v1';
@@ -3685,28 +3219,26 @@ function renderHomeSessions(){
 document.addEventListener('DOMContentLoaded', renderHomeSessions);
 
 
-// v1.67 working global header search
+// v1.31 header search
 const headerSearch = document.getElementById('headerSearch');
 if(headerSearch){
   headerSearch.addEventListener('input', e => {
     const value = e.target.value;
-    const librarySearch = document.getElementById('searchInput');
+    const librarySearch =
+      document.getElementById('searchInput') ||
+      document.getElementById('songSearch') ||
+      document.querySelector('.search input[type="search"]');
 
     if(librarySearch){
       librarySearch.value = value;
       librarySearch.dispatchEvent(new Event('input', {bubbles:true}));
     }
-
-    // The header search is global, so make the filtered Library visible as soon as the user types.
-    if(value.trim()){
-      navigateMainSection('#librarySection');
-    }
   });
 
   headerSearch.addEventListener('keydown', e => {
-    if(e.key === 'Enter' && headerSearch.value.trim()){
-      e.preventDefault();
-      navigateMainSection('#librarySection');
+    if(e.key === 'Enter'){
+      const libraryNav = document.querySelector('[data-view="library"]');
+      if(libraryNav) libraryNav.click();
     }
   });
 }
@@ -3893,6 +3425,20 @@ openPlaylist = function(id){
   if(input) input.value = '';
   openPlaylist_v152(id);
 };
+</script>
+
+
+<script>
+(function(){
+  function applyTuMobileClass(){
+    var mobileish = window.matchMedia('(max-width: 820px)').matches || window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+    document.documentElement.classList.toggle('tu-mobile', mobileish);
+    document.documentElement.style.setProperty('--app-vh', (window.innerHeight * 0.01) + 'px');
+  }
+  applyTuMobileClass();
+  window.addEventListener('resize', applyTuMobileClass, {passive:true});
+  window.addEventListener('orientationchange', applyTuMobileClass, {passive:true});
+})();
 </script>
 
 </body>
