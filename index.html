@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#090713" />
   <title>Tabi Unplugged</title>
-  <meta name="tabi-build" content="v2.01-inline-gold-session-cue" />
+  <meta name="tabi-build" content="v2.02-session-cue-hard-fix" />
   <style>
 :root{
   --bg:#08070e;
@@ -3498,6 +3498,42 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
 }
 </style>
 
+
+<style id="v2-02-session-cue-hard-fix">
+.sessions-row-head{
+  display:flex !important;
+  flex-direction:row !important;
+  align-items:baseline !important;
+  justify-content:flex-start !important;
+  gap:16px !important;
+  width:100% !important;
+}
+.sessions-row-head h3{
+  margin:0 !important;
+  flex:0 0 auto !important;
+}
+.sessions-row-head .sessions-scroll-cue{
+  display:inline-block !important;
+  margin:0 !important;
+  padding:0 !important;
+  color:#f3c55b !important;
+  font-size:13px !important;
+  font-weight:800 !important;
+  line-height:1 !important;
+  white-space:nowrap !important;
+  flex:0 0 auto !important;
+}
+@media(max-width:760px){
+  .sessions-row-head{
+    gap:10px !important;
+    align-items:center !important;
+  }
+  .sessions-row-head .sessions-scroll-cue{
+    font-size:10px !important;
+  }
+}
+</style>
+
 </head>
 <body>
   <div class="ambient ambient-one"></div>
@@ -3557,10 +3593,9 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
     </section>
 
     <section class="quick-listen service-row" aria-label="Featured songs">
-      <div class="row-head">
-        <div>
-          <h3>Tabi Sessions</h3><div class="sessions-scroll-cue"><span class="desktop-cue">Slide for more sessions →</span><span class="mobile-cue">Slide for more sessions →</span></div>
-        </div>
+      <div class="row-head sessions-row-head">
+        <h3>Tabi Sessions</h3>
+        <div class="sessions-scroll-cue">Slide for more sessions →</div>
       </div>
       <div class="quick-rail service-rail" id="homeSessionsGrid">
         <button class="quick-track" data-play-id="connected-to-me"><img src="assets/images/14b453a6295f844b.png" alt="Connected to Me cover"><span><strong>Connected to Me</strong><small>Tabi Unplugged</small></span></button>
