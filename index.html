@@ -3203,6 +3203,43 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
   .service-card-subtitle{font-size:10px!important;line-height:1.2!important;}
 }
 
+
+/* v1.91 — visible Library Add to Playlist control */
+.cover-wrap .library-add-overlay{
+  position:absolute !important;
+  left:10px !important;
+  right:10px !important;
+  bottom:10px !important;
+  z-index:6 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  min-height:34px !important;
+  padding:7px 10px !important;
+  border:1px solid rgba(243,197,91,.45) !important;
+  border-radius:999px !important;
+  background:rgba(10,9,15,.88) !important;
+  color:#fff3cf !important;
+  font-size:11px !important;
+  font-weight:800 !important;
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+.cover-wrap .library-add-overlay:hover{
+  background:rgba(243,197,91,.94) !important;
+  color:#17110a !important;
+}
+@media(max-width:760px){
+  .cover-wrap .library-add-overlay{
+    left:7px !important;
+    right:7px !important;
+    bottom:7px !important;
+    min-height:30px !important;
+    padding:5px 7px !important;
+    font-size:10px !important;
+  }
+}
+
 </style>
 
 <style id="v183-mobile-type-scale">
@@ -3892,6 +3929,7 @@ function trackCard(track, context='library'){
     <div class="cover-wrap">
       <img src="${track.cover}" alt="${track.title} cover" loading="lazy">
       <button class="card-play" aria-label="Play ${track.title}">${track.id === activeId && !audio.paused ? '❚❚' : '▶'}</button>
+      ${context === 'playlist' ? '' : '<button class="library-add-overlay add-playlist-btn">＋ Add to Playlist</button>'}
     </div>
     <div class="card-meta">
       <strong title="${track.title}">${track.title}</strong>
@@ -3900,7 +3938,7 @@ function trackCard(track, context='library'){
     <div class="card-actions" style="display:flex !important;width:100% !important;">
       ${context === 'playlist'
         ? '<button class="mini-btn remove-track-btn">Remove</button>'
-        : '<button class="mini-btn add-playlist-btn" style="display:inline-flex !important;align-items:center !important;justify-content:center !important;width:100% !important;margin-top:8px !important;min-height:34px !important;padding:7px 10px !important;border-radius:999px !important;font-size:12px !important;font-weight:800 !important;">＋ Add to Playlist</button>'}
+        : ''}
     </div>`;
   card.querySelector('.card-play').addEventListener('click', (e) => {
     e.stopPropagation();
