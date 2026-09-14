@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#090713" />
   <title>Tabi Unplugged</title>
-  <meta name="tabi-build" content="v2.02-session-cue-hard-fix" />
+  <meta name="tabi-build" content="v2.03-clean-inline-gold-cue" />
   <style>
 :root{
   --bg:#08070e;
@@ -3283,99 +3283,6 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
   }
 }
 
-
-/* v1.99 — visible session scroll cue + reliable horizontal swipe */
-.sessions-scroll-cue{
-  margin-left:auto;
-  color:var(--muted,#a9a3b2);
-  font-size:12px;
-  font-weight:700;
-  white-space:nowrap;
-}
-.sessions-scroll-cue .mobile-cue{display:none;}
-
-#homeSessionsGrid{
-  display:flex !important;
-  flex-wrap:nowrap !important;
-  gap:20px !important;
-  overflow-x:auto !important;
-  overflow-y:hidden !important;
-  scroll-snap-type:x proximity !important;
-  -webkit-overflow-scrolling:touch !important;
-  overscroll-behavior-x:contain;
-  scrollbar-width:thin;
-  padding:3px 0 18px !important;
-}
-#homeSessionsGrid > .home-session-card{
-  flex:0 0 220px !important;
-  width:220px !important;
-  min-width:220px !important;
-  scroll-snap-align:start;
-}
-
-@media(max-width:760px){
-  .sessions-scroll-cue{
-    font-size:11px !important;
-    margin-left:8px !important;
-  }
-  .sessions-scroll-cue .desktop-cue{display:none !important;}
-  .sessions-scroll-cue .mobile-cue{display:inline !important;}
-
-  html.tu-phone #homeSessionsGrid,
-  #homeSessionsGrid{
-    display:flex !important;
-    flex-wrap:nowrap !important;
-    grid-template-columns:none !important;
-    gap:12px !important;
-    overflow-x:auto !important;
-    overflow-y:hidden !important;
-    scroll-snap-type:x mandatory !important;
-    -webkit-overflow-scrolling:touch !important;
-    touch-action:pan-x !important;
-    width:100% !important;
-    max-width:100% !important;
-    padding:2px 0 14px !important;
-  }
-  html.tu-phone #homeSessionsGrid > .home-session-card,
-  #homeSessionsGrid > .home-session-card{
-    flex:0 0 78vw !important;
-    width:78vw !important;
-    min-width:230px !important;
-    max-width:300px !important;
-    scroll-snap-align:start !important;
-  }
-  html.tu-phone .home-session-card .home-session-cover,
-  .home-session-card .home-session-cover{
-    width:100% !important;
-    height:auto !important;
-    aspect-ratio:1/1 !important;
-  }
-}
-
-
-/* v2.00 — unified Tabi Sessions cue */
-.sessions-scroll-cue{
-  margin-left:auto !important;
-  color:var(--muted,#a9a3b2) !important;
-  font-size:12px !important;
-  font-weight:700 !important;
-  white-space:nowrap !important;
-}
-.sessions-scroll-cue .desktop-cue,
-.sessions-scroll-cue .mobile-cue{
-  display:inline !important;
-}
-.sessions-scroll-cue .mobile-cue{display:none !important;}
-
-@media(max-width:760px){
-  .sessions-scroll-cue{
-    font-size:11px !important;
-    margin-left:8px !important;
-  }
-  .sessions-scroll-cue .desktop-cue{display:inline !important;}
-  .sessions-scroll-cue .mobile-cue{display:none !important;}
-}
-
 </style>
 
 <style id="v183-mobile-type-scale">
@@ -3456,79 +3363,29 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
 }
 </style>
 
-<style id="v2-inline-gold-session-cue">
-/* v2.01 — place session cue inline to the right, in gold */
-.quick-listen .row-head{
-  align-items:center !important;
-}
+<style id="v2-03-clean-session-cue">
 .quick-listen .row-head > div{
-  display:flex !important;
-  align-items:baseline !important;
-  gap:14px !important;
-  flex-wrap:nowrap !important;
-  width:100% !important;
-}
-.quick-listen .row-head h3{
-  margin:0 !important;
-  flex:0 1 auto !important;
-}
-.quick-listen .sessions-scroll-cue{
-  display:inline-flex !important;
-  align-items:center !important;
-  margin:0 !important;
-  color:var(--gold) !important;
-  font-size:13px !important;
-  font-weight:700 !important;
-  line-height:1.1 !important;
-  white-space:nowrap !important;
-  flex:0 0 auto !important;
-}
-.quick-listen .sessions-scroll-cue .desktop-cue,
-.quick-listen .sessions-scroll-cue .mobile-cue{
-  display:inline !important;
-}
-@media (max-width:760px){
-  .quick-listen .row-head > div{
-    gap:10px !important;
-    align-items:center !important;
-  }
-  .quick-listen .sessions-scroll-cue{
-    font-size:11px !important;
-  }
-}
-</style>
-
-
-<style id="v2-02-session-cue-hard-fix">
-.sessions-row-head{
   display:flex !important;
   flex-direction:row !important;
   align-items:baseline !important;
-  justify-content:flex-start !important;
   gap:16px !important;
-  width:100% !important;
+  flex-wrap:nowrap !important;
 }
-.sessions-row-head h3{
-  margin:0 !important;
-  flex:0 0 auto !important;
-}
-.sessions-row-head .sessions-scroll-cue{
+.sessions-slide-cue{
   display:inline-block !important;
   margin:0 !important;
-  padding:0 !important;
-  color:#f3c55b !important;
+  color:#C9A45C !important;
   font-size:13px !important;
   font-weight:800 !important;
   line-height:1 !important;
   white-space:nowrap !important;
-  flex:0 0 auto !important;
 }
 @media(max-width:760px){
-  .sessions-row-head{
-    gap:10px !important;
+  .quick-listen .row-head > div{
+    gap:9px !important;
     align-items:center !important;
   }
-  .sessions-row-head .sessions-scroll-cue{
+  .sessions-slide-cue{
     font-size:10px !important;
   }
 }
@@ -3593,9 +3450,10 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
     </section>
 
     <section class="quick-listen service-row" aria-label="Featured songs">
-      <div class="row-head sessions-row-head">
-        <h3>Tabi Sessions</h3>
-        <div class="sessions-scroll-cue">Slide for more sessions →</div>
+      <div class="row-head">
+        <div>
+          <h3>Tabi Sessions</h3><span class="sessions-slide-cue">Slide for more sessions →</span>
+        </div>
       </div>
       <div class="quick-rail service-rail" id="homeSessionsGrid">
         <button class="quick-track" data-play-id="connected-to-me"><img src="assets/images/14b453a6295f844b.png" alt="Connected to Me cover"><span><strong>Connected to Me</strong><small>Tabi Unplugged</small></span></button>
