@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#090713" />
   <title>Tabi Unplugged</title>
-  <meta name="tabi-build" content="v2.00-slide-for-more" />
+  <meta name="tabi-build" content="v2.01-inline-gold-session-cue" />
   <style>
 :root{
   --bg:#08070e;
@@ -3455,6 +3455,49 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
   }
 }
 </style>
+
+<style id="v2-inline-gold-session-cue">
+/* v2.01 — place session cue inline to the right, in gold */
+.quick-listen .row-head{
+  align-items:center !important;
+}
+.quick-listen .row-head > div{
+  display:flex !important;
+  align-items:baseline !important;
+  gap:14px !important;
+  flex-wrap:nowrap !important;
+  width:100% !important;
+}
+.quick-listen .row-head h3{
+  margin:0 !important;
+  flex:0 1 auto !important;
+}
+.quick-listen .sessions-scroll-cue{
+  display:inline-flex !important;
+  align-items:center !important;
+  margin:0 !important;
+  color:var(--gold) !important;
+  font-size:13px !important;
+  font-weight:700 !important;
+  line-height:1.1 !important;
+  white-space:nowrap !important;
+  flex:0 0 auto !important;
+}
+.quick-listen .sessions-scroll-cue .desktop-cue,
+.quick-listen .sessions-scroll-cue .mobile-cue{
+  display:inline !important;
+}
+@media (max-width:760px){
+  .quick-listen .row-head > div{
+    gap:10px !important;
+    align-items:center !important;
+  }
+  .quick-listen .sessions-scroll-cue{
+    font-size:11px !important;
+  }
+}
+</style>
+
 </head>
 <body>
   <div class="ambient ambient-one"></div>
