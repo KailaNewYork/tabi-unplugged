@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#090713" />
   <title>Tabi Unplugged</title>
-  <meta name="tabi-build" content="v1.92-session-covers" />
+  <meta name="tabi-build" content="v1.93-session-migration" />
   <style>
 :root{
   --bg:#08070e;
@@ -4696,17 +4696,32 @@ const TU_DEFAULT_SESSIONS = [
   {id:'its-ok-to-say-you-miss-them',title:'It’s OK to Say You Miss Them',cover:'assets/images/tabi-sessions/its-ok-to-say-you-miss-them.png',description:'',trackIds:[],published:true},
   {id:'narcissistic-ex',title:'Narcissistic Ex',cover:'assets/images/tabi-sessions/narcissistic-ex.png',description:'',trackIds:[],published:true}
 ];
+
+function getTabiSessionsWithMigration(){
+  let saved = [];
+  try{
+    const raw = localStorage.getItem(TU_SESSION_KEY);
+    saved = raw ? JSON.parse(raw) : [];
+    if(!Array.isArray(saved)) saved = [];
+  }catch(e){ saved = []; }
+
+  const looksLikePlaceholder =
+    !saved.length ||
+    saved.every(s => !s || !s.title || /^Tabi Session$/i.test(String(s.title).trim())) ||
+    saved.every(s => !s || !s.cover);
+
+  if(looksLikePlaceholder){
+    const fresh = TU_DEFAULT_SESSIONS.map(s => ({...s}));
+    try{ localStorage.setItem(TU_SESSION_KEY, JSON.stringify(fresh)); }catch(e){}
+    return fresh;
+  }
+  return saved;
+}
 let tuSessions = [];
 let activePublicSession = null;
 
 function loadPublicSessions(){
-  try{
-    const raw = localStorage.getItem(TU_SESSION_KEY);
-    const saved = raw ? JSON.parse(raw) : [];
-    tuSessions = Array.isArray(saved) && saved.length
-      ? saved.filter(s => s.published !== false)
-      : TU_DEFAULT_SESSIONS.slice();
-  }catch(e){ tuSessions = TU_DEFAULT_SESSIONS.slice(); }
+  tuSessions = getTabiSessionsWithMigration().filter(s => s.published !== false);
   renderPublicSessions();
 }
 
@@ -4856,13 +4871,7 @@ function renderHomeSessions(){
   const grid = document.getElementById('homeSessionsGrid');
   if(!grid) return;
 
-  let sessions = [];
-  try{
-    const raw = localStorage.getItem('tabiUnplugged.sessions.v1');
-    sessions = raw ? JSON.parse(raw) : [];
-    if(!Array.isArray(sessions) || !sessions.length) sessions = TU_DEFAULT_SESSIONS.slice();
-  }catch(e){ sessions = TU_DEFAULT_SESSIONS.slice(); }
-
+  let sessions = getTabiSessionsWithMigration();
   sessions = sessions.filter(s => s.published !== false);
 
   if(!sessions.length){
