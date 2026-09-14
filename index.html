@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#090713" />
   <title>Tabi Unplugged</title>
-  <meta name="tabi-build" content="v1.95-sessions-nav-fixed" />
+  <meta name="tabi-build" content="v1.97-all-sessions-home" />
   <style>
 :root{
   --bg:#08070e;
@@ -3241,26 +3241,41 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
 }
 
 
-/* v1.94 — full Tabi Sessions page */
-body.show-all-tabi-sessions .quick-listen,
-body.show-all-tabi-sessions #playlists,
-body.show-all-tabi-sessions #playlistView,
-body.show-all-tabi-sessions #librarySection,
-body.show-all-tabi-sessions #home{
-  display:none !important;
-}
-body.show-all-tabi-sessions #sessionsView{
-  display:block !important;
-  padding-top:28px !important;
-}
 
 
-.sessions-back-btn{margin:0 0 18px;}
+
+
+/* v1.97 — all Tabi Sessions stay on Home */
+#homeSessionsGrid{
+  display:flex !important;
+  gap:20px !important;
+  overflow-x:auto !important;
+  overflow-y:hidden !important;
+  scroll-snap-type:x proximity;
+  padding:3px 0 18px !important;
+}
+#homeSessionsGrid > .home-session-card{
+  flex:0 0 220px !important;
+  width:220px !important;
+  scroll-snap-align:start;
+}
 @media(max-width:760px){
-  .sessions-back-btn{
-    font-size:12px!important;
-    padding:8px 12px!important;
-    min-height:32px!important;
+  html.tu-phone #homeSessionsGrid{
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:10px !important;
+    overflow:visible !important;
+    padding:0 !important;
+  }
+  html.tu-phone #homeSessionsGrid > .home-session-card{
+    width:auto !important;
+    min-width:0 !important;
+    flex:none !important;
+  }
+  html.tu-phone .home-session-card .home-session-cover{
+    width:100% !important;
+    height:auto !important;
+    aspect-ratio:1/1 !important;
   }
 }
 
@@ -3406,7 +3421,6 @@ body.show-all-tabi-sessions #sessionsView{
         <div>
           <h3>Tabi Sessions</h3>
         </div>
-        <button class="text-link" id="jumpToLibrary">See all</button>
       </div>
       <div class="quick-rail service-rail" id="homeSessionsGrid">
         <button class="quick-track" data-play-id="connected-to-me"><img src="assets/images/14b453a6295f844b.png" alt="Connected to Me cover"><span><strong>Connected to Me</strong><small>Tabi Unplugged</small></span></button>
@@ -3481,11 +3495,10 @@ body.show-all-tabi-sessions #sessionsView{
     </section>
   
   <section class="view" id="sessionsView" data-view-panel="sessions">
-    <button id="sessionsBackBtn" class="ghost-btn sessions-back-btn" type="button">← Back</button>
     <div class="section-head sessions-public-head">
       <div>
         <span class="eyebrow">CURATED BY TABI</span>
-        <h2>Tabi Sessions</h2><p class="sessions-home-subtitle">Curated collections from the Tabi Unplugged library.</p>
+        <h2>Tabi Sessions</h2>
       </div>
     </div>
     <div id="publicSessionsGrid" class="public-sessions-grid"></div>
@@ -4628,6 +4641,7 @@ function wireHomePlayButtons(){
       e.preventDefault();
       document.body.classList.add('show-all-tabi-sessions');
       document.getElementById('sessionsView')?.classList.add('active');
+      document.querySelectorAll('.main-nav a[href^="#"]').forEach(item => item.classList.remove('active'));
       loadPublicSessions();
       window.scrollTo({top:0, behavior:'smooth'});
     });
@@ -4914,7 +4928,7 @@ function renderHomeSessions(){
     return;
   }
 
-  grid.innerHTML = sessions.slice(0,6).map(s => `
+  grid.innerHTML = sessions.map(s => `
     <article class="home-session-card" data-session-id="${escTU(s.id)}">
       <div class="home-session-cover">
         ${s.cover ? `<img src="${escTU(s.cover)}" alt="">` : `<div class="home-session-placeholder">TU</div>`}
@@ -5167,31 +5181,6 @@ openPlaylist = function(id){
 
 
 
-function exitAllSessionsAndGo(targetId){
-  document.body.classList.remove('show-all-tabi-sessions');
-  document.getElementById('sessionsView')?.classList.remove('active');
-  requestAnimationFrame(() => {
-    const target = document.getElementById(targetId);
-    if(target){
-      target.scrollIntoView({behavior:'smooth', block:'start'});
-    }else{
-      window.scrollTo({top:0, behavior:'smooth'});
-    }
-  });
-}
-
-document.querySelectorAll('.main-nav a[href="#home"], .main-nav a[href="#playlists"], .main-nav a[href="#librarySection"]').forEach(link => {
-  link.addEventListener('click', (e) => {
-    if(!document.body.classList.contains('show-all-tabi-sessions')) return;
-    e.preventDefault();
-    const targetId = link.getAttribute('href').slice(1);
-    exitAllSessionsAndGo(targetId);
-  });
-});
-
-document.getElementById('sessionsBackBtn')?.addEventListener('click', () => {
-  exitAllSessionsAndGo('home');
-});
 
 </script>
 </body>
