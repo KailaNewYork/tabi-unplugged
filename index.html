@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#090713" />
   <title>Tabi Unplugged</title>
-  <meta name="tabi-build" content="v2.04-one-line-clean-cue" />
+  <meta name="tabi-build" content="v2.05-mobile-drag-playlist-playback" />
   <style>
 :root{
   --bg:#08070e;
@@ -3399,6 +3399,53 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
 }
 </style>
 
+
+<style id="v2-05-mobile-drag-and-playback-fix">
+@media(max-width:760px){
+  html.tu-phone .track-card.playlist-reorderable,
+  .track-card.playlist-reorderable{
+    touch-action:pan-y !important;
+    cursor:default !important;
+    user-select:auto !important;
+    -webkit-user-select:auto !important;
+  }
+
+  html.tu-phone .track-card.playlist-reorderable .reorder-handle,
+  .track-card.playlist-reorderable .reorder-handle{
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    width:36px !important;
+    min-width:36px !important;
+    height:34px !important;
+    margin:0 !important;
+    padding:0 !important;
+    border:1px solid rgba(243,197,91,.28) !important;
+    border-radius:10px !important;
+    background:rgba(243,197,91,.06) !important;
+    color:var(--gold) !important;
+    touch-action:none !important;
+    cursor:grab !important;
+    user-select:none !important;
+    -webkit-user-select:none !important;
+  }
+
+  html.tu-phone .track-card.playlist-reorderable .reorder-handle::before,
+  .track-card.playlist-reorderable .reorder-handle::before{
+    content:"⋮⋮" !important;
+    font-size:15px !important;
+    font-weight:900 !important;
+    letter-spacing:-3px !important;
+    line-height:1 !important;
+  }
+
+  html.tu-phone .track-card.playlist-reorderable .card-actions,
+  .track-card.playlist-reorderable .card-actions{
+    align-items:center !important;
+  }
+}
+</style>
+
 </head>
 <body>
   <div class="ambient ambient-one"></div>
@@ -4015,7 +4062,7 @@ function trackCard(track, context='library'){
     </div>
     <div class="card-actions" style="display:flex !important;width:100% !important;">
       ${context === 'playlist'
-        ? '<button class="mini-btn remove-track-btn">Remove</button>'
+        ? '<span class="reorder-handle" aria-label="Drag to reorder" title="Drag to reorder"></span><button class="mini-btn remove-track-btn">Remove</button>'
         : ''}
     </div>`;
   card.querySelector('.card-play').addEventListener('click', (e) => {
@@ -4177,6 +4224,7 @@ function wirePlaylistReordering(pl){
   playlistTrackGrid.querySelectorAll('.track-card').forEach(card => {
     card.addEventListener('pointerdown', e => {
       if(e.pointerType === 'mouse' || e.target.closest('button')) return;
+      if(!e.target.closest('.reorder-handle')) return;
       pointerDragged = card;
       pointerId = e.pointerId;
       pointerMoved = false;
@@ -4212,6 +4260,7 @@ function wirePlaylistReordering(pl){
     // Touch fallback for mobile webviews that do not fully honor Pointer Events.
     card.addEventListener('touchstart', e => {
       if(e.target.closest('button')) return;
+      if(!e.target.closest('.reorder-handle')) return;
       touchDragged = card;
       touchMoved = false;
       card.classList.add('dragging');
@@ -4552,6 +4601,15 @@ function renderSongPage(track){
 }
 
 function setQueue(source, startId){ queue = [...source]; currentIndex = Math.max(0, queue.findIndex(t => t.id === startId)); }
+
+function shuffledCopy(list){
+  const out=[...list];
+  for(let i=out.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [out[i],out[j]]=[out[j],out[i]];
+  }
+  return out;
+}
 function loadTrack(track, autoplay=false){
   if (!track) return;
   audio.src = track.audio; audio.load();
@@ -4563,14 +4621,39 @@ function loadTrack(track, autoplay=false){
 function playTrackById(id, autoplay=true){ const source = displayTracks.some(t=>t.id===id) ? displayTracks : tracks; setQueue(source, id); loadTrack(currentTrack(), autoplay); }
 function nextTrack(manual=false){
   if (!queue.length) return;
-  if (repeatMode === 2 && !manual){ audio.currentTime = 0; audio.play(); return; }
-  if (shuffleOn && queue.length > 1){ let next; do { next = Math.floor(Math.random()*queue.length); } while(next === currentIndex); currentIndex = next; }
-  else { currentIndex += 1; if (currentIndex >= queue.length){ if (repeatMode === 1 || manual) currentIndex = 0; else { currentIndex = queue.length - 1; audio.pause(); return; } } }
+  if (repeatMode === 2 && !manual){ audio.currentTime = 0; audio.play().catch(()=>{}); return; }
+  currentIndex += 1;
+  if (currentIndex >= queue.length){
+    if (repeatMode === 1 || manual){
+      currentIndex = 0;
+      if(shuffleOn && queue.length > 1) queue = shuffledCopy(queue);
+    } else {
+      currentIndex = queue.length - 1;
+      audio.pause();
+      return;
+    }
+  }
   loadTrack(currentTrack(), true);
 }
 function prevTrack(){ if (!queue.length) return; if (audio.currentTime > 4){ audio.currentTime = 0; return; } currentIndex = (currentIndex - 1 + queue.length) % queue.length; loadTrack(currentTrack(), true); }
 function playAll(shuffle=false){ queue = [...tracks]; songQueueLabel='All Songs'; shuffleOn = shuffle; syncPlaybackModeButtons(); currentIndex = shuffle ? Math.floor(Math.random()*queue.length) : 0; songPageReturnScroll=window.scrollY||0; songPageActive=true; document.body.classList.add('song-page-active'); loadTrack(currentTrack(), true); updateSongHash(currentTrack().id,true); window.scrollTo({top:0,behavior:'smooth'}); }
-function playSelectedPlaylist(shuffle=false){ const pl=getPlaylist(selectedPlaylistId); const list=tracksForPlaylist(pl); if(!list.length) return; queue=[...list]; songQueueLabel=pl ? `Playlist · ${pl.name}` : 'Playlist'; shuffleOn=shuffle; syncPlaybackModeButtons(); currentIndex=shuffle?Math.floor(Math.random()*queue.length):0; songPageReturnScroll=window.scrollY||0; songPageActive=true; document.body.classList.add('song-page-active'); loadTrack(currentTrack(),true); updateSongHash(currentTrack().id,true); window.scrollTo({top:0,behavior:'smooth'}); }
+function playSelectedPlaylist(shuffle=false){
+  const pl=getPlaylist(selectedPlaylistId);
+  const list=tracksForPlaylist(pl);
+  if(!list.length) return;
+  queue=shuffle ? shuffledCopy(list) : [...list];
+  songQueueLabel=pl ? `Playlist · ${pl.name}` : 'Playlist';
+  shuffleOn=shuffle;
+  repeatMode=0;
+  syncPlaybackModeButtons();
+  currentIndex=0;
+  songPageReturnScroll=window.scrollY||0;
+  songPageActive=true;
+  document.body.classList.add('song-page-active');
+  loadTrack(currentTrack(),true);
+  updateSongHash(currentTrack().id,true);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
 function refreshOrder(){ const q = searchInput.value.trim().toLowerCase(); displayTracks = tracks.filter(t => t.title.toLowerCase().includes(q)); displayTracks.sort((a,b) => sortSelect.value === 'za' ? b.title.localeCompare(a.title) : a.title.localeCompare(b.title)); renderTracks(); }
 
 audio.volume = Number(volume.value);
@@ -4579,9 +4662,19 @@ audio.addEventListener('pause',()=>{ playBtn.textContent='▶'; renderTracks(); 
 audio.addEventListener('timeupdate',()=>{ progress.value = audio.duration ? (audio.currentTime/audio.duration)*100 : 0; currentTimeEl.textContent = fmt(audio.currentTime); });
 audio.addEventListener('loadedmetadata',()=> durationEl.textContent = fmt(audio.duration));
 audio.addEventListener('ended',()=> nextTrack(false));
+audio.addEventListener('error',()=>{ if(queue.length>1) nextTrack(false); });
 playBtn.addEventListener('click',()=>{ if (!currentTrack()){ playAll(false); return; } if (audio.paused) audio.play(); else audio.pause(); });
 nextBtn.addEventListener('click',()=>nextTrack(true)); prevBtn.addEventListener('click',prevTrack);
-shuffleBtn.addEventListener('click',()=>{ shuffleOn=!shuffleOn; syncPlaybackModeButtons(); });
+shuffleBtn.addEventListener('click',()=>{
+  shuffleOn=!shuffleOn;
+  if(shuffleOn && queue.length>1){
+    const current=currentTrack();
+    const rest=queue.filter(t=>!current || t.id!==current.id);
+    queue=current ? [current,...shuffledCopy(rest)] : shuffledCopy(queue);
+    currentIndex=0;
+  }
+  syncPlaybackModeButtons();
+});
 repeatOneBtn.addEventListener('click',()=>setRepeatMode(2));
 repeatBtn.addEventListener('click',()=>setRepeatMode(1));
 progress.addEventListener('input',()=>{ if(audio.duration) audio.currentTime=(Number(progress.value)/100)*audio.duration; });
@@ -4650,7 +4743,16 @@ songPageBack?.addEventListener('click',closeSongPage);
 songPlayBtn?.addEventListener('click',()=>{ if(!currentTrack()){playAll(false);return;} if(audio.paused) audio.play(); else audio.pause(); });
 songPrevBtn?.addEventListener('click',prevTrack);
 songNextBtn?.addEventListener('click',()=>nextTrack(true));
-songShuffleBtn?.addEventListener('click',()=>{shuffleOn=!shuffleOn;syncPlaybackModeButtons();});
+songShuffleBtn?.addEventListener('click',()=>{
+  shuffleOn=!shuffleOn;
+  if(shuffleOn && queue.length>1){
+    const current=currentTrack();
+    const rest=queue.filter(t=>!current || t.id!==current.id);
+    queue=current ? [current,...shuffledCopy(rest)] : shuffledCopy(queue);
+    currentIndex=0;
+  }
+  syncPlaybackModeButtons();
+});
 songRepeatOneBtn?.addEventListener('click',()=>setRepeatMode(2));
 songRepeatAllBtn?.addEventListener('click',()=>setRepeatMode(1));
 songProgress?.addEventListener('input',()=>{if(audio.duration) audio.currentTime=(Number(songProgress.value)/100)*audio.duration;});
