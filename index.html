@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#090713" />
   <title>Tabi Unplugged</title>
-  <meta name="tabi-build" content="v2.03-clean-inline-gold-cue" />
+  <meta name="tabi-build" content="v2.04-one-line-clean-cue" />
   <style>
 :root{
   --bg:#08070e;
@@ -3363,30 +3363,38 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
 }
 </style>
 
-<style id="v2-03-clean-session-cue">
+<style id="v2-04-session-cue-clean">
 .quick-listen .row-head > div{
   display:flex !important;
   flex-direction:row !important;
   align-items:baseline !important;
-  gap:16px !important;
+  gap:14px !important;
   flex-wrap:nowrap !important;
+  white-space:nowrap !important;
+}
+.quick-listen .row-head h3{
+  margin:0 !important;
+  font-weight:800 !important;
+  flex:0 0 auto !important;
+  white-space:nowrap !important;
 }
 .sessions-slide-cue{
   display:inline-block !important;
   margin:0 !important;
-  color:#C9A45C !important;
+  color:var(--muted,#a9a3b2) !important;
   font-size:13px !important;
-  font-weight:800 !important;
+  font-weight:400 !important;
   line-height:1 !important;
   white-space:nowrap !important;
+  flex:0 0 auto !important;
 }
 @media(max-width:760px){
   .quick-listen .row-head > div{
-    gap:9px !important;
-    align-items:center !important;
+    gap:8px !important;
   }
   .sessions-slide-cue{
     font-size:10px !important;
+    font-weight:400 !important;
   }
 }
 </style>
