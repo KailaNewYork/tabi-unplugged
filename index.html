@@ -3241,17 +3241,17 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
 }
 
 
-/* v1.94 — dedicated See All Sessions view */
-body.sessions-view-active #home,
-body.sessions-view-active .quick-listen,
-body.sessions-view-active #playlists,
-body.sessions-view-active #playlistView,
-body.sessions-view-active #librarySection{
+/* v1.94 — full Tabi Sessions page */
+body.show-all-tabi-sessions .quick-listen,
+body.show-all-tabi-sessions #playlists,
+body.show-all-tabi-sessions #playlistView,
+body.show-all-tabi-sessions #librarySection,
+body.show-all-tabi-sessions #home{
   display:none !important;
 }
-body.sessions-view-active #sessionsView{
+body.show-all-tabi-sessions #sessionsView{
   display:block !important;
-  padding-top:24px;
+  padding-top:28px !important;
 }
 
 </style>
@@ -4614,19 +4614,12 @@ function wireHomePlayButtons(){
   const jump = document.getElementById('jumpToLibrary');
   if (jump && !jump.dataset.homeWired){
     jump.dataset.homeWired = '1';
-    jump.addEventListener('click', () => {
-      document.body.classList.add('sessions-view-active');
+    jump.addEventListener('click', (e) => {
+      e.preventDefault();
+      document.body.classList.add('show-all-tabi-sessions');
       document.getElementById('sessionsView')?.classList.add('active');
-      
-document.querySelectorAll('.main-nav a[href="#home"], .main-nav a[href="#playlists"], .main-nav a[href="#librarySection"]').forEach(link => {
-  link.addEventListener('click', () => {
-    document.body.classList.remove('sessions-view-active');
-    document.getElementById('sessionsView')?.classList.remove('active');
-  });
-});
-
-loadPublicSessions();
-      document.getElementById('sessionsView')?.scrollIntoView({behavior:'smooth', block:'start'});
+      loadPublicSessions();
+      window.scrollTo({top:0, behavior:'smooth'});
     });
   }
 }
@@ -5159,6 +5152,14 @@ openPlaylist = function(id){
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',syncTabiWordmarks); else syncTabiWordmarks();
 })();
+
+document.querySelectorAll('.main-nav a[href="#home"], .main-nav a[href="#playlists"], .main-nav a[href="#librarySection"]').forEach(link => {
+  link.addEventListener('click', () => {
+    document.body.classList.remove('show-all-tabi-sessions');
+    document.getElementById('sessionsView')?.classList.remove('active');
+  });
+});
+
 </script>
 </body>
 </html>
