@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#090713" />
   <title>Tabi Unplugged</title>
-  <meta name="tabi-build" content="v2.04-one-line-clean-cue" />
+  <meta name="tabi-build" content="v2.05-mobile-library-only-fix" />
   <style>
 :root{
   --bg:#08070e;
@@ -3395,6 +3395,40 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
   .sessions-slide-cue{
     font-size:10px !important;
     font-weight:400 !important;
+  }
+}
+</style>
+
+
+<style id="v2-05-mobile-library-button-only">
+/* MOBILE ONLY — keep desktop and playlists unchanged */
+@media(max-width:760px){
+  html.tu-phone .library-section .track-card .cover-wrap{
+    overflow:visible !important;
+    margin-bottom:38px !important;
+  }
+
+  html.tu-phone .library-section .track-card .library-add-overlay{
+    position:absolute !important;
+    top:calc(100% + 6px) !important;
+    bottom:auto !important;
+    left:0 !important;
+    right:0 !important;
+    width:100% !important;
+    min-height:30px !important;
+    padding:6px 8px !important;
+    border-radius:999px !important;
+    font-size:10px !important;
+    font-weight:700 !important;
+    background:rgba(255,255,255,.03) !important;
+    color:var(--cream) !important;
+    border:1px solid rgba(243,197,91,.30) !important;
+    backdrop-filter:none !important;
+    -webkit-backdrop-filter:none !important;
+  }
+
+  html.tu-phone .library-section .track-card .card-meta{
+    padding-top:4px !important;
   }
 }
 </style>
