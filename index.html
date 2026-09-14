@@ -4601,7 +4601,12 @@ function wireHomePlayButtons(){
   if (jump && !jump.dataset.homeWired){
     jump.dataset.homeWired = '1';
     jump.addEventListener('click', () => {
-      document.getElementById('librarySection')?.scrollIntoView({behavior:'smooth', block:'start'});
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.getElementById('sessionsView')?.classList.add('active');
+      document.querySelectorAll('[data-view]').forEach(n => n.classList.remove('active'));
+      document.querySelector('[data-view="sessions"]')?.classList.add('active');
+      loadPublicSessions();
+      window.scrollTo({top:0, behavior:'smooth'});
     });
   }
 }
