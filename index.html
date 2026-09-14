@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#090713" />
   <title>Tabi Unplugged</title>
-  <meta name="tabi-build" content="v1.97-all-sessions-home" />
+  <meta name="tabi-build" content="v1.98-sessions-horizontal-scroll" />
   <style>
 :root{
   --bg:#08070e;
@@ -3261,16 +3261,20 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
 }
 @media(max-width:760px){
   html.tu-phone #homeSessionsGrid{
-    display:grid !important;
-    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
-    gap:10px !important;
-    overflow:visible !important;
-    padding:0 !important;
+    display:flex !important;
+    gap:12px !important;
+    overflow-x:auto !important;
+    overflow-y:hidden !important;
+    scroll-snap-type:x mandatory !important;
+    -webkit-overflow-scrolling:touch;
+    padding:2px 0 14px !important;
   }
   html.tu-phone #homeSessionsGrid > .home-session-card{
-    width:auto !important;
-    min-width:0 !important;
-    flex:none !important;
+    flex:0 0 72vw !important;
+    width:72vw !important;
+    max-width:280px !important;
+    min-width:220px !important;
+    scroll-snap-align:start !important;
   }
   html.tu-phone .home-session-card .home-session-cover{
     width:100% !important;
