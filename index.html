@@ -3240,6 +3240,20 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
   }
 }
 
+
+/* v1.94 — dedicated See All Sessions view */
+body.sessions-view-active #home,
+body.sessions-view-active .quick-listen,
+body.sessions-view-active #playlists,
+body.sessions-view-active #playlistView,
+body.sessions-view-active #librarySection{
+  display:none !important;
+}
+body.sessions-view-active #sessionsView{
+  display:block !important;
+  padding-top:24px;
+}
+
 </style>
 
 <style id="v183-mobile-type-scale">
@@ -4601,12 +4615,18 @@ function wireHomePlayButtons(){
   if (jump && !jump.dataset.homeWired){
     jump.dataset.homeWired = '1';
     jump.addEventListener('click', () => {
-      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.body.classList.add('sessions-view-active');
       document.getElementById('sessionsView')?.classList.add('active');
-      document.querySelectorAll('[data-view]').forEach(n => n.classList.remove('active'));
-      document.querySelector('[data-view="sessions"]')?.classList.add('active');
-      loadPublicSessions();
-      window.scrollTo({top:0, behavior:'smooth'});
+      
+document.querySelectorAll('.main-nav a[href="#home"], .main-nav a[href="#playlists"], .main-nav a[href="#librarySection"]').forEach(link => {
+  link.addEventListener('click', () => {
+    document.body.classList.remove('sessions-view-active');
+    document.getElementById('sessionsView')?.classList.remove('active');
+  });
+});
+
+loadPublicSessions();
+      document.getElementById('sessionsView')?.scrollIntoView({behavior:'smooth', block:'start'});
     });
   }
 }
