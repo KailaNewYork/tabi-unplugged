@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#090713" />
   <title>Tabi Unplugged</title>
-  <meta name="tabi-build" content="v2.05-mobile-drag-playlist-playback" />
+  <meta name="tabi-build" content="v2.06-mobile-reorder-mode" />
   <style>
 :root{
   --bg:#08070e;
@@ -3446,6 +3446,134 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
 }
 </style>
 
+
+<style id="v2-06-mobile-reorder-mode">
+.mobile-reorder-btn,
+.mobile-reorder-screen{display:none;}
+
+@media(max-width:760px){
+  .mobile-reorder-btn{display:inline-flex !important;}
+
+  /* Normal playlist page: scroll normally, no accidental dragging */
+  html.tu-phone .track-card.playlist-reorderable,
+  .track-card.playlist-reorderable{
+    touch-action:pan-y !important;
+    cursor:default !important;
+  }
+  html.tu-phone .track-card.playlist-reorderable .reorder-handle,
+  .track-card.playlist-reorderable .reorder-handle{
+    display:none !important;
+  }
+  html.tu-phone #playlistReorderNote,
+  #playlistReorderNote{
+    font-size:10px !important;
+  }
+
+  .mobile-reorder-screen{
+    position:fixed !important;
+    inset:0 !important;
+    z-index:200 !important;
+    display:flex !important;
+    flex-direction:column !important;
+    background:#0b0b10 !important;
+    padding:12px !important;
+    overflow:hidden !important;
+  }
+  .mobile-reorder-screen.hidden{display:none !important;}
+
+  .mobile-reorder-header{
+    display:grid !important;
+    grid-template-columns:auto minmax(0,1fr) auto !important;
+    align-items:center !important;
+    gap:10px !important;
+    padding:4px 0 10px !important;
+    border-bottom:1px solid rgba(255,255,255,.08) !important;
+  }
+  .mobile-reorder-header h3{
+    margin:2px 0 0 !important;
+    font-size:18px !important;
+    line-height:1.05 !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+  }
+  .mobile-reorder-header .eyebrow{
+    font-size:7px !important;
+  }
+  .mobile-reorder-help{
+    margin:10px 2px !important;
+    color:var(--muted) !important;
+    font-size:11px !important;
+  }
+  .mobile-reorder-list{
+    flex:1 1 auto !important;
+    min-height:0 !important;
+    overflow-y:auto !important;
+    -webkit-overflow-scrolling:touch !important;
+    overscroll-behavior:contain !important;
+    padding:2px 0 18px !important;
+  }
+  .mobile-reorder-row{
+    display:grid !important;
+    grid-template-columns:38px 52px minmax(0,1fr) !important;
+    gap:10px !important;
+    align-items:center !important;
+    padding:9px 6px !important;
+    margin-bottom:7px !important;
+    border:1px solid rgba(255,255,255,.07) !important;
+    border-radius:12px !important;
+    background:#15151d !important;
+    transition:transform .12s ease,opacity .12s ease !important;
+  }
+  .mobile-reorder-row.dragging{
+    opacity:.5 !important;
+    transform:scale(.98) !important;
+    border-color:rgba(243,197,91,.45) !important;
+  }
+  .mobile-reorder-grip{
+    width:36px !important;
+    height:42px !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    border:1px solid rgba(243,197,91,.25) !important;
+    border-radius:10px !important;
+    background:rgba(243,197,91,.06) !important;
+    color:var(--gold) !important;
+    font-size:18px !important;
+    font-weight:900 !important;
+    letter-spacing:-3px !important;
+    cursor:grab !important;
+    touch-action:none !important;
+    user-select:none !important;
+    -webkit-user-select:none !important;
+  }
+  .mobile-reorder-row img{
+    width:52px !important;
+    height:52px !important;
+    object-fit:cover !important;
+    border-radius:9px !important;
+  }
+  .mobile-reorder-meta{
+    min-width:0 !important;
+  }
+  .mobile-reorder-meta strong{
+    display:block !important;
+    font-size:12px !important;
+    line-height:1.2 !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+  }
+  .mobile-reorder-meta small{
+    display:block !important;
+    margin-top:4px !important;
+    color:var(--muted) !important;
+    font-size:9px !important;
+  }
+}
+</style>
+
 </head>
 <body>
   <div class="ambient ambient-one"></div>
@@ -3550,6 +3678,7 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
       <div class="hero-buttons playlist-play-actions">
         <button class="primary-btn" id="playPlaylist">▶ Play Playlist</button>
         <button class="secondary-btn" id="shufflePlaylist">⇄ Shuffle</button>
+        <button class="secondary-btn mobile-reorder-btn" id="mobileReorderPlaylist">↕ Reorder</button>
         <button class="secondary-btn" id="addSongsToPlaylist">＋ Add Songs</button>
       </div>
       <div class="context-search-row">
@@ -3561,6 +3690,20 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
       <p class="playlist-reorder-note" id="playlistReorderNote">Drag songs to reorder your playlist.</p>
       <div class="track-grid" id="playlistTrackGrid"></div>
     </section>
+
+
+    <div class="mobile-reorder-screen hidden" id="mobileReorderScreen" aria-hidden="true">
+      <div class="mobile-reorder-header">
+        <button class="ghost-btn" id="cancelMobileReorder">← Back</button>
+        <div>
+          <span class="eyebrow">REORDER PLAYLIST</span>
+          <h3 id="mobileReorderTitle">Playlist</h3>
+        </div>
+        <button class="primary-btn" id="saveMobileReorder">Save</button>
+      </div>
+      <p class="mobile-reorder-help">Hold the grip and drag songs into the order you want.</p>
+      <div class="mobile-reorder-list" id="mobileReorderList"></div>
+    </div>
 
     <section class="library-section" id="librarySection">
       <div class="section-head">
@@ -4144,8 +4287,11 @@ function renderPlaylistView(){
     if (q) {
             if (reorderNote) reorderNote.textContent = 'Clear the playlist search to reorder songs.';
     } else {
-      if (reorderNote) reorderNote.textContent = 'Drag songs to reorder your playlist.';
-      wirePlaylistReordering(pl);
+      const isMobileReorder = window.matchMedia && window.matchMedia('(max-width:760px)').matches;
+      if (reorderNote) reorderNote.textContent = isMobileReorder
+        ? 'Tap Reorder above to change the song order.'
+        : 'Drag songs to reorder your playlist.';
+      if(!isMobileReorder) wirePlaylistReordering(pl);
     }
   }
 }
@@ -5324,6 +5470,162 @@ openPlaylist = function(id){
 
 
 
+
+
+
+// v2.06 — mobile-only Amazon-style playlist reorder mode
+const mobileReorderScreen = document.getElementById('mobileReorderScreen');
+const mobileReorderList = document.getElementById('mobileReorderList');
+const mobileReorderTitle = document.getElementById('mobileReorderTitle');
+const mobileReorderBtn = document.getElementById('mobileReorderPlaylist');
+const saveMobileReorderBtn = document.getElementById('saveMobileReorder');
+const cancelMobileReorderBtn = document.getElementById('cancelMobileReorder');
+
+let mobileReorderDraft = [];
+let mobileReorderOriginal = [];
+
+function openMobileReorder(){
+  const pl = getPlaylist(selectedPlaylistId);
+  if(!pl) return;
+  mobileReorderOriginal = [...(pl.trackIds || [])];
+  mobileReorderDraft = [...mobileReorderOriginal];
+  mobileReorderTitle.textContent = pl.name;
+  renderMobileReorderList();
+  mobileReorderScreen.classList.remove('hidden');
+  mobileReorderScreen.setAttribute('aria-hidden','false');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeMobileReorder(){
+  mobileReorderScreen.classList.add('hidden');
+  mobileReorderScreen.setAttribute('aria-hidden','true');
+  document.body.style.overflow = '';
+}
+
+function renderMobileReorderList(){
+  if(!mobileReorderDraft.length){
+    mobileReorderList.innerHTML = '<div class="empty-state">This playlist is empty.</div>';
+    return;
+  }
+  mobileReorderList.innerHTML = mobileReorderDraft.map((id,index)=>{
+    const t = TRACK_MAP[id];
+    if(!t) return '';
+    return `
+      <div class="mobile-reorder-row" data-id="${id}" data-index="${index}">
+        <span class="mobile-reorder-grip" aria-label="Drag ${t.title}" title="Drag to reorder">⋮⋮</span>
+        <img src="${t.cover}" alt="">
+        <div class="mobile-reorder-meta">
+          <strong>${t.title}</strong>
+          <small>${index+1} of ${mobileReorderDraft.length}</small>
+        </div>
+      </div>`;
+  }).join('');
+
+  wireMobileReorderRows();
+}
+
+function wireMobileReorderRows(){
+  let dragged = null;
+  let pointerId = null;
+
+  const getRowAt = (x,y) => document.elementFromPoint(x,y)?.closest?.('.mobile-reorder-row') || null;
+
+  const moveDraggedBeforeOrAfter = (target,y) => {
+    if(!dragged || !target || dragged === target) return;
+    const rect = target.getBoundingClientRect();
+    const after = y > rect.top + rect.height/2;
+    mobileReorderList.insertBefore(dragged, after ? target.nextSibling : target);
+  };
+
+  const autoScroll = y => {
+    const rect = mobileReorderList.getBoundingClientRect();
+    const edge = 70;
+    if(y < rect.top + edge) mobileReorderList.scrollTop -= 18;
+    else if(y > rect.bottom - edge) mobileReorderList.scrollTop += 18;
+  };
+
+  mobileReorderList.querySelectorAll('.mobile-reorder-row').forEach(row=>{
+    const grip = row.querySelector('.mobile-reorder-grip');
+    if(!grip) return;
+
+    grip.addEventListener('pointerdown', e=>{
+      if(e.pointerType === 'mouse') return;
+      dragged = row;
+      pointerId = e.pointerId;
+      row.classList.add('dragging');
+      try{ grip.setPointerCapture(pointerId); }catch(_){}
+      e.preventDefault();
+    });
+
+    grip.addEventListener('pointermove', e=>{
+      if(!dragged || e.pointerId !== pointerId) return;
+      const target = getRowAt(e.clientX,e.clientY);
+      moveDraggedBeforeOrAfter(target,e.clientY);
+      autoScroll(e.clientY);
+      e.preventDefault();
+    });
+
+    const finish = e=>{
+      if(!dragged || (pointerId !== null && e.pointerId !== pointerId)) return;
+      dragged.classList.remove('dragging');
+      try{ grip.releasePointerCapture(pointerId); }catch(_){}
+      mobileReorderDraft = [...mobileReorderList.querySelectorAll('.mobile-reorder-row')]
+        .map(r=>r.dataset.id)
+        .filter(Boolean);
+      dragged = null;
+      pointerId = null;
+      renderMobileReorderList();
+      e.preventDefault();
+    };
+    grip.addEventListener('pointerup',finish);
+    grip.addEventListener('pointercancel',finish);
+
+    // Touch fallback for mobile browsers/webviews.
+    grip.addEventListener('touchstart', e=>{
+      dragged = row;
+      row.classList.add('dragging');
+      e.preventDefault();
+    },{passive:false});
+
+    grip.addEventListener('touchmove', e=>{
+      if(!dragged) return;
+      const t=e.touches?.[0];
+      if(!t) return;
+      const target=getRowAt(t.clientX,t.clientY);
+      moveDraggedBeforeOrAfter(target,t.clientY);
+      autoScroll(t.clientY);
+      e.preventDefault();
+    },{passive:false});
+
+    grip.addEventListener('touchend', e=>{
+      if(!dragged) return;
+      dragged.classList.remove('dragging');
+      mobileReorderDraft = [...mobileReorderList.querySelectorAll('.mobile-reorder-row')]
+        .map(r=>r.dataset.id)
+        .filter(Boolean);
+      dragged=null;
+      renderMobileReorderList();
+      e.preventDefault();
+    },{passive:false});
+  });
+}
+
+mobileReorderBtn?.addEventListener('click', openMobileReorder);
+
+saveMobileReorderBtn?.addEventListener('click', ()=>{
+  const pl = getPlaylist(selectedPlaylistId);
+  if(!pl) return closeMobileReorder();
+  pl.trackIds = [...mobileReorderDraft];
+  savePlaylists();
+  renderPlaylists();
+  renderPlaylistView();
+  closeMobileReorder();
+});
+
+cancelMobileReorderBtn?.addEventListener('click', ()=>{
+  mobileReorderDraft = [...mobileReorderOriginal];
+  closeMobileReorder();
+});
 
 </script>
 </body>
