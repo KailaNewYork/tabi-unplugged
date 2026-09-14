@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#090713" />
   <title>Tabi Unplugged</title>
-  <meta name="tabi-build" content="v1.99-session-scroll-cue" />
+  <meta name="tabi-build" content="v2.00-slide-for-more" />
   <style>
 :root{
   --bg:#08070e;
@@ -3352,6 +3352,30 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
   }
 }
 
+
+/* v2.00 — unified Tabi Sessions cue */
+.sessions-scroll-cue{
+  margin-left:auto !important;
+  color:var(--muted,#a9a3b2) !important;
+  font-size:12px !important;
+  font-weight:700 !important;
+  white-space:nowrap !important;
+}
+.sessions-scroll-cue .desktop-cue,
+.sessions-scroll-cue .mobile-cue{
+  display:inline !important;
+}
+.sessions-scroll-cue .mobile-cue{display:none !important;}
+
+@media(max-width:760px){
+  .sessions-scroll-cue{
+    font-size:11px !important;
+    margin-left:8px !important;
+  }
+  .sessions-scroll-cue .desktop-cue{display:inline !important;}
+  .sessions-scroll-cue .mobile-cue{display:none !important;}
+}
+
 </style>
 
 <style id="v183-mobile-type-scale">
@@ -3492,7 +3516,7 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
     <section class="quick-listen service-row" aria-label="Featured songs">
       <div class="row-head">
         <div>
-          <h3>Tabi Sessions</h3><div class="sessions-scroll-cue"><span class="desktop-cue">Scroll for more sessions →</span><span class="mobile-cue">Swipe for more sessions →</span></div>
+          <h3>Tabi Sessions</h3><div class="sessions-scroll-cue"><span class="desktop-cue">Slide for more sessions →</span><span class="mobile-cue">Slide for more sessions →</span></div>
         </div>
       </div>
       <div class="quick-rail service-rail" id="homeSessionsGrid">
