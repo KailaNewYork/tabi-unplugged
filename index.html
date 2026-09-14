@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#090713" />
   <title>Tabi Unplugged</title>
-  <meta name="tabi-build" content="v1.98-sessions-horizontal-scroll" />
+  <meta name="tabi-build" content="v1.99-session-scroll-cue" />
   <style>
 :root{
   --bg:#08070e;
@@ -3283,6 +3283,75 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
   }
 }
 
+
+/* v1.99 — visible session scroll cue + reliable horizontal swipe */
+.sessions-scroll-cue{
+  margin-left:auto;
+  color:var(--muted,#a9a3b2);
+  font-size:12px;
+  font-weight:700;
+  white-space:nowrap;
+}
+.sessions-scroll-cue .mobile-cue{display:none;}
+
+#homeSessionsGrid{
+  display:flex !important;
+  flex-wrap:nowrap !important;
+  gap:20px !important;
+  overflow-x:auto !important;
+  overflow-y:hidden !important;
+  scroll-snap-type:x proximity !important;
+  -webkit-overflow-scrolling:touch !important;
+  overscroll-behavior-x:contain;
+  scrollbar-width:thin;
+  padding:3px 0 18px !important;
+}
+#homeSessionsGrid > .home-session-card{
+  flex:0 0 220px !important;
+  width:220px !important;
+  min-width:220px !important;
+  scroll-snap-align:start;
+}
+
+@media(max-width:760px){
+  .sessions-scroll-cue{
+    font-size:11px !important;
+    margin-left:8px !important;
+  }
+  .sessions-scroll-cue .desktop-cue{display:none !important;}
+  .sessions-scroll-cue .mobile-cue{display:inline !important;}
+
+  html.tu-phone #homeSessionsGrid,
+  #homeSessionsGrid{
+    display:flex !important;
+    flex-wrap:nowrap !important;
+    grid-template-columns:none !important;
+    gap:12px !important;
+    overflow-x:auto !important;
+    overflow-y:hidden !important;
+    scroll-snap-type:x mandatory !important;
+    -webkit-overflow-scrolling:touch !important;
+    touch-action:pan-x !important;
+    width:100% !important;
+    max-width:100% !important;
+    padding:2px 0 14px !important;
+  }
+  html.tu-phone #homeSessionsGrid > .home-session-card,
+  #homeSessionsGrid > .home-session-card{
+    flex:0 0 78vw !important;
+    width:78vw !important;
+    min-width:230px !important;
+    max-width:300px !important;
+    scroll-snap-align:start !important;
+  }
+  html.tu-phone .home-session-card .home-session-cover,
+  .home-session-card .home-session-cover{
+    width:100% !important;
+    height:auto !important;
+    aspect-ratio:1/1 !important;
+  }
+}
+
 </style>
 
 <style id="v183-mobile-type-scale">
@@ -3423,7 +3492,7 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
     <section class="quick-listen service-row" aria-label="Featured songs">
       <div class="row-head">
         <div>
-          <h3>Tabi Sessions</h3>
+          <h3>Tabi Sessions</h3><div class="sessions-scroll-cue"><span class="desktop-cue">Scroll for more sessions →</span><span class="mobile-cue">Swipe for more sessions →</span></div>
         </div>
       </div>
       <div class="quick-rail service-rail" id="homeSessionsGrid">
