@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#090713" />
   <title>Tabi Unplugged</title>
-  <meta name="tabi-build" content="v2.07-library-button-clean" />
+  <meta name="tabi-build" content="v2.04-one-line-clean-cue" />
   <style>
 :root{
   --bg:#08070e;
@@ -3204,6 +3204,46 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
 }
 
 
+/* v1.91 — visible Library Add to Playlist control */
+.cover-wrap .library-add-overlay{
+  position:absolute !important;
+  left:10px !important;
+  right:10px !important;
+  bottom:10px !important;
+  z-index:6 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  min-height:34px !important;
+  padding:7px 10px !important;
+  border:1px solid rgba(243,197,91,.45) !important;
+  border-radius:999px !important;
+  background:rgba(10,9,15,.88) !important;
+  color:#fff3cf !important;
+  font-size:11px !important;
+  font-weight:800 !important;
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+.cover-wrap .library-add-overlay:hover{
+  background:rgba(243,197,91,.94) !important;
+  color:#17110a !important;
+}
+@media(max-width:760px){
+  .cover-wrap .library-add-overlay{
+    left:7px !important;
+    right:7px !important;
+    bottom:7px !important;
+    min-height:30px !important;
+    padding:5px 7px !important;
+    font-size:10px !important;
+  }
+}
+
+
+
+
+
 
 /* v1.97 — all Tabi Sessions stay on Home */
 #homeSessionsGrid{
@@ -3359,219 +3399,6 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
 }
 </style>
 
-
-<style id="v2-05-mobile-drag-and-playback-fix">
-@media(max-width:760px){
-  html.tu-phone .track-card.playlist-reorderable,
-  .track-card.playlist-reorderable{
-    touch-action:pan-y !important;
-    cursor:default !important;
-    user-select:auto !important;
-    -webkit-user-select:auto !important;
-  }
-
-  html.tu-phone .track-card.playlist-reorderable .reorder-handle,
-  .track-card.playlist-reorderable .reorder-handle{
-    display:inline-flex !important;
-    align-items:center !important;
-    justify-content:center !important;
-    width:36px !important;
-    min-width:36px !important;
-    height:34px !important;
-    margin:0 !important;
-    padding:0 !important;
-    border:1px solid rgba(243,197,91,.28) !important;
-    border-radius:10px !important;
-    background:rgba(243,197,91,.06) !important;
-    color:var(--gold) !important;
-    touch-action:none !important;
-    cursor:grab !important;
-    user-select:none !important;
-    -webkit-user-select:none !important;
-  }
-
-  html.tu-phone .track-card.playlist-reorderable .reorder-handle::before,
-  .track-card.playlist-reorderable .reorder-handle::before{
-    content:"⋮⋮" !important;
-    font-size:15px !important;
-    font-weight:900 !important;
-    letter-spacing:-3px !important;
-    line-height:1 !important;
-  }
-
-  html.tu-phone .track-card.playlist-reorderable .card-actions,
-  .track-card.playlist-reorderable .card-actions{
-    align-items:center !important;
-  }
-}
-</style>
-
-
-<style id="v2-06-mobile-reorder-mode">
-.mobile-reorder-btn,
-.mobile-reorder-screen{display:none;}
-
-@media(max-width:760px){
-  .mobile-reorder-btn{display:inline-flex !important;}
-
-  /* Normal playlist page: scroll normally, no accidental dragging */
-  html.tu-phone .track-card.playlist-reorderable,
-  .track-card.playlist-reorderable{
-    touch-action:pan-y !important;
-    cursor:default !important;
-  }
-  html.tu-phone .track-card.playlist-reorderable .reorder-handle,
-  .track-card.playlist-reorderable .reorder-handle{
-    display:none !important;
-  }
-  html.tu-phone #playlistReorderNote,
-  #playlistReorderNote{
-    font-size:10px !important;
-  }
-
-  .mobile-reorder-screen{
-    position:fixed !important;
-    inset:0 !important;
-    z-index:200 !important;
-    display:flex !important;
-    flex-direction:column !important;
-    background:#0b0b10 !important;
-    padding:12px !important;
-    overflow:hidden !important;
-  }
-  .mobile-reorder-screen.hidden{display:none !important;}
-
-  .mobile-reorder-header{
-    display:grid !important;
-    grid-template-columns:auto minmax(0,1fr) auto !important;
-    align-items:center !important;
-    gap:10px !important;
-    padding:4px 0 10px !important;
-    border-bottom:1px solid rgba(255,255,255,.08) !important;
-  }
-  .mobile-reorder-header h3{
-    margin:2px 0 0 !important;
-    font-size:18px !important;
-    line-height:1.05 !important;
-    white-space:nowrap !important;
-    overflow:hidden !important;
-    text-overflow:ellipsis !important;
-  }
-  .mobile-reorder-header .eyebrow{
-    font-size:7px !important;
-  }
-  .mobile-reorder-help{
-    margin:10px 2px !important;
-    color:var(--muted) !important;
-    font-size:11px !important;
-  }
-  .mobile-reorder-list{
-    flex:1 1 auto !important;
-    min-height:0 !important;
-    overflow-y:auto !important;
-    -webkit-overflow-scrolling:touch !important;
-    overscroll-behavior:contain !important;
-    padding:2px 0 18px !important;
-  }
-  .mobile-reorder-row{
-    display:grid !important;
-    grid-template-columns:38px 52px minmax(0,1fr) !important;
-    gap:10px !important;
-    align-items:center !important;
-    padding:9px 6px !important;
-    margin-bottom:7px !important;
-    border:1px solid rgba(255,255,255,.07) !important;
-    border-radius:12px !important;
-    background:#15151d !important;
-    transition:transform .12s ease,opacity .12s ease !important;
-  }
-  .mobile-reorder-row.dragging{
-    opacity:.5 !important;
-    transform:scale(.98) !important;
-    border-color:rgba(243,197,91,.45) !important;
-  }
-  .mobile-reorder-grip{
-    width:36px !important;
-    height:42px !important;
-    display:flex !important;
-    align-items:center !important;
-    justify-content:center !important;
-    border:1px solid rgba(243,197,91,.25) !important;
-    border-radius:10px !important;
-    background:rgba(243,197,91,.06) !important;
-    color:var(--gold) !important;
-    font-size:18px !important;
-    font-weight:900 !important;
-    letter-spacing:-3px !important;
-    cursor:grab !important;
-    touch-action:none !important;
-    user-select:none !important;
-    -webkit-user-select:none !important;
-  }
-  .mobile-reorder-row img{
-    width:52px !important;
-    height:52px !important;
-    object-fit:cover !important;
-    border-radius:9px !important;
-  }
-  .mobile-reorder-meta{
-    min-width:0 !important;
-  }
-  .mobile-reorder-meta strong{
-    display:block !important;
-    font-size:12px !important;
-    line-height:1.2 !important;
-    white-space:nowrap !important;
-    overflow:hidden !important;
-    text-overflow:ellipsis !important;
-  }
-  .mobile-reorder-meta small{
-    display:block !important;
-    margin-top:4px !important;
-    color:var(--muted) !important;
-    font-size:9px !important;
-  }
-}
-</style>
-
-
-<style id="v2-07-library-add-button-clean">
-.library-section .track-card .card-actions{
-  display:flex !important;
-  width:100% !important;
-  padding:8px 0 0 !important;
-}
-.library-section .track-card .add-playlist-btn{
-  display:inline-flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  width:100% !important;
-  margin:0 !important;
-  min-height:34px !important;
-  padding:7px 10px !important;
-  border:1px solid rgba(243,197,91,.30) !important;
-  border-radius:999px !important;
-  background:rgba(255,255,255,.03) !important;
-  color:var(--cream) !important;
-  font-size:12px !important;
-  font-weight:700 !important;
-}
-.library-section .track-card .add-playlist-btn:hover{
-  background:rgba(243,197,91,.09) !important;
-  border-color:rgba(243,197,91,.48) !important;
-}
-@media(max-width:760px){
-  html.tu-phone .library-section .track-card .card-actions{
-    padding-top:6px !important;
-  }
-  html.tu-phone .library-section .track-card .add-playlist-btn{
-    min-height:30px !important;
-    padding:6px 7px !important;
-    font-size:10px !important;
-  }
-}
-</style>
-
 </head>
 <body>
   <div class="ambient ambient-one"></div>
@@ -3676,7 +3503,6 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
       <div class="hero-buttons playlist-play-actions">
         <button class="primary-btn" id="playPlaylist">▶ Play Playlist</button>
         <button class="secondary-btn" id="shufflePlaylist">⇄ Shuffle</button>
-        <button class="secondary-btn mobile-reorder-btn" id="mobileReorderPlaylist">↕ Reorder</button>
         <button class="secondary-btn" id="addSongsToPlaylist">＋ Add Songs</button>
       </div>
       <div class="context-search-row">
@@ -3688,20 +3514,6 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
       <p class="playlist-reorder-note" id="playlistReorderNote">Drag songs to reorder your playlist.</p>
       <div class="track-grid" id="playlistTrackGrid"></div>
     </section>
-
-
-    <div class="mobile-reorder-screen hidden" id="mobileReorderScreen" aria-hidden="true">
-      <div class="mobile-reorder-header">
-        <button class="ghost-btn" id="cancelMobileReorder">← Back</button>
-        <div>
-          <span class="eyebrow">REORDER PLAYLIST</span>
-          <h3 id="mobileReorderTitle">Playlist</h3>
-        </div>
-        <button class="primary-btn" id="saveMobileReorder">Save</button>
-      </div>
-      <p class="mobile-reorder-help">Hold the grip and drag songs into the order you want.</p>
-      <div class="mobile-reorder-list" id="mobileReorderList"></div>
-    </div>
 
     <section class="library-section" id="librarySection">
       <div class="section-head">
@@ -4195,6 +4007,7 @@ function trackCard(track, context='library'){
     <div class="cover-wrap">
       <img src="${track.cover}" alt="${track.title} cover" loading="lazy">
       <button class="card-play" aria-label="Play ${track.title}">${track.id === activeId && !audio.paused ? '❚❚' : '▶'}</button>
+      ${context === 'playlist' ? '' : '<button class="library-add-overlay add-playlist-btn">＋ Add to Playlist</button>'}
     </div>
     <div class="card-meta">
       <strong title="${track.title}">${track.title}</strong>
@@ -4202,8 +4015,8 @@ function trackCard(track, context='library'){
     </div>
     <div class="card-actions" style="display:flex !important;width:100% !important;">
       ${context === 'playlist'
-        ? '<span class="reorder-handle" aria-label="Drag to reorder" title="Drag to reorder"></span><button class="mini-btn remove-track-btn">Remove</button>'
-        : '<button class="mini-btn add-playlist-btn">＋ Add to Playlist</button>'}
+        ? '<button class="mini-btn remove-track-btn">Remove</button>'
+        : ''}
     </div>`;
   card.querySelector('.card-play').addEventListener('click', (e) => {
     e.stopPropagation();
@@ -4284,11 +4097,8 @@ function renderPlaylistView(){
     if (q) {
             if (reorderNote) reorderNote.textContent = 'Clear the playlist search to reorder songs.';
     } else {
-      const isMobileReorder = window.matchMedia && window.matchMedia('(max-width:760px)').matches;
-      if (reorderNote) reorderNote.textContent = isMobileReorder
-        ? 'Tap Reorder above to change the song order.'
-        : 'Drag songs to reorder your playlist.';
-      if(!isMobileReorder) wirePlaylistReordering(pl);
+      if (reorderNote) reorderNote.textContent = 'Drag songs to reorder your playlist.';
+      wirePlaylistReordering(pl);
     }
   }
 }
@@ -4367,7 +4177,6 @@ function wirePlaylistReordering(pl){
   playlistTrackGrid.querySelectorAll('.track-card').forEach(card => {
     card.addEventListener('pointerdown', e => {
       if(e.pointerType === 'mouse' || e.target.closest('button')) return;
-      if(!e.target.closest('.reorder-handle')) return;
       pointerDragged = card;
       pointerId = e.pointerId;
       pointerMoved = false;
@@ -4403,7 +4212,6 @@ function wirePlaylistReordering(pl){
     // Touch fallback for mobile webviews that do not fully honor Pointer Events.
     card.addEventListener('touchstart', e => {
       if(e.target.closest('button')) return;
-      if(!e.target.closest('.reorder-handle')) return;
       touchDragged = card;
       touchMoved = false;
       card.classList.add('dragging');
@@ -4744,15 +4552,6 @@ function renderSongPage(track){
 }
 
 function setQueue(source, startId){ queue = [...source]; currentIndex = Math.max(0, queue.findIndex(t => t.id === startId)); }
-
-function shuffledCopy(list){
-  const out=[...list];
-  for(let i=out.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [out[i],out[j]]=[out[j],out[i]];
-  }
-  return out;
-}
 function loadTrack(track, autoplay=false){
   if (!track) return;
   audio.src = track.audio; audio.load();
@@ -4764,39 +4563,14 @@ function loadTrack(track, autoplay=false){
 function playTrackById(id, autoplay=true){ const source = displayTracks.some(t=>t.id===id) ? displayTracks : tracks; setQueue(source, id); loadTrack(currentTrack(), autoplay); }
 function nextTrack(manual=false){
   if (!queue.length) return;
-  if (repeatMode === 2 && !manual){ audio.currentTime = 0; audio.play().catch(()=>{}); return; }
-  currentIndex += 1;
-  if (currentIndex >= queue.length){
-    if (repeatMode === 1 || manual){
-      currentIndex = 0;
-      if(shuffleOn && queue.length > 1) queue = shuffledCopy(queue);
-    } else {
-      currentIndex = queue.length - 1;
-      audio.pause();
-      return;
-    }
-  }
+  if (repeatMode === 2 && !manual){ audio.currentTime = 0; audio.play(); return; }
+  if (shuffleOn && queue.length > 1){ let next; do { next = Math.floor(Math.random()*queue.length); } while(next === currentIndex); currentIndex = next; }
+  else { currentIndex += 1; if (currentIndex >= queue.length){ if (repeatMode === 1 || manual) currentIndex = 0; else { currentIndex = queue.length - 1; audio.pause(); return; } } }
   loadTrack(currentTrack(), true);
 }
 function prevTrack(){ if (!queue.length) return; if (audio.currentTime > 4){ audio.currentTime = 0; return; } currentIndex = (currentIndex - 1 + queue.length) % queue.length; loadTrack(currentTrack(), true); }
 function playAll(shuffle=false){ queue = [...tracks]; songQueueLabel='All Songs'; shuffleOn = shuffle; syncPlaybackModeButtons(); currentIndex = shuffle ? Math.floor(Math.random()*queue.length) : 0; songPageReturnScroll=window.scrollY||0; songPageActive=true; document.body.classList.add('song-page-active'); loadTrack(currentTrack(), true); updateSongHash(currentTrack().id,true); window.scrollTo({top:0,behavior:'smooth'}); }
-function playSelectedPlaylist(shuffle=false){
-  const pl=getPlaylist(selectedPlaylistId);
-  const list=tracksForPlaylist(pl);
-  if(!list.length) return;
-  queue=shuffle ? shuffledCopy(list) : [...list];
-  songQueueLabel=pl ? `Playlist · ${pl.name}` : 'Playlist';
-  shuffleOn=shuffle;
-  repeatMode=0;
-  syncPlaybackModeButtons();
-  currentIndex=0;
-  songPageReturnScroll=window.scrollY||0;
-  songPageActive=true;
-  document.body.classList.add('song-page-active');
-  loadTrack(currentTrack(),true);
-  updateSongHash(currentTrack().id,true);
-  window.scrollTo({top:0,behavior:'smooth'});
-}
+function playSelectedPlaylist(shuffle=false){ const pl=getPlaylist(selectedPlaylistId); const list=tracksForPlaylist(pl); if(!list.length) return; queue=[...list]; songQueueLabel=pl ? `Playlist · ${pl.name}` : 'Playlist'; shuffleOn=shuffle; syncPlaybackModeButtons(); currentIndex=shuffle?Math.floor(Math.random()*queue.length):0; songPageReturnScroll=window.scrollY||0; songPageActive=true; document.body.classList.add('song-page-active'); loadTrack(currentTrack(),true); updateSongHash(currentTrack().id,true); window.scrollTo({top:0,behavior:'smooth'}); }
 function refreshOrder(){ const q = searchInput.value.trim().toLowerCase(); displayTracks = tracks.filter(t => t.title.toLowerCase().includes(q)); displayTracks.sort((a,b) => sortSelect.value === 'za' ? b.title.localeCompare(a.title) : a.title.localeCompare(b.title)); renderTracks(); }
 
 audio.volume = Number(volume.value);
@@ -4805,19 +4579,9 @@ audio.addEventListener('pause',()=>{ playBtn.textContent='▶'; renderTracks(); 
 audio.addEventListener('timeupdate',()=>{ progress.value = audio.duration ? (audio.currentTime/audio.duration)*100 : 0; currentTimeEl.textContent = fmt(audio.currentTime); });
 audio.addEventListener('loadedmetadata',()=> durationEl.textContent = fmt(audio.duration));
 audio.addEventListener('ended',()=> nextTrack(false));
-audio.addEventListener('error',()=>{ if(queue.length>1) nextTrack(false); });
 playBtn.addEventListener('click',()=>{ if (!currentTrack()){ playAll(false); return; } if (audio.paused) audio.play(); else audio.pause(); });
 nextBtn.addEventListener('click',()=>nextTrack(true)); prevBtn.addEventListener('click',prevTrack);
-shuffleBtn.addEventListener('click',()=>{
-  shuffleOn=!shuffleOn;
-  if(shuffleOn && queue.length>1){
-    const current=currentTrack();
-    const rest=queue.filter(t=>!current || t.id!==current.id);
-    queue=current ? [current,...shuffledCopy(rest)] : shuffledCopy(queue);
-    currentIndex=0;
-  }
-  syncPlaybackModeButtons();
-});
+shuffleBtn.addEventListener('click',()=>{ shuffleOn=!shuffleOn; syncPlaybackModeButtons(); });
 repeatOneBtn.addEventListener('click',()=>setRepeatMode(2));
 repeatBtn.addEventListener('click',()=>setRepeatMode(1));
 progress.addEventListener('input',()=>{ if(audio.duration) audio.currentTime=(Number(progress.value)/100)*audio.duration; });
@@ -4886,16 +4650,7 @@ songPageBack?.addEventListener('click',closeSongPage);
 songPlayBtn?.addEventListener('click',()=>{ if(!currentTrack()){playAll(false);return;} if(audio.paused) audio.play(); else audio.pause(); });
 songPrevBtn?.addEventListener('click',prevTrack);
 songNextBtn?.addEventListener('click',()=>nextTrack(true));
-songShuffleBtn?.addEventListener('click',()=>{
-  shuffleOn=!shuffleOn;
-  if(shuffleOn && queue.length>1){
-    const current=currentTrack();
-    const rest=queue.filter(t=>!current || t.id!==current.id);
-    queue=current ? [current,...shuffledCopy(rest)] : shuffledCopy(queue);
-    currentIndex=0;
-  }
-  syncPlaybackModeButtons();
-});
+songShuffleBtn?.addEventListener('click',()=>{shuffleOn=!shuffleOn;syncPlaybackModeButtons();});
 songRepeatOneBtn?.addEventListener('click',()=>setRepeatMode(2));
 songRepeatAllBtn?.addEventListener('click',()=>setRepeatMode(1));
 songProgress?.addEventListener('input',()=>{if(audio.duration) audio.currentTime=(Number(songProgress.value)/100)*audio.duration;});
@@ -5467,162 +5222,6 @@ openPlaylist = function(id){
 
 
 
-
-
-
-// v2.06 — mobile-only Amazon-style playlist reorder mode
-const mobileReorderScreen = document.getElementById('mobileReorderScreen');
-const mobileReorderList = document.getElementById('mobileReorderList');
-const mobileReorderTitle = document.getElementById('mobileReorderTitle');
-const mobileReorderBtn = document.getElementById('mobileReorderPlaylist');
-const saveMobileReorderBtn = document.getElementById('saveMobileReorder');
-const cancelMobileReorderBtn = document.getElementById('cancelMobileReorder');
-
-let mobileReorderDraft = [];
-let mobileReorderOriginal = [];
-
-function openMobileReorder(){
-  const pl = getPlaylist(selectedPlaylistId);
-  if(!pl) return;
-  mobileReorderOriginal = [...(pl.trackIds || [])];
-  mobileReorderDraft = [...mobileReorderOriginal];
-  mobileReorderTitle.textContent = pl.name;
-  renderMobileReorderList();
-  mobileReorderScreen.classList.remove('hidden');
-  mobileReorderScreen.setAttribute('aria-hidden','false');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeMobileReorder(){
-  mobileReorderScreen.classList.add('hidden');
-  mobileReorderScreen.setAttribute('aria-hidden','true');
-  document.body.style.overflow = '';
-}
-
-function renderMobileReorderList(){
-  if(!mobileReorderDraft.length){
-    mobileReorderList.innerHTML = '<div class="empty-state">This playlist is empty.</div>';
-    return;
-  }
-  mobileReorderList.innerHTML = mobileReorderDraft.map((id,index)=>{
-    const t = TRACK_MAP[id];
-    if(!t) return '';
-    return `
-      <div class="mobile-reorder-row" data-id="${id}" data-index="${index}">
-        <span class="mobile-reorder-grip" aria-label="Drag ${t.title}" title="Drag to reorder">⋮⋮</span>
-        <img src="${t.cover}" alt="">
-        <div class="mobile-reorder-meta">
-          <strong>${t.title}</strong>
-          <small>${index+1} of ${mobileReorderDraft.length}</small>
-        </div>
-      </div>`;
-  }).join('');
-
-  wireMobileReorderRows();
-}
-
-function wireMobileReorderRows(){
-  let dragged = null;
-  let pointerId = null;
-
-  const getRowAt = (x,y) => document.elementFromPoint(x,y)?.closest?.('.mobile-reorder-row') || null;
-
-  const moveDraggedBeforeOrAfter = (target,y) => {
-    if(!dragged || !target || dragged === target) return;
-    const rect = target.getBoundingClientRect();
-    const after = y > rect.top + rect.height/2;
-    mobileReorderList.insertBefore(dragged, after ? target.nextSibling : target);
-  };
-
-  const autoScroll = y => {
-    const rect = mobileReorderList.getBoundingClientRect();
-    const edge = 70;
-    if(y < rect.top + edge) mobileReorderList.scrollTop -= 18;
-    else if(y > rect.bottom - edge) mobileReorderList.scrollTop += 18;
-  };
-
-  mobileReorderList.querySelectorAll('.mobile-reorder-row').forEach(row=>{
-    const grip = row.querySelector('.mobile-reorder-grip');
-    if(!grip) return;
-
-    grip.addEventListener('pointerdown', e=>{
-      if(e.pointerType === 'mouse') return;
-      dragged = row;
-      pointerId = e.pointerId;
-      row.classList.add('dragging');
-      try{ grip.setPointerCapture(pointerId); }catch(_){}
-      e.preventDefault();
-    });
-
-    grip.addEventListener('pointermove', e=>{
-      if(!dragged || e.pointerId !== pointerId) return;
-      const target = getRowAt(e.clientX,e.clientY);
-      moveDraggedBeforeOrAfter(target,e.clientY);
-      autoScroll(e.clientY);
-      e.preventDefault();
-    });
-
-    const finish = e=>{
-      if(!dragged || (pointerId !== null && e.pointerId !== pointerId)) return;
-      dragged.classList.remove('dragging');
-      try{ grip.releasePointerCapture(pointerId); }catch(_){}
-      mobileReorderDraft = [...mobileReorderList.querySelectorAll('.mobile-reorder-row')]
-        .map(r=>r.dataset.id)
-        .filter(Boolean);
-      dragged = null;
-      pointerId = null;
-      renderMobileReorderList();
-      e.preventDefault();
-    };
-    grip.addEventListener('pointerup',finish);
-    grip.addEventListener('pointercancel',finish);
-
-    // Touch fallback for mobile browsers/webviews.
-    grip.addEventListener('touchstart', e=>{
-      dragged = row;
-      row.classList.add('dragging');
-      e.preventDefault();
-    },{passive:false});
-
-    grip.addEventListener('touchmove', e=>{
-      if(!dragged) return;
-      const t=e.touches?.[0];
-      if(!t) return;
-      const target=getRowAt(t.clientX,t.clientY);
-      moveDraggedBeforeOrAfter(target,t.clientY);
-      autoScroll(t.clientY);
-      e.preventDefault();
-    },{passive:false});
-
-    grip.addEventListener('touchend', e=>{
-      if(!dragged) return;
-      dragged.classList.remove('dragging');
-      mobileReorderDraft = [...mobileReorderList.querySelectorAll('.mobile-reorder-row')]
-        .map(r=>r.dataset.id)
-        .filter(Boolean);
-      dragged=null;
-      renderMobileReorderList();
-      e.preventDefault();
-    },{passive:false});
-  });
-}
-
-mobileReorderBtn?.addEventListener('click', openMobileReorder);
-
-saveMobileReorderBtn?.addEventListener('click', ()=>{
-  const pl = getPlaylist(selectedPlaylistId);
-  if(!pl) return closeMobileReorder();
-  pl.trackIds = [...mobileReorderDraft];
-  savePlaylists();
-  renderPlaylists();
-  renderPlaylistView();
-  closeMobileReorder();
-});
-
-cancelMobileReorderBtn?.addEventListener('click', ()=>{
-  mobileReorderDraft = [...mobileReorderOriginal];
-  closeMobileReorder();
-});
 
 </script>
 </body>
