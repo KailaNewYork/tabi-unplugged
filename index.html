@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#090713" />
   <title>Tabi Unplugged</title>
-  <meta name="tabi-build" content="v2.06-mobile-reorder-mode" />
+  <meta name="tabi-build" content="v2.07-library-button-clean" />
   <style>
 :root{
   --bg:#08070e;
@@ -3204,46 +3204,6 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
 }
 
 
-/* v1.91 — visible Library Add to Playlist control */
-.cover-wrap .library-add-overlay{
-  position:absolute !important;
-  left:10px !important;
-  right:10px !important;
-  bottom:10px !important;
-  z-index:6 !important;
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  min-height:34px !important;
-  padding:7px 10px !important;
-  border:1px solid rgba(243,197,91,.45) !important;
-  border-radius:999px !important;
-  background:rgba(10,9,15,.88) !important;
-  color:#fff3cf !important;
-  font-size:11px !important;
-  font-weight:800 !important;
-  backdrop-filter:blur(8px);
-  -webkit-backdrop-filter:blur(8px);
-}
-.cover-wrap .library-add-overlay:hover{
-  background:rgba(243,197,91,.94) !important;
-  color:#17110a !important;
-}
-@media(max-width:760px){
-  .cover-wrap .library-add-overlay{
-    left:7px !important;
-    right:7px !important;
-    bottom:7px !important;
-    min-height:30px !important;
-    padding:5px 7px !important;
-    font-size:10px !important;
-  }
-}
-
-
-
-
-
 
 /* v1.97 — all Tabi Sessions stay on Home */
 #homeSessionsGrid{
@@ -3570,6 +3530,44 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
     margin-top:4px !important;
     color:var(--muted) !important;
     font-size:9px !important;
+  }
+}
+</style>
+
+
+<style id="v2-07-library-add-button-clean">
+.library-section .track-card .card-actions{
+  display:flex !important;
+  width:100% !important;
+  padding:8px 0 0 !important;
+}
+.library-section .track-card .add-playlist-btn{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:100% !important;
+  margin:0 !important;
+  min-height:34px !important;
+  padding:7px 10px !important;
+  border:1px solid rgba(243,197,91,.30) !important;
+  border-radius:999px !important;
+  background:rgba(255,255,255,.03) !important;
+  color:var(--cream) !important;
+  font-size:12px !important;
+  font-weight:700 !important;
+}
+.library-section .track-card .add-playlist-btn:hover{
+  background:rgba(243,197,91,.09) !important;
+  border-color:rgba(243,197,91,.48) !important;
+}
+@media(max-width:760px){
+  html.tu-phone .library-section .track-card .card-actions{
+    padding-top:6px !important;
+  }
+  html.tu-phone .library-section .track-card .add-playlist-btn{
+    min-height:30px !important;
+    padding:6px 7px !important;
+    font-size:10px !important;
   }
 }
 </style>
@@ -4197,7 +4195,6 @@ function trackCard(track, context='library'){
     <div class="cover-wrap">
       <img src="${track.cover}" alt="${track.title} cover" loading="lazy">
       <button class="card-play" aria-label="Play ${track.title}">${track.id === activeId && !audio.paused ? '❚❚' : '▶'}</button>
-      ${context === 'playlist' ? '' : '<button class="library-add-overlay add-playlist-btn">＋ Add to Playlist</button>'}
     </div>
     <div class="card-meta">
       <strong title="${track.title}">${track.title}</strong>
@@ -4206,7 +4203,7 @@ function trackCard(track, context='library'){
     <div class="card-actions" style="display:flex !important;width:100% !important;">
       ${context === 'playlist'
         ? '<span class="reorder-handle" aria-label="Drag to reorder" title="Drag to reorder"></span><button class="mini-btn remove-track-btn">Remove</button>'
-        : ''}
+        : '<button class="mini-btn add-playlist-btn">＋ Add to Playlist</button>'}
     </div>`;
   card.querySelector('.card-play').addEventListener('click', (e) => {
     e.stopPropagation();
