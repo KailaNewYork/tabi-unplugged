@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#090713" />
   <title>Tabi Unplugged</title>
-  <meta name="tabi-build" content="v1.90-mobile-conflict-cleanup" />
+  <meta name="tabi-build" content="v1.92-session-covers" />
   <style>
 :root{
   --bg:#08070e;
@@ -4679,14 +4679,34 @@ function saveLibraryOrder(trackIds){
 
 // --- Tabi Sessions public experience ---
 const TU_SESSION_KEY = 'tabiUnplugged.sessions.v1';
+const TU_DEFAULT_SESSIONS = [
+  {id:'coming-home-to-self',title:'Coming Home to Self',cover:'assets/images/tabi-sessions/coming-home-to-self.png',description:'',trackIds:[],published:true},
+  {id:'healing-the-healers',title:'Healing the Healers',cover:'assets/images/tabi-sessions/healing-the-healers.png',description:'',trackIds:[],published:true},
+  {id:'time-for-rest',title:'Time for Rest',cover:'assets/images/tabi-sessions/time-for-rest.png',description:'',trackIds:[],published:true},
+  {id:'life-lessons',title:'Life Lessons',cover:'assets/images/tabi-sessions/life-lessons.png',description:'',trackIds:[],published:true},
+  {id:'the-spirit-speaks',title:'The Spirit Speaks',cover:'assets/images/tabi-sessions/the-spirit-speaks.png',description:'',trackIds:[],published:true},
+  {id:'wealth-frequency',title:'Wealth Frequency',cover:'assets/images/tabi-sessions/wealth-frequency.png',description:'',trackIds:[],published:true},
+  {id:'act-1-the-mask-slipped',title:'Act 1: The Mask Slipped',cover:'assets/images/tabi-sessions/act-1-the-mask-slipped.png',description:'',trackIds:[],published:true},
+  {id:'lineage-command',title:'Lineage Command',cover:'assets/images/tabi-sessions/lineage-command.png',description:'',trackIds:[],published:true},
+  {id:'alignment-season',title:'Alignment Season',cover:'assets/images/tabi-sessions/alignment-season.png',description:'',trackIds:[],published:true},
+  {id:'i-hate-it-here-sometimes',title:'I Hate It Here Sometimes',cover:'assets/images/tabi-sessions/i-hate-it-here-sometimes.png',description:'',trackIds:[],published:true},
+  {id:'you-are-ok',title:'You Are OK',cover:'assets/images/tabi-sessions/you-are-ok.png',description:'',trackIds:[],published:true},
+  {id:'its-go-season',title:'It’s Go Season',cover:'assets/images/tabi-sessions/its-go-season.png',description:'',trackIds:[],published:true},
+  {id:'you-were-never-too-much',title:'You Were Never Too Much',cover:'assets/images/tabi-sessions/you-were-never-too-much.png',description:'',trackIds:[],published:true},
+  {id:'its-ok-to-say-you-miss-them',title:'It’s OK to Say You Miss Them',cover:'assets/images/tabi-sessions/its-ok-to-say-you-miss-them.png',description:'',trackIds:[],published:true},
+  {id:'narcissistic-ex',title:'Narcissistic Ex',cover:'assets/images/tabi-sessions/narcissistic-ex.png',description:'',trackIds:[],published:true}
+];
 let tuSessions = [];
 let activePublicSession = null;
 
 function loadPublicSessions(){
   try{
-    const saved = JSON.parse(localStorage.getItem(TU_SESSION_KEY) || '[]');
-    tuSessions = Array.isArray(saved) ? saved.filter(s => s.published !== false) : [];
-  }catch(e){ tuSessions = []; }
+    const raw = localStorage.getItem(TU_SESSION_KEY);
+    const saved = raw ? JSON.parse(raw) : [];
+    tuSessions = Array.isArray(saved) && saved.length
+      ? saved.filter(s => s.published !== false)
+      : TU_DEFAULT_SESSIONS.slice();
+  }catch(e){ tuSessions = TU_DEFAULT_SESSIONS.slice(); }
   renderPublicSessions();
 }
 
@@ -4838,9 +4858,10 @@ function renderHomeSessions(){
 
   let sessions = [];
   try{
-    sessions = JSON.parse(localStorage.getItem('tabiUnplugged.sessions.v1') || '[]');
-    if(!Array.isArray(sessions)) sessions = [];
-  }catch(e){ sessions = []; }
+    const raw = localStorage.getItem('tabiUnplugged.sessions.v1');
+    sessions = raw ? JSON.parse(raw) : [];
+    if(!Array.isArray(sessions) || !sessions.length) sessions = TU_DEFAULT_SESSIONS.slice();
+  }catch(e){ sessions = TU_DEFAULT_SESSIONS.slice(); }
 
   sessions = sessions.filter(s => s.published !== false);
 
