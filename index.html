@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#090713" />
   <title>Tabi Unplugged</title>
-  <meta name="tabi-build" content="v2.05-mobile-library-clean-fix" />
+  <meta name="tabi-build" content="v2.08-desktop-structural-mobile-scroll" />
   <style>
 :root{
   --bg:#08070e;
@@ -2846,7 +2846,7 @@ html.tu-phone .player-buttons .play-btn{width:29px !important;height:29px !impor
 html.tu-phone .progress-row{grid-template-columns:22px 1fr 22px !important;font-size:7px !important;}
 /* Make finger-drag reorder reliable on touch devices. */
 html.tu-phone .track-card.playlist-reorderable{
-  touch-action:none !important;
+  touch-action:pan-y !important;
   -webkit-user-select:none !important;
   user-select:none !important;
   cursor:grab !important;
@@ -3204,41 +3204,6 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
 }
 
 
-/* v1.91 — visible Library Add to Playlist control */
-.cover-wrap .library-add-overlay{
-  position:absolute !important;
-  left:10px !important;
-  right:10px !important;
-  bottom:10px !important;
-  z-index:6 !important;
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  min-height:34px !important;
-  padding:7px 10px !important;
-  border:1px solid rgba(243,197,91,.45) !important;
-  border-radius:999px !important;
-  background:rgba(10,9,15,.88) !important;
-  color:#fff3cf !important;
-  font-size:11px !important;
-  font-weight:800 !important;
-  backdrop-filter:blur(8px);
-  -webkit-backdrop-filter:blur(8px);
-}
-.cover-wrap .library-add-overlay:hover{
-  background:rgba(243,197,91,.94) !important;
-  color:#17110a !important;
-}
-@media(max-width:760px){
-  .cover-wrap .library-add-overlay{
-    left:7px !important;
-    right:7px !important;
-    bottom:7px !important;
-    min-height:30px !important;
-    padding:5px 7px !important;
-    font-size:10px !important;
-  }
-}
 
 
 
@@ -3400,40 +3365,129 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
 </style>
 
 
-<style id="v2-05-mobile-library-clean-fix">
-@media (max-width:760px){
-  /* Library only: keep artwork clean and place Add to Playlist UNDER the cover */
-  html.tu-phone .library-section .track-card .cover-wrap{
-    overflow:visible !important;
-    margin-bottom:38px !important;
-  }
 
-  html.tu-phone .library-section .track-card .library-add-overlay{
-    top:calc(100% + 6px) !important;
-    bottom:auto !important;
-    left:0 !important;
-    right:0 !important;
-    width:100% !important;
+
+<style id="v2-06-structural-library-add">
+.library-section .track-card .card-actions{
+  display:flex !important;
+  width:100% !important;
+  padding:4px 0 0 !important;
+}
+.library-section .track-card .add-playlist-btn{
+  display:inline-flex !important;
+  position:static !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:100% !important;
+  margin:4px 0 0 !important;
+  min-height:34px !important;
+  padding:7px 10px !important;
+  border:1px solid rgba(243,197,91,.34) !important;
+  border-radius:999px !important;
+  background:rgba(255,255,255,.03) !important;
+  color:var(--cream) !important;
+  font-size:12px !important;
+  font-weight:800 !important;
+}
+@media(max-width:760px){
+  html.tu-phone .library-section .track-card .add-playlist-btn{
     min-height:30px !important;
-    margin:0 !important;
-    padding:6px 8px !important;
-    border-radius:999px !important;
-    background:rgba(12,11,17,.92) !important;
-    color:#f8f0df !important;
-    border:1px solid rgba(243,197,91,.34) !important;
+    padding:6px 7px !important;
     font-size:10px !important;
-    font-weight:700 !important;
-    backdrop-filter:none !important;
-    -webkit-backdrop-filter:none !important;
-    box-shadow:none !important;
-  }
-
-  html.tu-phone .library-section .track-card .card-meta{
-    padding-top:4px !important;
   }
 }
 </style>
 
+
+<style id="v2-07-mobile-scroll-no-reorder">
+@media (max-width:760px){
+  html.tu-phone .track-card.playlist-reorderable,
+  html.tu-phone .track-card{
+    touch-action:pan-y !important;
+    cursor:default !important;
+    -webkit-user-select:auto !important;
+    user-select:auto !important;
+  }
+  html.tu-phone .track-card.dragging{
+    opacity:1 !important;
+    transform:none !important;
+    outline:0 !important;
+    box-shadow:none !important;
+  }
+  html.tu-phone .playlist-reorder-note{display:none !important;}
+}
+</style>
+
+
+<style id="v2-08-mobile-scroll-hard-disable-drag">
+@media (max-width:900px){
+  html.tu-phone .playlist-view .track-card,
+  html.tu-phone .playlist-view .track-card *{
+    touch-action:pan-y !important;
+    -webkit-user-drag:none !important;
+    user-drag:none !important;
+  }
+  html.tu-phone .playlist-view .track-card{
+    cursor:default !important;
+  }
+  html.tu-phone .playlist-view .track-card.dragging,
+  html.tu-phone .playlist-view .track-card.drag-over{
+    opacity:1 !important;
+    transform:none !important;
+    outline:none !important;
+    box-shadow:none !important;
+  }
+  html.tu-phone .playlist-reorder-note{display:none !important;}
+}
+</style>
+
+
+<style id="v2-08-final-desktop-mobile-fixes">
+/* FINAL: Add to Playlist is structurally BELOW artwork on desktop and mobile. */
+.library-section .track-card .cover-wrap{
+  position:relative !important;
+  overflow:hidden !important;
+  margin-bottom:0 !important;
+}
+.library-section .track-card .card-meta{
+  position:static !important;
+  padding-top:9px !important;
+}
+.library-section .track-card .card-actions{
+  position:static !important;
+  display:flex !important;
+  width:100% !important;
+  padding:6px 0 0 !important;
+  margin:0 !important;
+}
+.library-section .track-card .add-playlist-btn{
+  position:static !important;
+  inset:auto !important;
+  transform:none !important;
+  display:inline-flex !important;
+  width:100% !important;
+  margin:0 !important;
+  min-height:34px !important;
+}
+@media(max-width:760px){
+  html.tu-phone .library-section .track-card .card-actions{padding-top:5px !important;}
+  html.tu-phone .library-section .track-card .add-playlist-btn{min-height:30px !important;}
+
+  /* Mobile playlists scroll normally: no drag/reorder gesture. */
+  html.tu-phone .track-card.playlist-reorderable{
+    cursor:default !important;
+    touch-action:pan-y !important;
+    user-select:auto !important;
+    -webkit-user-select:auto !important;
+  }
+  html.tu-phone .track-card.playlist-reorderable img{
+    -webkit-user-drag:none !important;
+    user-drag:none !important;
+    pointer-events:auto !important;
+  }
+  html.tu-phone .playlist-reorder-note{display:none !important;}
+}
+</style>
 </head>
 <body>
   <div class="ambient ambient-one"></div>
@@ -4042,7 +4096,6 @@ function trackCard(track, context='library'){
     <div class="cover-wrap">
       <img src="${track.cover}" alt="${track.title} cover" loading="lazy">
       <button class="card-play" aria-label="Play ${track.title}">${track.id === activeId && !audio.paused ? '❚❚' : '▶'}</button>
-      ${context === 'playlist' ? '' : '<button class="library-add-overlay add-playlist-btn">＋ Add to Playlist</button>'}
     </div>
     <div class="card-meta">
       <strong title="${track.title}">${track.title}</strong>
@@ -4051,7 +4104,7 @@ function trackCard(track, context='library'){
     <div class="card-actions" style="display:flex !important;width:100% !important;">
       ${context === 'playlist'
         ? '<button class="mini-btn remove-track-btn">Remove</button>'
-        : ''}
+        : '<button class="mini-btn add-playlist-btn">＋ Add to Playlist</button>'}
     </div>`;
   card.querySelector('.card-play').addEventListener('click', (e) => {
     e.stopPropagation();
@@ -4164,12 +4217,25 @@ function wirePlaylistReordering(pl){
   };
 
   let draggedId = null;
+  const phoneNoReorder = window.matchMedia('(max-width: 900px)').matches || document.documentElement.classList.contains('tu-phone') || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || '');
 
   playlistTrackGrid.querySelectorAll('.track-card').forEach(card => {
-    card.classList.add('playlist-reorderable');
-    card.draggable = true;
+    if(!phoneNoReorder) card.classList.add('playlist-reorderable');
+    card.draggable = !phoneNoReorder;
+    if(phoneNoReorder){
+      card.classList.remove('playlist-reorderable','dragging','drag-over');
+      card.setAttribute('draggable','false');
+      card.querySelectorAll('*').forEach(el => {
+        if(el instanceof HTMLElement) el.setAttribute('draggable','false');
+      });
+      card.addEventListener('dragstart', e => e.preventDefault());
+    }
 
     card.addEventListener('dragstart', e => {
+      if(phoneNoReorder){
+        e.preventDefault();
+        return;
+      }
       if(e.target.closest('button')){
         e.preventDefault();
         return;
@@ -4210,6 +4276,7 @@ function wirePlaylistReordering(pl){
   let touchDragged = null;
   let touchMoved = false;
   playlistTrackGrid.querySelectorAll('.track-card').forEach(card => {
+    if(phoneNoReorder) return;
     card.addEventListener('pointerdown', e => {
       if(e.pointerType === 'mouse' || e.target.closest('button')) return;
       pointerDragged = card;
