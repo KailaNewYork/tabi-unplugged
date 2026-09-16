@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#090713" />
   <title>Tabi Unplugged</title>
-  <meta name="tabi-build" content="v2.08-desktop-structural-mobile-scroll" />
+  <meta name="tabi-build" content="v2.09-merch-share-playback" />
   <style>
 :root{
   --bg:#08070e;
@@ -3488,6 +3488,29 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
   html.tu-phone .playlist-reorder-note{display:none !important;}
 }
 </style>
+
+<style id="v2-09-merch-share-playback">
+/* v2.09 — Tabi venue-style navigation additions. Existing app styling remains untouched. */
+.merch-section{padding:54px 0 82px;border-top:1px solid rgba(255,255,255,.06);scroll-margin-top:88px}
+.merch-shell{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.65fr);gap:28px;align-items:center;padding:34px 38px;border:1px solid rgba(243,197,91,.18);background:linear-gradient(135deg,rgba(243,197,91,.075),rgba(111,60,255,.055) 58%,rgba(255,255,255,.018));border-radius:24px}
+.merch-copy .eyebrow{display:block;margin-bottom:9px}.merch-copy h3{margin:0;font-size:32px!important;line-height:1.05!important;font-weight:800!important;letter-spacing:-.025em!important}.merch-copy p{max-width:680px;margin:12px 0 0;color:var(--muted);font-size:15px;line-height:1.55}
+.merch-actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap}.merch-actions a{text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.share-feedback{position:fixed;z-index:160;left:50%;bottom:132px;transform:translate(-50%,12px);padding:10px 14px;border-radius:999px;background:#17151d;border:1px solid rgba(243,197,91,.28);color:#f8f0df;font-size:12px;font-weight:800;opacity:0;pointer-events:none;transition:.18s}.share-feedback.show{opacity:1;transform:translate(-50%,0)}
+#sharePlayerBtn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+@media(max-width:900px){.merch-shell{grid-template-columns:1fr}.merch-actions{justify-content:flex-start}}
+@media(max-width:760px){
+  html.tu-phone .main-nav{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px!important}
+  html.tu-phone .main-nav a{font-size:11px!important;padding:8px 2px!important}
+  html.tu-phone .merch-section{padding:34px 0 105px!important;scroll-margin-top:90px!important}
+  html.tu-phone .merch-shell{padding:20px 16px!important;border-radius:16px!important;gap:18px!important}
+  html.tu-phone .merch-copy h3{font-size:24px!important}
+  html.tu-phone .merch-copy p{font-size:12px!important}
+  html.tu-phone .merch-actions{display:grid!important;grid-template-columns:1fr!important;width:100%!important}
+  html.tu-phone .merch-actions a{width:100%!important}
+  html.tu-phone #sharePlayerBtn{display:grid!important}
+}
+</style>
+
 </head>
 <body>
   <div class="ambient ambient-one"></div>
@@ -3520,8 +3543,9 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
         <a href="#home" class="active">Home</a>
         <a href="#playlists">Playlists</a>
         <a href="#librarySection">Library</a>
+        <a href="#merch">Merch</a>
       
-        <a id="backToTabiLink" class="back-to-tabi" href="https://kailanewyork.wixstudio.com/kailanewyorkllc/blank-3-5-1" aria-label="Back to Tabi Unplugged landing page">Back to Tabi Unplugged ↗</a>
+        <a id="backToTabiLink" class="back-to-tabi" href="https://kailanewyork.com" aria-label="Visit Kaila New York">Kaila New York ↗</a>
       </nav>
     </div>
     
@@ -3623,6 +3647,19 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
       </div>
       <div class="track-grid" id="trackGrid"></div>
     </section>
+
+    <section class="merch-section" id="merch" aria-label="Tabi Unplugged merchandise">
+      <div class="merch-shell">
+        <div class="merch-copy">
+          <span class="eyebrow">TABİ UNPLUGGED MERCH</span>
+          <h3>Take the frequency with you.</h3>
+          <p>Official Tabi Unplugged merchandise lives inside the Kaila New York world. Shop pieces connected to the music, the sessions, and the Tabi Unplugged experience.</p>
+        </div>
+        <div class="merch-actions">
+          <a class="primary-btn" href="https://kailanewyork.com" target="_blank" rel="noopener">Shop Tabi Merch ↗</a>
+        </div>
+      </div>
+    </section>
   
   <section class="view" id="sessionsView" data-view-panel="sessions">
     <div class="section-head sessions-public-head">
@@ -3660,6 +3697,7 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
             <button class="song-transport-btn" id="songNextBtn" type="button" title="Next song">▶▶</button>
             <button class="song-mode-btn" id="songRepeatOneBtn" type="button" title="Loop this song">↻ 1</button>
             <button class="song-mode-btn" id="songRepeatAllBtn" type="button" title="Loop the current list">↻ ALL</button>
+            <button class="song-mode-btn" id="songShareBtn" type="button" title="Share this song" aria-label="Share this song">↗ Share</button>
           </div>
           <div class="song-page-progress">
             <span id="songCurrentTime">0:00</span>
@@ -3696,6 +3734,7 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
         <button id="nextBtn" class="icon-btn transport-btn" aria-label="Next" title="Next"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 5h2v14h-2V5zm-7.8 7L4 6.8v10.4L10.2 12zm1.8 0L6 6.8v10.4L12 12z"/></svg></button>
         <button id="repeatOneBtn" class="icon-btn mode-btn" aria-label="Loop current song" title="Loop current song">↻1</button>
         <button id="repeatBtn" class="icon-btn mode-btn" aria-label="Loop current list" title="Loop current list">↻ALL</button>
+        <button id="sharePlayerBtn" class="icon-btn mode-btn" aria-label="Share" title="Share current song"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg></button>
       </div>
       <div class="progress-row">
         <span id="currentTime">0:00</span>
@@ -3709,6 +3748,7 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
       <input id="volume" type="range" min="0" max="1" value="0.85" step="0.01" aria-label="Volume" />
     </div>
   </footer>
+  <div class="share-feedback" id="shareFeedback" role="status" aria-live="polite">Link copied</div>
 
 
   <div class="modal-backdrop hidden" id="playlistModal" role="dialog" aria-modal="true" aria-labelledby="playlistModalTitle">
@@ -4021,6 +4061,8 @@ let displayTracks = [...tracks];
 let queue = [...tracks];
 let currentIndex = -1;
 let shuffleOn = false;
+let shuffleOrder = [];
+let shufflePosition = -1;
 let repeatMode = 0; // 0 off, 1 all, 2 one
 const TABI_TRANSMISSIONS = {"agnes-the-attitude":"I do not age out of my power. I get sharper, louder, freer, and more myself with every season.","am-i-fucking-invisible":"I am not invisible. I stop shrinking for rooms that refuse to recognize what is standing right in front of them.","ask-once-and-its-done":"I state what I require clearly, then I release the need to chase it. What aligns with me knows how to respond.","born-worthy":"Worth was never something I had to earn. I arrived with it, and nothing anyone did can subtract from it.","built-my-own-table":"I do not wait for permission to belong. I build the table, set the standard, and decide who gets a seat.","chin-up-crown-on":"I lift my head before the evidence changes. My crown is not a reward for surviving; it is a reminder of who I am.","chin-up-crown-on-remix":"I return to myself faster now. Head up, crown steady, energy back where it belongs.","connected-to-me":"My strongest connection begins inside me. I hear myself, trust myself, and stop abandoning myself to keep anything else.","cosmic-sweatshirt":"I am allowed to be mystical and comfortable, powerful and ordinary. My expansion does not require performance.","divine-timing-can-eat-one":"I am done using timing as a reason to postpone my life. I move with what is available to me now.","divine-timing-sucks-out-loud":"I can honor the process and still hate the wait. Frustration does not cancel alignment.","do-your-fucking-job":"I release what is not mine to carry. Everyone is responsible for the work that belongs to them, including me.","dont-call-me-cute":"Do not reduce what is powerful because it is beautiful. I can be soft, striking, dangerous, and fully self-defined.","everybodys-lighthouse":"I can illuminate without exhausting myself. I am not required to burn all night so everyone else can find shore.","everybodys-waiting-for-you-to-come-home":"Home is not only a place, it is a person, a feeling, a return. I trust the love that feels like coming home.","everything-is-gonna-be-alright":"I do not need every answer to know I will meet what comes. I have survived uncertainty before, and I am still here.","get-off-your-knees":"I stop begging life, love, people, or circumstances to choose me. I stand up and choose myself.","get-up-nobodys-coming":"Rescue is not the assignment. I become the movement I was waiting for and take the next step myself.","get-up-sweetpea":"Tenderness and strength can live in the same body. I speak to myself with love, then I rise.","hi-universe-sent-me":"I enter the room like an answered prayer. I do not apologize for arriving with purpose.","i-bought-my-own-board":"I invest in my own vision. I do not need someone else's infrastructure to validate what I am building.","i-can-love-you-with-my-eyes-closed":"Loving you feels so natural that I do not have to reach for it. I can close my eyes, feel you, and let love be what it already is.","i-love-you-so-much-its-weird":"I let love be expansive, ridiculous, tender, and true without making it smaller so it looks reasonable.","i-run-this-empire":"I lead my life from ownership. My time, energy, work, and vision answer to the standards I choose.","i-wasnt-lost-i-was-loading":"The pause was not proof that I failed. I was integrating, recalibrating, and becoming able to carry what comes next.","i-will-never-be-you":"I release comparison at the root. I was not designed to become anyone else, and neither were they.","im-not-crazy-im-just-awake":"I trust what I notice without needing everyone else to notice it too. Awareness does not require consensus.","it-didnt-change-me":"What happened affected me, but it does not own my identity. I decide what remains and what leaves with the past.","my-heart-aches":"My body remembers the love it is waiting to receive. The ache is not a prediction of absence, it is recognition of a connection my body already knows.","no-one-sees-the-cracks":"I do not have to appear unbreakable to be strong. I can be seen honestly and still be respected.","no-return-address":"I stop sending energy back to places that no longer exist. What has ended does not need another delivery from me.","noise-in-my-halo":"I can be sacred and messy at the same time. My humanity does not disqualify my light.","one-more-hug":"I let love be present while it is here. I do not rush past tenderness because I am afraid of missing it later.","overloaded":"My capacity is not infinite, and that is not a failure. I put down what my body and spirit were never meant to hold alone.","pink-smoke":"I let mystery remain mystery. I do not have to explain every beautiful thing before I am allowed to enjoy it.","rage-song-obstacle-course":"My anger is information, not my identity. I let it show me the obstacle, then I move with intention.","return-to-self":"Every road back to me is still a return home. I reclaim my attention, my energy, and my authority.","soft-arms":"I allow myself to be held without turning softness into danger. Rest, care, and tenderness are safe enough to receive.","tabby-unplugged":"I remove the performance and keep the truth. What remains when I unplug is still worthy of being heard.","tabs-on-the-bridge":"I take the bridge. I read the field, make the call, and trust the part of me built to command under pressure.","the-talents":"What I carry is meant to be used. I stop hiding gifts simply because they arrived naturally to me.","union":"I choose connection that does not require self-erasure. Real union makes room for two whole people.","when-she-walks-in":"I do not enter seeking permission to matter. My presence speaks before I explain a thing.","where-do-heroes-go":"Even the strong need somewhere to land. I give myself the care I so easily offer everyone else.","where-do-i-go-to-feel-loved":"I stop searching only outside myself for evidence of love. I build a home inside me that can recognize love when it arrives.","you-were-sent-here-on-purpose":"My life is not random to me. I treat my gifts, timing, and existence like they belong here.","i-have-always-known-you":"Some recognition arrives before explanation. I trust resonance without forcing it to become a story before its time.","narcissistic-bitch":"I refuse to confuse confidence with cruelty or self-respect with selfishness. I know who I am without needing to dominate anyone.","queenpin-smoke":"I move like the authority in my own life. I do not need chaos to prove I am powerful.","what-i-need-you-to-remember":"I return to what is true when fear gets loud. I remember myself before I remember the noise.","you-dont-know-loyalty":"Loyalty does not mean betraying myself to prove devotion. I give commitment where reciprocity can live.","youre-already-saved":"I stop waiting for a future version of me to become worthy of peace. I am allowed to live from wholeness now.","youre-everything-i-ever-wanted-and-didnt-know-i-was-allowed-to-have":"I expand my capacity to receive what once felt too good for me. Desire is not evidence that I am asking for too much.","be-that-man-son":"Character is built in choices nobody applauds. I become the kind of man whose actions can carry his name.","bell-ring-time":"When the moment arrives, I answer it. I do not keep myself waiting after life has already opened the door.","built-different-baby":"I stop treating my differences like defects. What makes me unusual may be exactly what makes my path work.","check-they-soil":"I look at what people consistently grow, not only what they promise. Patterns tell me where I am planting my trust.","check-your-soil":"I examine what I keep feeding inside myself. My inner environment shapes what can take root in my life.","choose-a-man-like-this":"I choose partnership by character, consistency, and capacity, not fantasy. Love should be able to stand up in real life.","clocked-in-again":"I honor the discipline of returning. Showing up again is how visions become structures.","daughter-wear-your-crown":"You do not need to become smaller to be loved. Wear what you know about yourself where the world can see it.","fuck-i-would-date-me":"I become someone whose company I genuinely enjoy. I stop asking others to recognize value I refuse to celebrate in myself.","listen-my-son":"Strength is not the absence of tenderness. I carry wisdom forward without repeating every wound that taught it.","remember-who-you-are":"Before the disappointment, before the labels, before the roles, I was still me. I remember that person now.","rest-is-a-revolution":"Rest is not a reward for depletion. I refuse a life that only values me when I am producing.","so-proud":"I let myself receive my own approval. I acknowledge how far I have come without moving the finish line again.","time-to-rest":"Nothing sacred is lost because I stop for a while. My body is allowed to complete the sentence.","time-to-rise":"The season of preparing has done its work. I stand, move, and let the next version of me become visible.","what-the-fuck-is-this":"Confusion is allowed to be honest. I can question what I am seeing without rushing to manufacture certainty.","yesterday-was-a-threshold":"I do not have to drag yesterday across today's doorway. I crossed something, and I let that crossing count.","you-dont-walk-in-quiet":"I was not built to disappear politely. My presence can have volume without becoming apology.","your-love-kept-me-here":"I honor the love that helped me stay without making survival a debt I must repay forever.","alignment-season":"I stop forcing what requires self-betrayal. This season is about choices that sound like me, feel like me, and fit my life.","ancestors-crowned-me":"I carry history without being trapped by it. I honor what came before by living beyond what once limited us.","bloodline-heavy":"I can feel the weight of my lineage without becoming its storage unit. I keep the strength and release what is not mine.","brick-by-brick":"I build what lasts at the speed of integrity. Small consistent moves are still construction.","come-closer":"I allow closeness where safety and truth are present. I do not confuse distance with protection forever.","get-back-to-the-original-code":"I return beneath conditioning, fear, and performance. The original code is the self that knew before it was taught to doubt.","i-cut-the-cloth":"I stop waiting for a pattern that was never made for me. I cut according to the life I am actually creating.","i-dont-bow":"Respect does not require submission. I can honor others without surrendering my authority over myself.","i-wrote-the-fucking-code":"I remember that I am not merely living inside the system. I am capable of rewriting the rules that govern my own life.","love-bombs-and-exit-wounds":"Intensity is not proof of intimacy. I trust the love that can stay consistent after the fireworks are gone.","new-york-swag-panama-bloodline":"I carry every place that made me without having to choose one piece of myself over another. My roots can move with swagger.","pressure-taste-like-breakfast":"Pressure is not automatically a warning. I know the difference between being challenged and being consumed.","read-your-manual":"I stop expecting other people to know me better than I know myself. I learn my signals, needs, patterns, and operating system.","soft-landing":"I no longer require pain to prove that change is real. Some arrivals are allowed to be gentle.","this-seems-familiar":"Recognition is a cue to become conscious, not to repeat automatically. Familiar does not always mean aligned.","watch-yo-mouth":"Words build atmosphere. I become more intentional about what I speak over myself, my work, and the people I love.","yall-got-me-fucked-up":"A boundary can arrive with clarity. I am allowed to recognize when enough is enough and act accordingly.","yall-study":"I pay attention to what life keeps teaching instead of demanding a different lesson every time.","you-did-it-again":"I notice my own patterns without turning awareness into shame. Seeing it sooner is already evidence of growth.","your-apology-was-a-trap":"I listen for repair, not performance. An apology that demands immediate access is not the same thing as accountability.","5k-a-day":"I normalize being well paid for value I create. Wealth can become ordinary enough for my nervous system to hold it.","authentic-or-nothing":"I would rather be accurately seen than broadly approved. What fits me can find me when I stop performing for what does not.","blackout-mode":"I am allowed to become unavailable to noise. Silence can be strategy, protection, and recalibration.","born-to-do-this":"I stop treating my natural direction like a coincidence. I give my gifts the seriousness they have been asking for.","broadcast-mode":"I let the signal travel. I stop editing my voice down to the size of the room.","default-blueprint":"I examine the life I inherited by default and consciously choose what becomes part of my design.","i-can-do-everything-i-want-to-do":"I expand beyond the false choice between my desires. I can build a life large enough to hold more than one dream.","its-already-done":"I act from completion instead of desperation. The version of me who has it moves differently now.","levitation-walk":"I rise into the version of me that already knows how to walk in everything I asked for. I move through life higher, freer, and fully aligned.","millionaire-mindset":"I think beyond survival while staying grounded in reality. Money becomes a tool I can direct, hold, and multiply responsibly.","paid-to-exist":"I stop separating my value from my presence. I allow support, opportunity, and compensation to meet the fullness of what I bring.","receiver-open":"I practice receiving without immediately earning, explaining, or giving it back. My system learns that good can stay.","signal-strong":"I stop diluting what I mean. The clearer I become, the easier it is for what matches me to recognize me.","strut-like-a-frequency":"I let my body carry the certainty my mind is still learning. I walk like the signal has already changed.","they-felt-that":"Impact does not always need explanation. I trust the resonance of what was real enough to move through the room.","wake-up-in-their-soul":"I am not here to force awakening. I live so fully that truth becomes difficult to sleep through around me.","wealth-flows-to-you":"I become available for wealth without making it my master. Resources can move toward me and through me with purpose.","you-did-good-baby":"I speak to myself the way I needed someone to speak to me. I let accomplishment land before I ask for more.","you-want-it-its-yours":"I allow desire to become direction. Wanting something can be the beginning of movement, not a reason for shame.","crocodile-tears":"I stop letting displays of emotion erase patterns of behavior. Compassion does not require me to abandon discernment.","gaslight-gospel":"I trust my memory, my perception, and the evidence of repeated experience. Someone else's certainty does not automatically outrank mine.","hoover-season":"Not every return is reconciliation. I recognize the difference between changed behavior and renewed access attempts.","love-bomb-funeral":"I bury the fantasy that intensity alone is love. What is real can survive ordinary days.","nothing-was-wasted":"Even what I would never choose again gave me information I can use. I keep the wisdom and release the cost.","pretty-lies-rotten-core":"I stop being hypnotized by presentation. Beauty without integrity is still decay.","the-mask-slipped":"When the mask slips, I believe the information. I do not rush to repair an illusion because truth feels inconvenient.","vault-open":"I am willing to access what I once kept locked away: capacity, wealth, creativity, desire, and possibility.","youre-living-proof":"My existence is evidence that transformation can become embodied. I do not need to be finished to be proof."};
 let songPageActive = false;
@@ -4653,26 +4695,62 @@ function renderSongPage(track){
   syncPlaybackModeButtons();
 }
 
-function setQueue(source, startId){ queue = [...source]; currentIndex = Math.max(0, queue.findIndex(t => t.id === startId)); }
+function buildShuffleOrder(startIndex=currentIndex){
+  const indexes=queue.map((_,i)=>i).filter(i=>i!==startIndex);
+  for(let i=indexes.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [indexes[i],indexes[j]]=[indexes[j],indexes[i]]; }
+  shuffleOrder=[startIndex,...indexes];
+  shufflePosition=0;
+}
+function setQueue(source, startId){
+  queue=[...source];
+  currentIndex=Math.max(0,queue.findIndex(t=>t.id===startId));
+  if(shuffleOn && queue.length) buildShuffleOrder(currentIndex); else { shuffleOrder=[]; shufflePosition=-1; }
+}
+function safePlay(){
+  const attempt=audio.play();
+  if(attempt && typeof attempt.catch==='function') attempt.catch(()=>{
+    const resume=()=>{ audio.play().catch(()=>{}); };
+    audio.addEventListener('canplay',resume,{once:true});
+  });
+}
 function loadTrack(track, autoplay=false){
   if (!track) return;
   audio.src = track.audio; audio.load();
   playerTitle.textContent = track.title; playerArtist.textContent = track.artist; playerCover.src = track.cover;
   if (heroNow) heroNow.textContent = `Now playing: ${track.title}`; document.title = `${track.title} · Tabi Unplugged`; renderTracks();
   if (songPageActive){ renderSongPage(track); updateSongHash(track.id, false); }
-  if (autoplay) audio.play().catch(()=>{});
+  if (autoplay) safePlay();
 }
 function playTrackById(id, autoplay=true){ const source = displayTracks.some(t=>t.id===id) ? displayTracks : tracks; setQueue(source, id); loadTrack(currentTrack(), autoplay); }
 function nextTrack(manual=false){
   if (!queue.length) return;
-  if (repeatMode === 2 && !manual){ audio.currentTime = 0; audio.play(); return; }
-  if (shuffleOn && queue.length > 1){ let next; do { next = Math.floor(Math.random()*queue.length); } while(next === currentIndex); currentIndex = next; }
-  else { currentIndex += 1; if (currentIndex >= queue.length){ if (repeatMode === 1 || manual) currentIndex = 0; else { currentIndex = queue.length - 1; audio.pause(); return; } } }
+  if (repeatMode === 2 && !manual){ audio.currentTime = 0; safePlay(); return; }
+  if (shuffleOn && queue.length > 1){
+    if(!shuffleOrder.length || shufflePosition < 0 || shuffleOrder[shufflePosition] !== currentIndex) buildShuffleOrder(currentIndex);
+    shufflePosition += 1;
+    if(shufflePosition >= shuffleOrder.length){
+      if(repeatMode === 1 || manual){ buildShuffleOrder(currentIndex); shufflePosition = shuffleOrder.length > 1 ? 1 : 0; }
+      else { audio.pause(); return; }
+    }
+    currentIndex = shuffleOrder[shufflePosition];
+  } else {
+    currentIndex += 1;
+    if (currentIndex >= queue.length){
+      if (repeatMode === 1 || manual) currentIndex = 0;
+      else { currentIndex = queue.length - 1; audio.pause(); return; }
+    }
+  }
   loadTrack(currentTrack(), true);
 }
-function prevTrack(){ if (!queue.length) return; if (audio.currentTime > 4){ audio.currentTime = 0; return; } currentIndex = (currentIndex - 1 + queue.length) % queue.length; loadTrack(currentTrack(), true); }
-function playAll(shuffle=false){ queue = [...tracks]; songQueueLabel='All Songs'; shuffleOn = shuffle; syncPlaybackModeButtons(); currentIndex = shuffle ? Math.floor(Math.random()*queue.length) : 0; songPageReturnScroll=window.scrollY||0; songPageActive=true; document.body.classList.add('song-page-active'); loadTrack(currentTrack(), true); updateSongHash(currentTrack().id,true); window.scrollTo({top:0,behavior:'smooth'}); }
-function playSelectedPlaylist(shuffle=false){ const pl=getPlaylist(selectedPlaylistId); const list=tracksForPlaylist(pl); if(!list.length) return; queue=[...list]; songQueueLabel=pl ? `Playlist · ${pl.name}` : 'Playlist'; shuffleOn=shuffle; syncPlaybackModeButtons(); currentIndex=shuffle?Math.floor(Math.random()*queue.length):0; songPageReturnScroll=window.scrollY||0; songPageActive=true; document.body.classList.add('song-page-active'); loadTrack(currentTrack(),true); updateSongHash(currentTrack().id,true); window.scrollTo({top:0,behavior:'smooth'}); }
+function prevTrack(){
+  if (!queue.length) return;
+  if (audio.currentTime > 4){ audio.currentTime = 0; return; }
+  if(shuffleOn && shuffleOrder.length){ shufflePosition=Math.max(0,shufflePosition-1); currentIndex=shuffleOrder[shufflePosition]; }
+  else currentIndex=(currentIndex-1+queue.length)%queue.length;
+  loadTrack(currentTrack(), true);
+}
+function playAll(shuffle=false){ queue = [...tracks]; songQueueLabel='All Songs'; shuffleOn = shuffle; currentIndex = shuffle ? Math.floor(Math.random()*queue.length) : 0; if(shuffle) buildShuffleOrder(currentIndex); else {shuffleOrder=[];shufflePosition=-1;} syncPlaybackModeButtons(); songPageReturnScroll=window.scrollY||0; songPageActive=true; document.body.classList.add('song-page-active'); loadTrack(currentTrack(), true); updateSongHash(currentTrack().id,true); window.scrollTo({top:0,behavior:'smooth'}); }
+function playSelectedPlaylist(shuffle=false){ const pl=getPlaylist(selectedPlaylistId); const list=tracksForPlaylist(pl); if(!list.length) return; queue=[...list]; songQueueLabel=pl ? `Playlist · ${pl.name}` : 'Playlist'; shuffleOn=shuffle; currentIndex=shuffle?Math.floor(Math.random()*queue.length):0; if(shuffle) buildShuffleOrder(currentIndex); else {shuffleOrder=[];shufflePosition=-1;} syncPlaybackModeButtons(); songPageReturnScroll=window.scrollY||0; songPageActive=true; document.body.classList.add('song-page-active'); loadTrack(currentTrack(),true); updateSongHash(currentTrack().id,true); window.scrollTo({top:0,behavior:'smooth'}); }
 function refreshOrder(){ const q = searchInput.value.trim().toLowerCase(); displayTracks = tracks.filter(t => t.title.toLowerCase().includes(q)); displayTracks.sort((a,b) => sortSelect.value === 'za' ? b.title.localeCompare(a.title) : a.title.localeCompare(b.title)); renderTracks(); }
 
 audio.volume = Number(volume.value);
@@ -4683,7 +4761,7 @@ audio.addEventListener('loadedmetadata',()=> durationEl.textContent = fmt(audio.
 audio.addEventListener('ended',()=> nextTrack(false));
 playBtn.addEventListener('click',()=>{ if (!currentTrack()){ playAll(false); return; } if (audio.paused) audio.play(); else audio.pause(); });
 nextBtn.addEventListener('click',()=>nextTrack(true)); prevBtn.addEventListener('click',prevTrack);
-shuffleBtn.addEventListener('click',()=>{ shuffleOn=!shuffleOn; syncPlaybackModeButtons(); });
+shuffleBtn.addEventListener('click',()=>{ shuffleOn=!shuffleOn; if(shuffleOn && queue.length) buildShuffleOrder(currentIndex); else {shuffleOrder=[];shufflePosition=-1;} syncPlaybackModeButtons(); });
 repeatOneBtn.addEventListener('click',()=>setRepeatMode(2));
 repeatBtn.addEventListener('click',()=>setRepeatMode(1));
 progress.addEventListener('input',()=>{ if(audio.duration) audio.currentTime=(Number(progress.value)/100)*audio.duration; });
@@ -4752,9 +4830,32 @@ songPageBack?.addEventListener('click',closeSongPage);
 songPlayBtn?.addEventListener('click',()=>{ if(!currentTrack()){playAll(false);return;} if(audio.paused) audio.play(); else audio.pause(); });
 songPrevBtn?.addEventListener('click',prevTrack);
 songNextBtn?.addEventListener('click',()=>nextTrack(true));
-songShuffleBtn?.addEventListener('click',()=>{shuffleOn=!shuffleOn;syncPlaybackModeButtons();});
+songShuffleBtn?.addEventListener('click',()=>{shuffleOn=!shuffleOn;if(shuffleOn && queue.length) buildShuffleOrder(currentIndex); else {shuffleOrder=[];shufflePosition=-1;} syncPlaybackModeButtons();});
 songRepeatOneBtn?.addEventListener('click',()=>setRepeatMode(2));
 songRepeatAllBtn?.addEventListener('click',()=>setRepeatMode(1));
+function currentShareUrl(){
+  const track=currentTrack();
+  if(track) return `${location.origin}${location.pathname}${location.search}#song/${encodeURIComponent(track.id)}`;
+  return location.href.split('#')[0];
+}
+function showShareFeedback(message='Link copied'){
+  const el=document.getElementById('shareFeedback'); if(!el) return;
+  el.textContent=message; el.classList.add('show'); clearTimeout(showShareFeedback.timer);
+  showShareFeedback.timer=setTimeout(()=>el.classList.remove('show'),1800);
+}
+async function shareCurrent(){
+  const track=currentTrack();
+  const title=track ? `${track.title} · Tabi Unplugged` : 'Tabi Unplugged';
+  const text=track ? `Listen to ${track.title} on Tabi Unplugged.` : 'Listen to Tabi Unplugged.';
+  const url=currentShareUrl();
+  try{
+    if(navigator.share){ await navigator.share({title,text,url}); return; }
+    if(navigator.clipboard?.writeText){ await navigator.clipboard.writeText(url); showShareFeedback('Share link copied'); return; }
+    const box=document.createElement('textarea'); box.value=url; box.setAttribute('readonly',''); box.style.position='fixed'; box.style.opacity='0'; document.body.appendChild(box); box.select(); document.execCommand('copy'); box.remove(); showShareFeedback('Share link copied');
+  }catch(err){ if(err?.name!=='AbortError') showShareFeedback('Copy the page link to share'); }
+}
+document.getElementById('songShareBtn')?.addEventListener('click',shareCurrent);
+document.getElementById('sharePlayerBtn')?.addEventListener('click',shareCurrent);
 songProgress?.addEventListener('input',()=>{if(audio.duration) audio.currentTime=(Number(songProgress.value)/100)*audio.duration;});
 songVolume?.addEventListener('input',()=>{audio.volume=Number(songVolume.value);volume.value=audio.volume;});
 audio.addEventListener('timeupdate',()=>{ if(songProgress) songProgress.value=audio.duration?(audio.currentTime/audio.duration)*100:0; if(songCurrentTime) songCurrentTime.textContent=fmt(audio.currentTime); });
