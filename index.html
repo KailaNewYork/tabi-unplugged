@@ -4388,17 +4388,49 @@ html.tu-phone .topbar.service-nav .main-nav .desktop-kaila-link{display:none !im
 
 <style id="v2-36-item-share-buttons">
 .track-card .card-actions{display:grid !important;grid-template-columns:minmax(0,1fr) auto !important;align-items:center !important;gap:8px !important;}
-.track-card .card-share-btn,.playlist-share-btn{display:inline-flex !important;align-items:center !important;justify-content:center !important;min-height:34px !important;padding:7px 12px !important;border:1px solid rgba(243,197,91,.30) !important;border-radius:999px !important;background:rgba(243,197,91,.055) !important;color:#f3c55b !important;font-weight:800 !important;white-space:nowrap !important;}
-.track-card .card-share-btn:hover,.playlist-share-btn:hover{background:rgba(243,197,91,.12) !important;border-color:rgba(243,197,91,.5) !important;}
+.track-card .card-share-btn,.playlist-share-btn,.session-share-btn{display:inline-flex !important;align-items:center !important;justify-content:center !important;min-height:34px !important;padding:7px 12px !important;border:1px solid rgba(243,197,91,.30) !important;border-radius:999px !important;background:rgba(243,197,91,.055) !important;color:#f3c55b !important;font-weight:800 !important;white-space:nowrap !important;}
+.track-card .card-share-btn:hover,.playlist-share-btn:hover,.session-share-btn:hover{background:rgba(243,197,91,.12) !important;border-color:rgba(243,197,91,.5) !important;}
 .playlist-card{cursor:pointer !important;}
 .playlist-card-actions{display:flex !important;margin-top:8px !important;}
 .playlist-share-btn{width:100% !important;}
 @media(max-width:760px){
  html.tu-phone .track-card .card-actions{grid-template-columns:1fr !important;gap:5px !important;}
- html.tu-phone .track-card .card-share-btn,html.tu-phone .playlist-share-btn{width:100% !important;min-height:30px !important;padding:6px 8px !important;font-size:10px !important;}
+ html.tu-phone .track-card .card-share-btn,html.tu-phone .playlist-share-btn,html.tu-phone .session-share-btn{width:100% !important;min-height:30px !important;padding:6px 8px !important;font-size:10px !important;}
 }
 </style>
 
+
+<style id="v2-37-desktop-playlist-share-size-fix">
+/* v2.37 — desktop only: make playlist share buttons the same smaller pill style as song share buttons. */
+@media (min-width: 761px){
+  .playlist-card-actions{
+    justify-content:flex-start !important;
+  }
+  .playlist-share-btn{
+    width:auto !important;
+    min-width:104px !important;
+    padding:7px 18px !important;
+    min-height:34px !important;
+    display:inline-flex !important;
+    flex:0 0 auto !important;
+    align-self:flex-start !important;
+  }
+}
+</style>
+
+
+<style id="v2-38-session-share-buttons">
+.session-share-row{display:flex;justify-content:flex-start;margin-top:9px;}
+.session-detail-share-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+@media (min-width:761px){
+  .home-session-card .session-share-btn,
+  .public-session-card .session-share-btn{width:auto !important;min-width:104px !important;padding:7px 18px !important;flex:0 0 auto !important;}
+}
+@media (max-width:760px){
+  html.tu-phone .home-session-card .session-share-row,
+  html.tu-phone .public-session-card .session-share-row{width:100% !important;}
+}
+</style>
 </head>
 <body>
   <div class="ambient ambient-one"></div>
@@ -5809,6 +5841,7 @@ function publicShareUrlFor(target){
   const publicBase='https://tabiunplugged.com/';
   if(target?.type==='track' && target.id) return `${publicBase}#song/${encodeURIComponent(target.id)}`;
   if(target?.type==='playlist' && target.id) return `${publicBase}#playlist/${encodeURIComponent(target.id)}`;
+  if(target?.type==='session' && target.id) return `${publicBase}#session/${encodeURIComponent(target.id)}`;
   const track=currentTrack();
   if(track) return `${publicBase}#song/${encodeURIComponent(track.id)}`;
   return publicBase;
@@ -5830,6 +5863,10 @@ function getSharePayload(target=activeShareTarget){
     const pl=getPlaylist(target.id);
     if(pl) return {title:`${pl.name} · Tabi Unplugged`,text:`Listen to the ${pl.name} playlist on Tabi Unplugged.`,url:publicShareUrlFor(target)};
   }
+  if(target?.type==='session'){
+    const s=(tuSessions||[]).find(x=>x.id===target.id) || getTabiSessionsWithMigration().find(x=>x.id===target.id);
+    if(s) return {title:`${s.title} · Tabi Session`,text:`Listen to the ${s.title} Tabi Session on Tabi Unplugged.`,url:publicShareUrlFor(target)};
+  }
   const track=currentTrack();
   return {
     title:track ? `${track.title} · Tabi Unplugged` : 'Tabi Unplugged',
@@ -5845,6 +5882,7 @@ function openSharePanel(target=null){
   if(copy){
     if(target?.type==='track'){ const t=getTrackById(target.id); copy.textContent=t ? `Share “${t.title}” wherever you want.` : 'Choose where you want to share.'; }
     else if(target?.type==='playlist'){ const pl=getPlaylist(target.id); copy.textContent=pl ? `Share the “${pl.name}” playlist wherever you want.` : 'Choose where you want to share.'; }
+    else if(target?.type==='session'){ const s=(tuSessions||[]).find(x=>x.id===target.id) || getTabiSessionsWithMigration().find(x=>x.id===target.id); copy.textContent=s ? `Share the “${s.title}” Tabi Session wherever you want.` : 'Choose where you want to share.'; }
     else copy.textContent=currentTrack() ? `Share “${currentTrack().title}” wherever you want.` : 'Choose where you want to share Tabi Unplugged.';
   }
   if(!panel) return;
@@ -6019,6 +6057,17 @@ function wireHomePlayButtons(){
       document.getElementById('sessionsView')?.classList.add('active');
       document.querySelectorAll('.main-nav a[href^="#"]').forEach(item => item.classList.remove('active'));
       loadPublicSessions();
+
+(function openDeepLinkedSession(){
+  const m=location.hash.match(/^#session\/(.+)$/);
+  if(!m) return;
+  const id=decodeURIComponent(m[1]);
+  const exists=(tuSessions||[]).some(s=>s.id===id);
+  if(exists){
+    requestAnimationFrame(()=>openPublicSession(id));
+  }
+})();
+
       window.scrollTo({top:0, behavior:'smooth'});
     });
   }
@@ -6176,8 +6225,10 @@ function renderPublicSessions(){
         <h3>${escTU(session.title)}</h3>
         <p>${escTU(session.description || 'A curated Tabi Unplugged collection.')}</p>
         <div class="public-session-meta">${(session.trackIds||[]).length} song${(session.trackIds||[]).length === 1 ? '' : 's'}</div>
+        <div class="session-share-row"><button class="mini-btn session-share-btn" type="button" aria-label="Share ${escTU(session.title)}">Share</button></div>
       </div>`;
     card.addEventListener('click', () => openPublicSession(session.id));
+    card.querySelector('.session-share-btn')?.addEventListener('click', (e) => { e.stopPropagation(); openSharePanel({type:'session',id:session.id}); });
     grid.appendChild(card);
   });
 }
@@ -6268,6 +6319,7 @@ document.getElementById('sessionDetailModal')?.addEventListener('click', e => {
   if(e.target.id === 'sessionDetailModal') closePublicSession();
 });
 document.getElementById('playSessionBtn')?.addEventListener('click', playActiveSession);
+document.getElementById('shareSessionBtn')?.addEventListener('click',()=>{ if(activePublicSession) openSharePanel({type:'session',id:activePublicSession.id}); });
 
 // Extend any existing view navigation with Sessions.
 document.querySelectorAll('[data-view="sessions"]').forEach(btn => {
@@ -6311,11 +6363,13 @@ function renderHomeSessions(){
       </div>
       <h3>${escTU(s.title)}</h3>
       <small>${(s.trackIds||[]).length} song${(s.trackIds||[]).length===1?'':'s'}</small>
+      <div class="session-share-row"><button class="mini-btn session-share-btn" type="button" aria-label="Share ${escTU(s.title)}">Share</button></div>
     </article>
   `).join('');
 
   grid.querySelectorAll('[data-session-id]').forEach(card => {
     card.addEventListener('click', () => openPublicSession(card.dataset.sessionId));
+    card.querySelector('.session-share-btn')?.addEventListener('click', (e) => { e.stopPropagation(); openSharePanel({type:'session',id:card.dataset.sessionId}); });
   });
 }
 
@@ -6484,7 +6538,7 @@ if(headerSearch){
           <span class="eyebrow">TABİ SESSION</span>
           <h2 id="sessionDetailTitle">Session</h2>
           <p id="sessionDetailDescription"></p>
-          <button class="primary-btn" id="playSessionBtn">▶ Play Session</button>
+          <div class="session-detail-share-row"><button class="primary-btn" id="playSessionBtn">▶ Play Session</button><button class="mini-btn session-share-btn" id="shareSessionBtn" type="button">Share</button></div>
         </div>
       </div>
       <div class="context-search-row session-context-search-row">
