@@ -454,8 +454,8 @@ main{
 
 /* v1.15 — back to Tabi Unplugged */
 .back-to-tabi{
-  margin-left:8px;
-  padding-left:18px;
+  margin-left:4px;
+  padding-left:11px;
   border-left:1px solid rgba(255,255,255,.10);
   color:#f3c55b;
   font-weight:800;
@@ -3535,7 +3535,7 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
   .topbar.service-nav .main-nav .back-to-tabi{
     display:flex !important;
     margin-left:0 !important;
-    padding-left:3px !important;
+    padding-left:5px !important;
     border-left:0 !important;
     color:#f3c55b !important;
   }
@@ -3553,6 +3553,26 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
 @media(max-width:900px){
   .mobile-share-fab{display:grid!important;place-items:center!important}
   .topbar.service-nav .main-nav{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+}
+</style>
+
+<style id="v2-12-kaila-metallic-link">
+/* Remove divider and give the Kaila New York website link a metallic gold finish. */
+.topbar.service-nav .main-nav .back-to-tabi{
+  border-left:0 !important;
+  margin-left:0 !important;
+  padding-left:0 !important;
+  background:linear-gradient(180deg,#fff4c9 0%,#f7d36a 28%,#c98a1a 58%,#ffe79a 82%,#b8740c 100%) !important;
+  -webkit-background-clip:text !important;
+  background-clip:text !important;
+  -webkit-text-fill-color:transparent !important;
+  color:transparent !important;
+  font-weight:800 !important;
+  text-shadow:0 0 14px rgba(243,197,91,.14);
+}
+.topbar.service-nav .main-nav .back-to-tabi:hover{
+  filter:brightness(1.12);
+  transform:translateY(-1px);
 }
 </style>
 </head>
@@ -3589,7 +3609,7 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
         <a href="#librarySection">Library</a>
         <a href="#merch">Merch</a>
       
-        <a id="backToTabiLink" class="back-to-tabi" href="https://kailanewyork.wixstudio.com/kailanewyorkllc" aria-label="Visit Kaila New York">Kaila New York ↗</a>
+        <a id="backToTabiLink" class="back-to-tabi" href="https://kailanewyork.wixstudio.com/kailanewyorkllc" aria-label="Visit Kaila New York">Kaila New York Website</a>
       </nav>
     </div>
     
@@ -3599,7 +3619,7 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
       </div>
 
 <div class="top-actions">
-      <button class="ghost-btn global-share-btn" id="globalShareBtn" type="button" aria-label="Share Tabi Unplugged">Share ↗</button>
+      <button class="ghost-btn global-share-btn" id="globalShareBtn" type="button" aria-label="Share Tabi Unplugged">Share</button>
       <button class="ghost-btn" id="newPlaylistTop">＋ New Playlist</button>
       <button class="ghost-btn" id="shuffleAllTop" aria-label="Shuffle all songs">↻ Shuffle All</button>
     </div>
