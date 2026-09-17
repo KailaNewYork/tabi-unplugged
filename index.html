@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#090713" />
   <title>Tabi Unplugged</title>
-  <meta name="tabi-build" content="v2.09-merch-share-playback" />
+  <meta name="tabi-build" content="v2.10-mobile-nav-merch-share" />
   <style>
 :root{
   --bg:#08070e;
@@ -3511,6 +3511,40 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
 }
 </style>
 
+
+<style id="v2-10-final-mobile-nav">
+/* FINAL mobile navigation override. Keep this after all older styles. */
+@media (max-width:900px){
+  .topbar.service-nav .main-nav{
+    display:grid !important;
+    grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+    width:100% !important;
+    gap:6px !important;
+  }
+  .topbar.service-nav .main-nav a{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    text-align:center !important;
+    min-width:0 !important;
+    padding:9px 3px !important;
+    font-size:11px !important;
+    line-height:1.1 !important;
+    white-space:nowrap !important;
+  }
+  .topbar.service-nav .main-nav .back-to-tabi{
+    display:flex !important;
+    margin-left:0 !important;
+    padding-left:3px !important;
+    border-left:0 !important;
+    color:#f3c55b !important;
+  }
+}
+@media (max-width:430px){
+  .topbar.service-nav .main-nav{gap:4px !important;}
+  .topbar.service-nav .main-nav a{font-size:10px !important;padding:8px 2px !important;}
+}
+</style>
 </head>
 <body>
   <div class="ambient ambient-one"></div>
