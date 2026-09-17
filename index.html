@@ -3630,6 +3630,25 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
   }
 }
 </style>
+
+<style id="v2-15-mobile-nav-breathing-room">
+/* MOBILE ONLY: keep nav centered, add more breathing room between each item. */
+@media (max-width:900px){
+  .topbar.service-nav .main-nav{
+    justify-content:center !important;
+    gap:14px !important;
+    padding-left:10px !important;
+    padding-right:10px !important;
+  }
+}
+@media (max-width:430px){
+  .topbar.service-nav .main-nav{
+    gap:10px !important;
+    padding-left:8px !important;
+    padding-right:8px !important;
+  }
+}
+</style>
 </head>
 <body>
   <div class="ambient ambient-one"></div>
@@ -3693,7 +3712,7 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
     <section class="quick-listen service-row" aria-label="Featured songs">
       <div class="row-head">
         <div>
-          <h3>Tabi Sessions</h3><span class="sessions-slide-cue">Slide for more sessions →</span>
+          <h3>Tabi Sessions</h3><span class="sessions-slide-cue">Coming soon · Slide for more sessions →</span>
         </div>
       </div>
       <div class="quick-rail service-rail" id="homeSessionsGrid">
