@@ -4033,6 +4033,34 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
 }
 </style>
 
+
+<style id="v2-27-desktop-kaila-button-hard-fix">
+/* Hard fix: style the actual desktop Kaila link as a button regardless of desktop viewport width. */
+html:not(.tu-phone) .topbar.service-nav .main-nav .desktop-kaila-link{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:9px 16px !important;
+  min-height:36px !important;
+  border:1px solid rgba(243,197,91,.9) !important;
+  border-radius:999px !important;
+  background:linear-gradient(135deg,#fff2bd 0%,#e6b13e 48%,#a86b11 100%) !important;
+  -webkit-background-clip:border-box !important;
+  background-clip:border-box !important;
+  -webkit-text-fill-color:#17110a !important;
+  color:#17110a !important;
+  font-weight:900 !important;
+  line-height:1 !important;
+  text-shadow:none !important;
+  box-shadow:0 7px 18px rgba(0,0,0,.2) !important;
+}
+html:not(.tu-phone) .topbar.service-nav .main-nav .desktop-kaila-link::after{display:none !important;}
+html:not(.tu-phone) .topbar.service-nav .main-nav .desktop-kaila-link:hover{
+  transform:translateY(-1px) !important;
+  filter:brightness(1.06) !important;
+}
+html.tu-phone .topbar.service-nav .main-nav .desktop-kaila-link{display:none !important;}
+</style>
 </head>
 <body>
   <div class="ambient ambient-one"></div>
