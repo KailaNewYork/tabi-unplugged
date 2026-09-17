@@ -3545,6 +3545,16 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
   .topbar.service-nav .main-nav a{font-size:10px !important;padding:8px 2px !important;}
 }
 </style>
+
+<style id="v2-11-visible-share">
+.global-share-btn{border-color:rgba(243,197,91,.48)!important;color:#ffe29a!important;font-weight:800!important}
+.global-share-btn:hover{background:rgba(243,197,91,.12)!important}
+.mobile-share-fab{display:none;position:fixed;z-index:120;right:16px;bottom:96px;width:48px;height:48px;border-radius:50%;border:1px solid rgba(243,197,91,.48);background:linear-gradient(135deg,#ffe8a5,#d79a27);color:#17110a;font-size:24px;font-weight:900;box-shadow:0 12px 34px rgba(0,0,0,.42)}
+@media(max-width:900px){
+  .mobile-share-fab{display:grid!important;place-items:center!important}
+  .topbar.service-nav .main-nav{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+}
+</style>
 </head>
 <body>
   <div class="ambient ambient-one"></div>
@@ -3578,7 +3588,6 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
         <a href="#playlists">Playlists</a>
         <a href="#librarySection">Library</a>
         <a href="#merch">Merch</a>
-        <a href="#" id="mainShareLink" aria-label="Share Tabi Unplugged">Share ↗</a>
       
         <a id="backToTabiLink" class="back-to-tabi" href="https://kailanewyork.wixstudio.com/kailanewyorkllc" aria-label="Visit Kaila New York">Kaila New York ↗</a>
       </nav>
@@ -3590,6 +3599,7 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
       </div>
 
 <div class="top-actions">
+      <button class="ghost-btn global-share-btn" id="globalShareBtn" type="button" aria-label="Share Tabi Unplugged">Share ↗</button>
       <button class="ghost-btn" id="newPlaylistTop">＋ New Playlist</button>
       <button class="ghost-btn" id="shuffleAllTop" aria-label="Shuffle all songs">↻ Shuffle All</button>
     </div>
@@ -3783,6 +3793,7 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
       <input id="volume" type="range" min="0" max="1" value="0.85" step="0.01" aria-label="Volume" />
     </div>
   </footer>
+  <button class="mobile-share-fab" id="mobileShareBtn" type="button" aria-label="Share Tabi Unplugged" title="Share">↗</button>
   <div class="share-feedback" id="shareFeedback" role="status" aria-live="polite">Link copied</div>
 
 
@@ -4891,7 +4902,8 @@ async function shareCurrent(){
 }
 document.getElementById('songShareBtn')?.addEventListener('click',shareCurrent);
 document.getElementById('sharePlayerBtn')?.addEventListener('click',shareCurrent);
-document.getElementById('mainShareLink')?.addEventListener('click',e=>{ e.preventDefault(); shareCurrent(); });
+document.getElementById('globalShareBtn')?.addEventListener('click',shareCurrent);
+document.getElementById('mobileShareBtn')?.addEventListener('click',shareCurrent);
 songProgress?.addEventListener('input',()=>{if(audio.duration) audio.currentTime=(Number(songProgress.value)/100)*audio.duration;});
 songVolume?.addEventListener('input',()=>{audio.volume=Number(songVolume.value);volume.value=audio.volume;});
 audio.addEventListener('timeupdate',()=>{ if(songProgress) songProgress.value=audio.duration?(audio.currentTime/audio.duration)*100:0; if(songCurrentTime) songCurrentTime.textContent=fmt(audio.currentTime); });
