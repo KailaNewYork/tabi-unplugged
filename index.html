@@ -3745,6 +3745,65 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
 }
 </style>
 
+
+<style id="v2-18-mobile-actions-row-force">
+/* Robust mobile-only action row outside the legacy nav so old nav rules cannot hide it. */
+.mobile-nav-actions-row{display:none;}
+@media (max-width:900px){
+  .mobile-share-fab{display:none !important;}
+  .topbar.service-nav .main-nav{
+    display:grid !important;
+    grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+    gap:10px !important;
+    width:100% !important;
+    margin:0 !important;
+  }
+  .topbar.service-nav .main-nav > a[href="#home"],
+  .topbar.service-nav .main-nav > a[href="#playlists"],
+  .topbar.service-nav .main-nav > a[href="#librarySection"],
+  .topbar.service-nav .main-nav > a[href="#merch"]{
+    display:flex !important;
+    justify-content:center !important;
+    align-items:center !important;
+    width:100% !important;
+    padding:8px 0 !important;
+    margin:0 !important;
+    font-size:12px !important;
+    white-space:nowrap !important;
+  }
+  .topbar.service-nav .main-nav .desktop-kaila-link{display:none !important;}
+  .mobile-nav-actions-row{
+    display:grid !important;
+    grid-template-columns:1fr 1fr !important;
+    gap:10px !important;
+    width:100% !important;
+    margin-top:8px !important;
+  }
+  .mobile-nav-action-btn{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    min-height:38px !important;
+    padding:9px 12px !important;
+    border:1px solid rgba(243,197,91,.55) !important;
+    border-radius:999px !important;
+    background:rgba(255,255,255,.04) !important;
+    color:#ffe29a !important;
+    text-decoration:none !important;
+    font-size:12px !important;
+    font-weight:800 !important;
+    line-height:1 !important;
+    white-space:nowrap !important;
+  }
+  .mobile-kaila-btn{
+    background:linear-gradient(135deg,#fff0b7 0%,#e2aa31 48%,#9f650e 100%) !important;
+    color:#17110a !important;
+    border-color:rgba(243,197,91,.75) !important;
+    font-weight:900 !important;
+  }
+}
+</style>
+
 </head>
 <body>
   <div class="ambient ambient-one"></div>
@@ -3778,9 +3837,12 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
         <a href="#playlists">Playlists</a>
         <a href="#librarySection">Library</a>
         <a href="#merch">Merch</a>
-        <button id="mobileNavShareBtn" class="mobile-nav-action mobile-nav-share" type="button" aria-label="Share Tabi Unplugged">Share</button>
-        <a id="backToTabiLink" class="back-to-tabi mobile-nav-action mobile-nav-kaila" href="https://kailanewyork.wixstudio.com/kailanewyorkllc" aria-label="Visit Kaila New York">Kaila New York</a>
+        <a id="backToTabiLink" class="back-to-tabi desktop-kaila-link" href="https://kailanewyork.wixstudio.com/kailanewyorkllc" aria-label="Visit Kaila New York">Kaila New York</a>
       </nav>
+      <div class="mobile-nav-actions-row" aria-label="Mobile actions">
+        <button id="mobileNavShareBtn" class="mobile-nav-action-btn" type="button" aria-label="Share Tabi Unplugged">Share</button>
+        <a class="mobile-nav-action-btn mobile-kaila-btn" href="https://kailanewyork.wixstudio.com/kailanewyorkllc" aria-label="Visit Kaila New York">Kaila New York</a>
+      </div>
     </div>
     
       <div class="header-search-wrap">
