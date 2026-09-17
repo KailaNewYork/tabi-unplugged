@@ -4332,6 +4332,73 @@ html.tu-phone .topbar.service-nav .main-nav .desktop-kaila-link{display:none !im
 }
 </style>
 
+
+<style id="v2-32-share-panel">
+/* v2.32 — in-app share chooser with direct social/message options. */
+.share-panel-backdrop{
+  position:fixed;inset:0;z-index:220;display:flex;align-items:center;justify-content:center;
+  padding:20px;background:rgba(3,2,8,.78);backdrop-filter:blur(12px);
+}
+.share-panel-backdrop.hidden{display:none!important}
+.share-panel{
+  position:relative;width:min(620px,100%);padding:28px;border-radius:24px;
+  border:1px solid rgba(243,197,91,.24);
+  background:linear-gradient(180deg,#181620,#0d0c12);
+  box-shadow:0 30px 90px rgba(0,0,0,.62);
+}
+.share-panel-close{
+  position:absolute;right:14px;top:14px;width:38px;height:38px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.05);color:#fff;
+  font-size:24px;line-height:1;display:grid;place-items:center;
+}
+.share-panel .eyebrow{display:block;margin-bottom:8px}
+.share-panel h3{margin:0 46px 7px 0;font-size:30px!important;line-height:1.05!important}
+.share-panel-copy{margin:0 0 20px;color:var(--muted);font-size:13px;line-height:1.45}
+.share-options-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+.share-option{
+  min-height:72px;border-radius:16px;border:1px solid rgba(255,255,255,.09);
+  background:rgba(255,255,255,.035);color:#f8f0df;text-decoration:none;
+  display:flex;align-items:center;gap:11px;padding:12px 14px;text-align:left;
+  font-weight:800;transition:.16s;
+}
+.share-option:hover{transform:translateY(-2px);border-color:rgba(243,197,91,.34);background:rgba(243,197,91,.07)}
+.share-option-icon{
+  width:38px;height:38px;border-radius:50%;display:grid;place-items:center;flex:0 0 38px;
+  background:rgba(243,197,91,.10);border:1px solid rgba(243,197,91,.20);color:var(--gold);
+  font-size:14px;font-weight:900;
+}
+.share-option-copy strong,.share-option-copy small{display:block}
+.share-option-copy strong{font-size:13px;line-height:1.15}
+.share-option-copy small{font-size:9px;color:#98919f;margin-top:3px;font-weight:600}
+.share-option.primary-share{background:linear-gradient(180deg,#f7d77f,#e4aa32);color:#1b1306;border-color:rgba(255,233,168,.72)}
+.share-option.primary-share .share-option-icon{background:#1b1306;color:#f7d77f;border-color:#1b1306}
+.share-option.primary-share .share-option-copy small{color:#4d350b}
+@media(max-width:760px){
+  .share-panel-backdrop{padding:10px}
+  .share-panel{padding:22px 14px 16px;border-radius:18px}
+  .share-panel h3{font-size:24px!important}
+  .share-options-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .share-option{min-height:64px;padding:9px 10px;border-radius:13px}
+  .share-option-icon{width:32px;height:32px;flex-basis:32px;font-size:12px}
+  .share-option-copy strong{font-size:11px}
+  .share-option-copy small{font-size:8px}
+}
+</style>
+
+
+<style id="v2-36-item-share-buttons">
+.track-card .card-actions{display:grid !important;grid-template-columns:minmax(0,1fr) auto !important;align-items:center !important;gap:8px !important;}
+.track-card .card-share-btn,.playlist-share-btn{display:inline-flex !important;align-items:center !important;justify-content:center !important;min-height:34px !important;padding:7px 12px !important;border:1px solid rgba(243,197,91,.30) !important;border-radius:999px !important;background:rgba(243,197,91,.055) !important;color:#f3c55b !important;font-weight:800 !important;white-space:nowrap !important;}
+.track-card .card-share-btn:hover,.playlist-share-btn:hover{background:rgba(243,197,91,.12) !important;border-color:rgba(243,197,91,.5) !important;}
+.playlist-card{cursor:pointer !important;}
+.playlist-card-actions{display:flex !important;margin-top:8px !important;}
+.playlist-share-btn{width:100% !important;}
+@media(max-width:760px){
+ html.tu-phone .track-card .card-actions{grid-template-columns:1fr !important;gap:5px !important;}
+ html.tu-phone .track-card .card-share-btn,html.tu-phone .playlist-share-btn{width:100% !important;min-height:30px !important;padding:6px 8px !important;font-size:10px !important;}
+}
+</style>
+
 </head>
 <body>
   <div class="ambient ambient-one"></div>
@@ -4435,6 +4502,7 @@ html.tu-phone .topbar.service-nav .main-nav .desktop-kaila-link{display:none !im
         </div>
         <div class="playlist-view-actions">
           <button class="playlist-cover-btn" id="changePlaylistCoverBtn">Change Cover</button>
+          <button class="secondary-btn" id="sharePlaylistBtn" type="button">Share</button>
           <button class="secondary-btn" id="renamePlaylistBtn">Rename</button>
           <button class="danger-btn" id="deletePlaylistBtn">Delete</button>
         </div>
@@ -4582,6 +4650,25 @@ html.tu-phone .topbar.service-nav .main-nav .desktop-kaila-link{display:none !im
   </footer>
   <button class="mobile-share-fab" id="mobileShareBtn" type="button" aria-label="Share Tabi Unplugged" title="Share">↗</button>
   <div class="share-feedback" id="shareFeedback" role="status" aria-live="polite">Link copied</div>
+
+  <div class="share-panel-backdrop hidden" id="sharePanelBackdrop" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="sharePanelTitle">
+    <div class="share-panel" id="sharePanel">
+      <button class="share-panel-close" id="sharePanelClose" type="button" aria-label="Close share menu">×</button>
+      <span class="eyebrow">SHARE THE FREQUENCY</span>
+      <h3 id="sharePanelTitle">Share Tabi Unplugged</h3>
+      <p class="share-panel-copy" id="sharePanelCopy">Choose where you want to send it.</p>
+      <div class="share-options-grid">
+        <button class="share-option" id="shareTikTok" type="button"><span class="share-option-icon">TT</span><span class="share-option-copy"><strong>TikTok</strong><small>Copy link + open TikTok</small></span></button>
+        <button class="share-option" id="shareYouTube" type="button"><span class="share-option-icon">▶</span><span class="share-option-copy"><strong>YouTube</strong><small>Copy link + open YouTube</small></span></button>
+        <button class="share-option" id="shareInstagram" type="button"><span class="share-option-icon">IG</span><span class="share-option-copy"><strong>Instagram</strong><small>Copy link + open Instagram</small></span></button>
+        <button class="share-option" id="shareFacebook" type="button"><span class="share-option-icon">f</span><span class="share-option-copy"><strong>Facebook</strong><small>Share directly</small></span></button>
+        <button class="share-option" id="shareLinkedIn" type="button"><span class="share-option-icon">in</span><span class="share-option-copy"><strong>LinkedIn</strong><small>Share directly</small></span></button>
+        <button class="share-option" id="shareSpotify" type="button"><span class="share-option-icon">S</span><span class="share-option-copy"><strong>Spotify</strong><small>Copy link + open Spotify</small></span></button>
+        <button class="share-option primary-share" id="shareCopy" type="button"><span class="share-option-icon">⧉</span><span class="share-option-copy"><strong>Copy Link</strong><small>Copy this Tabi link</small></span></button>
+      </div>
+    </div>
+  </div>
+
 
 
   <div class="modal-backdrop hidden" id="playlistModal" role="dialog" aria-modal="true" aria-labelledby="playlistModalTitle">
@@ -4976,10 +5063,11 @@ function trackCard(track, context='library'){
       <strong title="${track.title}">${track.title}</strong>
       <span>${track.artist}</span>
     </div>
-    <div class="card-actions" style="display:flex !important;width:100% !important;">
+    <div class="card-actions" style="display:flex !important;width:100% !important;gap:8px !important;">
       ${context === 'playlist'
         ? '<button class="mini-btn remove-track-btn">Remove</button>'
         : '<button class="mini-btn add-playlist-btn">＋ Add to Playlist</button>'}
+      <button class="mini-btn card-share-btn" type="button" aria-label="Share ${escapeHtml(track.title)}">Share</button>
     </div>`;
   card.querySelector('.card-play').addEventListener('click', (e) => {
     e.stopPropagation();
@@ -4989,6 +5077,8 @@ function trackCard(track, context='library'){
   if (addPlaylistBtn) addPlaylistBtn.addEventListener('click', (e) => { e.stopPropagation(); openAddToPlaylist(track.id); });
   const remove = card.querySelector('.remove-track-btn');
   if (remove) remove.addEventListener('click', (e) => { e.stopPropagation(); removeFromSelectedPlaylist(track.id); });
+  const shareBtn = card.querySelector('.card-share-btn');
+  if (shareBtn) shareBtn.addEventListener('click', (e) => { e.stopPropagation(); openSharePanel({type:'track', id:track.id}); });
 
   card.addEventListener('click', (e) => {
     if (e.target.closest('button')) return;
@@ -5014,10 +5104,15 @@ function renderPlaylists(){
   }
   playlists.forEach(pl => {
     const plTracks = tracksForPlaylist(pl);
-    const card = document.createElement('button');
+    const card = document.createElement('article');
     card.className = 'playlist-card';
-    card.innerHTML = `<div class="playlist-cover">${playlistCoverMarkup(pl, true)}<span>${plTracks.length}</span></div><strong>${escapeHtml(pl.name)}</strong><small>${plTracks.length} ${plTracks.length===1?'song':'songs'}</small>`;
-    card.addEventListener('click', () => openPlaylist(pl.id));
+    card.tabIndex = 0;
+    card.setAttribute('role','button');
+    card.setAttribute('aria-label',`Open ${pl.name}`);
+    card.innerHTML = `<div class="playlist-cover">${playlistCoverMarkup(pl, true)}<span>${plTracks.length}</span></div><strong>${escapeHtml(pl.name)}</strong><small>${plTracks.length} ${plTracks.length===1?'song':'songs'}</small><div class="playlist-card-actions"><button class="mini-btn playlist-share-btn" type="button" aria-label="Share ${escapeHtml(pl.name)}">Share</button></div>`;
+    card.addEventListener('click', (e) => { if(e.target.closest('button')) return; openPlaylist(pl.id); });
+    card.addEventListener('keydown', (e) => { if((e.key==='Enter'||e.key===' ') && !e.target.closest('button')){ e.preventDefault(); openPlaylist(pl.id); } });
+    card.querySelector('.playlist-share-btn')?.addEventListener('click', (e) => { e.stopPropagation(); openSharePanel({type:'playlist', id:pl.id}); });
     playlistGrid.appendChild(card);
   });
 }
@@ -5662,6 +5757,7 @@ playlistNameInput.addEventListener('keydown',e=>{if(e.key==='Enter')document.get
 document.getElementById('createFromPicker').addEventListener('click',()=>{ const trackId=pendingTrackId; openModal('create'); pendingTrackId=trackId; });
 document.getElementById('backToLibrary').addEventListener('click',closePlaylistView);
 document.getElementById('changePlaylistCoverBtn').addEventListener('click',openPlaylistCoverModal);
+document.getElementById('sharePlaylistBtn')?.addEventListener('click',()=>{ if(selectedPlaylistId) openSharePanel({type:'playlist',id:selectedPlaylistId}); });
 document.getElementById('renamePlaylistBtn').addEventListener('click',renameSelectedPlaylist);
 document.getElementById('deletePlaylistBtn').addEventListener('click',deleteSelectedPlaylist);
 
@@ -5709,27 +5805,162 @@ songNextBtn?.addEventListener('click',()=>nextTrack(true));
 songShuffleBtn?.addEventListener('click',()=>{shuffleOn=!shuffleOn;if(shuffleOn && queue.length) buildShuffleOrder(currentIndex); else {shuffleOrder=[];shufflePosition=-1;} syncPlaybackModeButtons();});
 songRepeatOneBtn?.addEventListener('click',()=>setRepeatMode(2));
 songRepeatAllBtn?.addEventListener('click',()=>setRepeatMode(1));
-function currentShareUrl(){
+function publicShareUrlFor(target){
+  const publicBase='https://tabiunplugged.com/';
+  if(target?.type==='track' && target.id) return `${publicBase}#song/${encodeURIComponent(target.id)}`;
+  if(target?.type==='playlist' && target.id) return `${publicBase}#playlist/${encodeURIComponent(target.id)}`;
   const track=currentTrack();
-  if(track) return `${location.origin}${location.pathname}${location.search}#song/${encodeURIComponent(track.id)}`;
-  return location.href.split('#')[0];
+  if(track) return `${publicBase}#song/${encodeURIComponent(track.id)}`;
+  return publicBase;
 }
+function currentShareUrl(){ return publicShareUrlFor(activeShareTarget); }
 function showShareFeedback(message='Link copied'){
   const el=document.getElementById('shareFeedback'); if(!el) return;
   el.textContent=message; el.classList.add('show'); clearTimeout(showShareFeedback.timer);
   showShareFeedback.timer=setTimeout(()=>el.classList.remove('show'),1800);
 }
-async function shareCurrent(){
+let activeSharePayload=null;
+let activeShareTarget=null;
+function getSharePayload(target=activeShareTarget){
+  if(target?.type==='track'){
+    const track=getTrackById(target.id);
+    if(track) return {title:`${track.title} · Tabi Unplugged`,text:`Listen to ${track.title} on Tabi Unplugged.`,url:publicShareUrlFor(target)};
+  }
+  if(target?.type==='playlist'){
+    const pl=getPlaylist(target.id);
+    if(pl) return {title:`${pl.name} · Tabi Unplugged`,text:`Listen to the ${pl.name} playlist on Tabi Unplugged.`,url:publicShareUrlFor(target)};
+  }
   const track=currentTrack();
-  const title=track ? `${track.title} · Tabi Unplugged` : 'Tabi Unplugged';
-  const text=track ? `Listen to ${track.title} on Tabi Unplugged.` : 'Listen to Tabi Unplugged.';
-  const url=currentShareUrl();
-  try{
-    if(navigator.share){ await navigator.share({title,text,url}); return; }
-    if(navigator.clipboard?.writeText){ await navigator.clipboard.writeText(url); showShareFeedback('Share link copied'); return; }
-    const box=document.createElement('textarea'); box.value=url; box.setAttribute('readonly',''); box.style.position='fixed'; box.style.opacity='0'; document.body.appendChild(box); box.select(); document.execCommand('copy'); box.remove(); showShareFeedback('Share link copied');
-  }catch(err){ if(err?.name!=='AbortError') showShareFeedback('Copy the page link to share'); }
+  return {
+    title:track ? `${track.title} · Tabi Unplugged` : 'Tabi Unplugged',
+    text:track ? `Listen to ${track.title} on Tabi Unplugged.` : 'Listen to Tabi Unplugged.',
+    url:publicShareUrlFor(null)
+  };
 }
+function openSharePanel(target=null){
+  activeShareTarget=target;
+  activeSharePayload=getSharePayload(target);
+  const panel=document.getElementById('sharePanelBackdrop');
+  const copy=document.getElementById('sharePanelCopy');
+  if(copy){
+    if(target?.type==='track'){ const t=getTrackById(target.id); copy.textContent=t ? `Share “${t.title}” wherever you want.` : 'Choose where you want to share.'; }
+    else if(target?.type==='playlist'){ const pl=getPlaylist(target.id); copy.textContent=pl ? `Share the “${pl.name}” playlist wherever you want.` : 'Choose where you want to share.'; }
+    else copy.textContent=currentTrack() ? `Share “${currentTrack().title}” wherever you want.` : 'Choose where you want to share Tabi Unplugged.';
+  }
+  if(!panel) return;
+  panel.classList.remove('hidden');
+  panel.setAttribute('aria-hidden','false');
+  panel.style.display='flex';
+  document.body.style.overflow='hidden';
+}
+function closeSharePanel(){
+  const panel=document.getElementById('sharePanelBackdrop');
+  if(panel){
+    panel.classList.add('hidden');
+    panel.setAttribute('aria-hidden','true');
+    panel.style.display='';
+  }
+  document.body.style.overflow='';
+  activeSharePayload=null;
+  activeShareTarget=null;
+  try{ sessionStorage.removeItem('tabiShareReturnState'); }catch(e){}
+}
+function saveShareReturnState(){
+  const state={
+    shareOpen:true,
+    shareTarget:activeShareTarget || null,
+    selectedPlaylistId:selectedPlaylistId || null,
+    songPageActive:!!songPageActive,
+    hash:location.hash || '',
+    scrollY:window.scrollY || window.pageYOffset || 0,
+    savedAt:Date.now()
+  };
+  try{ sessionStorage.setItem('tabiShareReturnState',JSON.stringify(state)); }catch(e){}
+  return state;
+}
+function restoreShareReturnState(){
+  let state=null;
+  try{ state=JSON.parse(sessionStorage.getItem('tabiShareReturnState')||'null'); }catch(e){}
+  if(!state || !state.shareOpen) return;
+  /* Ignore stale share sessions after 30 minutes. */
+  if(state.savedAt && Date.now()-state.savedAt>30*60*1000){
+    try{sessionStorage.removeItem('tabiShareReturnState');}catch(e){}
+    return;
+  }
+  if(state.selectedPlaylistId && getPlaylist(state.selectedPlaylistId)){
+    selectedPlaylistId=state.selectedPlaylistId;
+    document.body.classList.add('playlist-detail-active');
+    renderPlaylistView();
+    playlistView.classList.remove('hidden');
+    librarySection.classList.add('hidden');
+  }
+  if(state.songPageActive && state.hash && /^#song\//.test(state.hash)){
+    const m=state.hash.match(/^#song\/(.+)$/);
+    const id=m ? decodeURIComponent(m[1]) : null;
+    if(id && getTrackById(id)){
+      songPageActive=true;
+      document.body.classList.add('song-page-active');
+      if(currentTrack()?.id!==id){ setQueue(tracks,id); loadTrack(currentTrack(),false); }
+      else renderSongPage(currentTrack());
+    }
+  }
+  requestAnimationFrame(()=>{
+    if(Number.isFinite(Number(state.scrollY))) window.scrollTo({top:Number(state.scrollY),behavior:'auto'});
+    openSharePanel(state.shareTarget || null);
+  });
+}
+function openShareWindow(url){
+  saveShareReturnState();
+  const win=window.open(url,'_blank','noopener,noreferrer,width=760,height=680');
+  if(!win) showShareFeedback('Pop-up blocked — link copied instead');
+}
+async function writeShareLink(message='Share link copied'){
+  const payload=activeSharePayload||getSharePayload();
+  try{
+    if(navigator.clipboard?.writeText) await navigator.clipboard.writeText(payload.url);
+    else{
+      const box=document.createElement('textarea'); box.value=payload.url; box.setAttribute('readonly',''); box.style.position='fixed'; box.style.opacity='0'; document.body.appendChild(box); box.select(); document.execCommand('copy'); box.remove();
+    }
+    showShareFeedback(message);
+    return true;
+  }catch(err){ showShareFeedback('Copy the page link to share'); return false; }
+}
+async function copyShareLink(){
+  await writeShareLink('Share link copied');
+  /* Keep Share open so the listener can immediately choose another destination. */
+  saveShareReturnState();
+}
+async function copyAndOpenPlatform(url,name){
+  const ok=await writeShareLink(`Link copied — paste it into ${name}`);
+  /* Preserve the open Share panel and the exact playlist/view before leaving the app. */
+  saveShareReturnState();
+  if(ok) window.open(url,'_blank','noopener,noreferrer');
+}
+function shareCurrent(e){
+  e?.preventDefault?.();
+  e?.stopPropagation?.();
+  openSharePanel();
+}
+
+const sharePanelBackdrop=document.getElementById('sharePanelBackdrop');
+document.getElementById('sharePanel')?.addEventListener('click',e=>e.stopPropagation());
+document.getElementById('sharePanelClose')?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();closeSharePanel();});
+sharePanelBackdrop?.addEventListener('click',e=>{ if(e.target===sharePanelBackdrop) closeSharePanel(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape' && !sharePanelBackdrop?.classList.contains('hidden')) closeSharePanel(); });
+
+document.getElementById('shareTikTok')?.addEventListener('click',()=>copyAndOpenPlatform('https://www.tiktok.com/','TikTok'));
+document.getElementById('shareYouTube')?.addEventListener('click',()=>copyAndOpenPlatform('https://www.youtube.com/','YouTube'));
+document.getElementById('shareInstagram')?.addEventListener('click',()=>copyAndOpenPlatform('https://www.instagram.com/','Instagram'));
+document.getElementById('shareFacebook')?.addEventListener('click',()=>{const p=activeSharePayload||getSharePayload();openShareWindow(`https://www.facebook.com/sharer.php?u=${encodeURIComponent(p.url)}`);});
+document.getElementById('shareLinkedIn')?.addEventListener('click',()=>{const p=activeSharePayload||getSharePayload();openShareWindow(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(p.url)}`);});
+document.getElementById('shareSpotify')?.addEventListener('click',()=>copyAndOpenPlatform('https://open.spotify.com/','Spotify'));
+document.getElementById('shareCopy')?.addEventListener('click',copyShareLink);
+
+/* Restore the exact share/playlist state after returning from an external social app. */
+window.addEventListener('pageshow',()=>setTimeout(restoreShareReturnState,80));
+window.addEventListener('focus',()=>setTimeout(restoreShareReturnState,80));
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) setTimeout(restoreShareReturnState,80); });
+window.addEventListener('load',()=>setTimeout(restoreShareReturnState,120));
 
 // v2.20 mobile popup toolbox
 const mobileToolbox=document.getElementById('mobileToolbox');
@@ -5764,6 +5995,7 @@ audio.addEventListener('play',()=>{if(songPlayBtn) songPlayBtn.textContent='❚�
 audio.addEventListener('pause',()=>{if(songPlayBtn) songPlayBtn.textContent='▶';});
 window.addEventListener('popstate',()=>{ const m=location.hash.match(/^#song\/(.+)$/); if(m){ const id=decodeURIComponent(m[1]); if(getTrackById(id)){ songPageActive=true; document.body.classList.add('song-page-active'); if(currentTrack()?.id!==id){setQueue(tracks,id);songQueueLabel='All Songs';loadTrack(currentTrack(),false);} else renderSongPage(currentTrack()); } } else if(songPageActive){ songPageActive=false; document.body.classList.remove('song-page-active'); } });
 (function openDeepLinkedSong(){ const m=location.hash.match(/^#song\/(.+)$/); if(m){ const id=decodeURIComponent(m[1]); if(getTrackById(id)){ songPageActive=true; songQueueLabel='All Songs'; document.body.classList.add('song-page-active'); setQueue(tracks,id); loadTrack(currentTrack(),false); window.scrollTo(0,0); } } })();
+(function openDeepLinkedPlaylist(){ const m=location.hash.match(/^#playlist\/(.+)$/); if(m){ const id=decodeURIComponent(m[1]); if(getPlaylist(id)){ openPlaylist(id); window.scrollTo(0,0); } } })();
 syncPlaybackModeButtons();
 
 renderTracks(); renderPlaylists();
