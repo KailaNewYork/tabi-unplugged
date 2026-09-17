@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#090713" />
   <title>Tabi Unplugged</title>
-  <meta name="tabi-build" content="v2.10-mobile-nav-merch-share" />
+  <meta name="tabi-build" content="v2.11-visible-share-nav" />
   <style>
 :root{
   --bg:#08070e;
@@ -3517,9 +3517,9 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
 @media (max-width:900px){
   .topbar.service-nav .main-nav{
     display:grid !important;
-    grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+    grid-template-columns:repeat(5,minmax(0,1fr)) !important;
     width:100% !important;
-    gap:6px !important;
+    gap:5px !important;
   }
   .topbar.service-nav .main-nav a{
     display:flex !important;
@@ -3578,8 +3578,9 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
         <a href="#playlists">Playlists</a>
         <a href="#librarySection">Library</a>
         <a href="#merch">Merch</a>
+        <a href="#" id="mainShareLink" aria-label="Share Tabi Unplugged">Share ↗</a>
       
-        <a id="backToTabiLink" class="back-to-tabi" href="https://kailanewyork.com" aria-label="Visit Kaila New York">Kaila New York ↗</a>
+        <a id="backToTabiLink" class="back-to-tabi" href="https://kailanewyork.wixstudio.com/kailanewyorkllc" aria-label="Visit Kaila New York">Kaila New York ↗</a>
       </nav>
     </div>
     
@@ -3690,7 +3691,7 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
           <p>Official Tabi Unplugged merchandise lives inside the Kaila New York world. Shop pieces connected to the music, the sessions, and the Tabi Unplugged experience.</p>
         </div>
         <div class="merch-actions">
-          <a class="primary-btn" href="https://kailanewyork.com" target="_blank" rel="noopener">Shop Tabi Merch ↗</a>
+          <a class="primary-btn" href="https://kailanewyork.wixstudio.com/kailanewyorkllc" target="_blank" rel="noopener">Shop Tabi Merch ↗</a>
         </div>
       </div>
     </section>
@@ -4890,6 +4891,7 @@ async function shareCurrent(){
 }
 document.getElementById('songShareBtn')?.addEventListener('click',shareCurrent);
 document.getElementById('sharePlayerBtn')?.addEventListener('click',shareCurrent);
+document.getElementById('mainShareLink')?.addEventListener('click',e=>{ e.preventDefault(); shareCurrent(); });
 songProgress?.addEventListener('input',()=>{if(audio.duration) audio.currentTime=(Number(songProgress.value)/100)*audio.duration;});
 songVolume?.addEventListener('input',()=>{audio.volume=Number(songVolume.value);volume.value=audio.volume;});
 audio.addEventListener('timeupdate',()=>{ if(songProgress) songProgress.value=audio.duration?(audio.currentTime/audio.duration)*100:0; if(songCurrentTime) songCurrentTime.textContent=fmt(audio.currentTime); });
