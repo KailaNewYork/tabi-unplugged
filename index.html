@@ -3981,6 +3981,25 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
   }
 }
 </style>
+
+<style id="v2-23-mobile-logo-visible-scale">
+/* MOBILE ONLY: enlarge the visible Tabi Unplugged artwork, not just its transparent image box. */
+@media (max-width:760px){
+  html.tu-phone .mobile-tabi-title{
+    min-height:118px !important;
+    padding:16px 10px 28px !important;
+    overflow:visible !important;
+  }
+  html.tu-phone .mobile-tabi-title img{
+    width:min(92vw,390px) !important;
+    max-width:none !important;
+    max-height:none !important;
+    height:auto !important;
+    transform:scale(1.28) !important;
+    transform-origin:center center !important;
+  }
+}
+</style>
 </head>
 <body>
   <div class="ambient ambient-one"></div>
