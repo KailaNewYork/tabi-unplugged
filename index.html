@@ -7437,5 +7437,29 @@ openPlaylist = function(id){
 
 
 </script>
+
+<script>
+/* Session detail close fix: the Session modal markup is created after the main script,
+   so wire the X and backdrop here after those elements exist. */
+(function(){
+  const modal = document.getElementById('sessionDetailModal');
+  const closeBtn = document.getElementById('closeSessionDetail');
+
+  function closeSessionDetailNow(){
+    if(modal) modal.classList.add('hidden');
+  }
+
+  closeBtn?.addEventListener('click', function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    closeSessionDetailNow();
+  });
+
+  modal?.addEventListener('click', function(e){
+    if(e.target === modal) closeSessionDetailNow();
+  });
+})();
+</script>
+
 </body>
 </html>
