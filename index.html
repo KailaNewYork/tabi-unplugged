@@ -5084,6 +5084,38 @@ function loadPlaylists(){
 }
 function savePlaylists(){ localStorage.setItem(PLAYLIST_KEY, JSON.stringify(playlists)); }
 function uid(){ return 'pl-' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+// v2.14 Supabase engagement tracking — song plays
+const TABI_SUPABASE_URL = 'https://ilbwrttuuxgwzwlqtxwc.supabase.co';
+const TABI_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_CAOmPrc4gjeuUx3d9_2BAA_9gZ85NMg';
+let tabiPlayCountedForLoad = false;
+
+async function recordTabiEngagement(contentType, contentKey, eventType, contextSessionSlug=null, shareChannel=null){
+  if(!contentType || !contentKey || !eventType) return null;
+  try{
+    const res = await fetch(`${TABI_SUPABASE_URL}/rest/v1/rpc/record_engagement`,{
+      method:'POST',
+      headers:{
+        'apikey':TABI_SUPABASE_PUBLISHABLE_KEY,
+        'Authorization':`Bearer ${TABI_SUPABASE_PUBLISHABLE_KEY}`,
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify({
+        p_content_type:contentType,
+        p_content_key:contentKey,
+        p_event_type:eventType,
+        p_context_session_slug:contextSessionSlug || null,
+        p_share_channel:shareChannel || null
+      })
+    });
+    if(!res.ok) throw new Error(`Engagement request failed: ${res.status}`);
+    return await res.json();
+  }catch(err){
+    console.warn('Tabi engagement tracking unavailable:', err);
+    return null;
+  }
+}
+
 function currentTrack(){ return currentIndex >= 0 ? queue[currentIndex] : null; }
 function getPlaylist(id){ return playlists.find(p => p.id === id); }
 function tracksForPlaylist(pl){ return (pl?.trackIds || []).map(id => tracks.find(t => t.id === id)).filter(Boolean); }
@@ -5734,6 +5766,7 @@ function safePlay(){
 }
 function loadTrack(track, autoplay=false){
   if (!track) return;
+  tabiPlayCountedForLoad = false;
   audio.src = track.audio; audio.load();
   playerTitle.textContent = track.title; playerArtist.textContent = track.artist; playerCover.src = track.cover;
   if (heroNow) heroNow.textContent = `Now playing: ${track.title}`; document.title = `${track.title} · Tabi Unplugged`; renderTracks();
@@ -5743,7 +5776,7 @@ function loadTrack(track, autoplay=false){
 function playTrackById(id, autoplay=true){ const source = displayTracks.some(t=>t.id===id) ? displayTracks : tracks; setQueue(source, id); loadTrack(currentTrack(), autoplay); }
 function nextTrack(manual=false){
   if (!queue.length) return;
-  if (repeatMode === 2 && !manual){ audio.currentTime = 0; safePlay(); return; }
+  if (repeatMode === 2 && !manual){ tabiPlayCountedForLoad = false; audio.currentTime = 0; safePlay(); return; }
   if (shuffleOn && queue.length > 1){
     if(!shuffleOrder.length || shufflePosition < 0 || shuffleOrder[shufflePosition] !== currentIndex) buildShuffleOrder(currentIndex);
     shufflePosition += 1;
@@ -5814,6 +5847,13 @@ function applyVolume(){
 }
 audio.volume = Math.min(1, Number(volume.value));
 audio.addEventListener('play',()=>{ playBtn.textContent='❚❚'; renderTracks(); });
+audio.addEventListener('playing',()=>{
+  const track=currentTrack();
+  if(!track || tabiPlayCountedForLoad) return;
+  tabiPlayCountedForLoad = true;
+  const sessionSlug = songPageContext === 'session' && activePublicSession ? activePublicSession.id : null;
+  recordTabiEngagement('song', track.id, 'play', sessionSlug);
+});
 audio.addEventListener('pause',()=>{ playBtn.textContent='▶'; renderTracks(); });
 audio.addEventListener('timeupdate',()=>{ progress.value = audio.duration ? (audio.currentTime/audio.duration)*100 : 0; currentTimeEl.textContent = fmt(audio.currentTime); });
 audio.addEventListener('loadedmetadata',()=> durationEl.textContent = fmt(audio.duration));
