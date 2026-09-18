@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#090713" />
   <title>Tabi Unplugged</title>
-  <meta name="tabi-build" content="v1.65-all-curated-sessions" />
+  <meta name="tabi-build" content="v2.15-full-song-play-counting" />
   <style>
 :root{
   --bg:#08070e;
@@ -5089,6 +5089,23 @@ function uid(){ return 'pl-' + Date.now().toString(36) + Math.random().toString(
 const TABI_SUPABASE_URL = 'https://ilbwrttuuxgwzwlqtxwc.supabase.co';
 const TABI_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_CAOmPrc4gjeuUx3d9_2BAA_9gZ85NMg';
 let tabiPlayCountedForLoad = false;
+let tabiListenedSecondsForLoad = 0;
+let tabiListenStartedAt = null;
+
+function tabiStartListenClock(){
+  if(tabiListenStartedAt === null) tabiListenStartedAt = performance.now();
+}
+function tabiStopListenClock(){
+  if(tabiListenStartedAt !== null){
+    tabiListenedSecondsForLoad += Math.max(0, (performance.now() - tabiListenStartedAt) / 1000);
+    tabiListenStartedAt = null;
+  }
+}
+function tabiResetListenClock(){
+  tabiPlayCountedForLoad = false;
+  tabiListenedSecondsForLoad = 0;
+  tabiListenStartedAt = null;
+}
 
 async function recordTabiEngagement(contentType, contentKey, eventType, contextSessionSlug=null, shareChannel=null){
   if(!contentType || !contentKey || !eventType) return null;
@@ -5766,7 +5783,7 @@ function safePlay(){
 }
 function loadTrack(track, autoplay=false){
   if (!track) return;
-  tabiPlayCountedForLoad = false;
+  tabiResetListenClock();
   audio.src = track.audio; audio.load();
   playerTitle.textContent = track.title; playerArtist.textContent = track.artist; playerCover.src = track.cover;
   if (heroNow) heroNow.textContent = `Now playing: ${track.title}`; document.title = `${track.title} · Tabi Unplugged`; renderTracks();
@@ -5776,7 +5793,7 @@ function loadTrack(track, autoplay=false){
 function playTrackById(id, autoplay=true){ const source = displayTracks.some(t=>t.id===id) ? displayTracks : tracks; setQueue(source, id); loadTrack(currentTrack(), autoplay); }
 function nextTrack(manual=false){
   if (!queue.length) return;
-  if (repeatMode === 2 && !manual){ tabiPlayCountedForLoad = false; audio.currentTime = 0; safePlay(); return; }
+  if (repeatMode === 2 && !manual){ tabiResetListenClock(); audio.currentTime = 0; safePlay(); return; }
   if (shuffleOn && queue.length > 1){
     if(!shuffleOrder.length || shufflePosition < 0 || shuffleOrder[shufflePosition] !== currentIndex) buildShuffleOrder(currentIndex);
     shufflePosition += 1;
@@ -5847,17 +5864,24 @@ function applyVolume(){
 }
 audio.volume = Math.min(1, Number(volume.value));
 audio.addEventListener('play',()=>{ playBtn.textContent='❚❚'; renderTracks(); });
-audio.addEventListener('playing',()=>{
-  const track=currentTrack();
-  if(!track || tabiPlayCountedForLoad) return;
-  tabiPlayCountedForLoad = true;
-  const sessionSlug = songPageContext === 'session' && activePublicSession ? activePublicSession.id : null;
-  recordTabiEngagement('song', track.id, 'play', sessionSlug);
-});
-audio.addEventListener('pause',()=>{ playBtn.textContent='▶'; renderTracks(); });
+audio.addEventListener('playing',()=>{ tabiStartListenClock(); });
+audio.addEventListener('pause',()=>{ tabiStopListenClock(); playBtn.textContent='▶'; renderTracks(); });
 audio.addEventListener('timeupdate',()=>{ progress.value = audio.duration ? (audio.currentTime/audio.duration)*100 : 0; currentTimeEl.textContent = fmt(audio.currentTime); });
 audio.addEventListener('loadedmetadata',()=> durationEl.textContent = fmt(audio.duration));
-audio.addEventListener('ended',()=> nextTrack(false));
+audio.addEventListener('ended',()=>{
+  tabiStopListenClock();
+  const track=currentTrack();
+  const duration=Number(audio.duration)||0;
+  // Count a play only when the person has actually listened for essentially the full song.
+  // Two-second tolerance covers tiny browser timing differences at the end of a track.
+  const completedFullListen = duration > 0 && tabiListenedSecondsForLoad >= Math.max(0, duration - 2);
+  if(track && !tabiPlayCountedForLoad && completedFullListen){
+    tabiPlayCountedForLoad = true;
+    const sessionSlug = songPageContext === 'session' && activePublicSession ? activePublicSession.id : null;
+    recordTabiEngagement('song', track.id, 'play', sessionSlug);
+  }
+  nextTrack(false);
+});
 playBtn.addEventListener('click',()=>{ if (!currentTrack()){ playAll(false); return; } if (audio.paused) audio.play(); else audio.pause(); });
 nextBtn.addEventListener('click',()=>nextTrack(true)); prevBtn.addEventListener('click',prevTrack);
 shuffleBtn.addEventListener('click',()=>{ shuffleOn=!shuffleOn; if(shuffleOn && queue.length) buildShuffleOrder(currentIndex); else {shuffleOrder=[];shufflePosition=-1;} syncPlaybackModeButtons(); });
