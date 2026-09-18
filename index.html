@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#090713" />
   <title>Tabi Unplugged</title>
-  <meta name="tabi-build" content="v2.15-full-song-play-counting" />
+  <meta name="tabi-build" content="v2.16-full-song-source-tracking" />
   <style>
 :root{
   --bg:#08070e;
@@ -5133,6 +5133,41 @@ async function recordTabiEngagement(contentType, contentKey, eventType, contextS
   }
 }
 
+async function recordTabiCompletedPlay(songSlug, playbackSource, playbackSourceKey=null){
+  if(!songSlug || !playbackSource) return null;
+  try{
+    const res = await fetch(`${TABI_SUPABASE_URL}/rest/v1/rpc/record_completed_play`,{
+      method:'POST',
+      headers:{
+        'apikey':TABI_SUPABASE_PUBLISHABLE_KEY,
+        'Authorization':`Bearer ${TABI_SUPABASE_PUBLISHABLE_KEY}`,
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify({
+        p_song_slug:songSlug,
+        p_playback_source:playbackSource,
+        p_playback_source_key:playbackSourceKey || null
+      })
+    });
+    if(!res.ok) throw new Error(`Completed-play request failed: ${res.status}`);
+    return await res.json();
+  }catch(err){
+    console.warn('Tabi completed-play tracking unavailable:', err);
+    return null;
+  }
+}
+
+function getTabiPlaybackSource(){
+  if(songPageContext === 'session' && activePublicSession){
+    return {source:'session', key:activePublicSession.id};
+  }
+  if(songPageContext === 'playlist' && selectedPlaylistId){
+    return {source:'playlist', key:selectedPlaylistId};
+  }
+  return {source:'library', key:null};
+}
+
+
 function currentTrack(){ return currentIndex >= 0 ? queue[currentIndex] : null; }
 function getPlaylist(id){ return playlists.find(p => p.id === id); }
 function tracksForPlaylist(pl){ return (pl?.trackIds || []).map(id => tracks.find(t => t.id === id)).filter(Boolean); }
@@ -5877,8 +5912,8 @@ audio.addEventListener('ended',()=>{
   const completedFullListen = duration > 0 && tabiListenedSecondsForLoad >= Math.max(0, duration - 2);
   if(track && !tabiPlayCountedForLoad && completedFullListen){
     tabiPlayCountedForLoad = true;
-    const sessionSlug = songPageContext === 'session' && activePublicSession ? activePublicSession.id : null;
-    recordTabiEngagement('song', track.id, 'play', sessionSlug);
+    const playback = getTabiPlaybackSource();
+    recordTabiCompletedPlay(track.id, playback.source, playback.key);
   }
   nextTrack(false);
 });
