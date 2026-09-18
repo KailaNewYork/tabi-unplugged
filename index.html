@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#090713" />
   <title>Tabi Unplugged</title>
-  <meta name="tabi-build" content="v2.14-supabase-library" />
+  <meta name="tabi-build" content="v1.65-all-curated-sessions" />
   <style>
 :root{
   --bg:#08070e;
@@ -497,6 +497,13 @@ main{
 .session-detail-cover img{width:100%;height:100%;object-fit:cover}
 .session-detail-copy h2{font-family:Georgia,serif;font-size:44px;font-weight:500;margin:6px 0 8px}
 .session-detail-copy p{color:#aaa3b1;font-size:13px;line-height:1.55}
+.session-guidance{margin:24px 0 4px;padding:22px 24px;border:1px solid rgba(243,197,91,.16);border-radius:20px;background:linear-gradient(135deg,rgba(111,60,255,.07),rgba(255,255,255,.025));}
+.session-guidance.hidden{display:none}
+.session-guidance-label,.why-song-label{display:block;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#f3c55b;font-weight:900;margin-bottom:10px}
+.session-guidance-text{margin:0;color:#d2ccd7;font-size:14px;line-height:1.7}
+.why-song-card{margin-top:14px;padding:22px 24px;border-radius:22px;border:1px solid rgba(243,197,91,.14);background:linear-gradient(135deg,rgba(243,197,91,.05),rgba(111,60,255,.055));}
+.why-song-card.hidden{display:none}
+.why-song-text{margin:0;color:#d2ccd7;font-size:16px;line-height:1.65}
 .primary-btn{border:0;border-radius:999px;padding:12px 18px;background:linear-gradient(135deg,#ffe8a5,#d79a27);color:#1a1206;font-weight:900}
 .session-tracklist{margin-top:24px;border-top:1px solid rgba(255,255,255,.08)}
 .session-track-row{display:grid;grid-template-columns:34px 46px minmax(0,1fr) auto;gap:12px;align-items:center;padding:11px 4px;border-bottom:1px solid rgba(255,255,255,.055)}
@@ -3248,6 +3255,16 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
   }
 }
 
+
+/* Session-only: match Transmission body copy to Why This Song body copy */
+.transmission-card.session-text-match .transmission-label{letter-spacing:.20em}
+.transmission-card.session-text-match .transmission-text{
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;
+  font-size:16px!important;
+  line-height:1.65!important;
+  color:#d2ccd7!important;
+  font-weight:400!important;
+}
 </style>
 
 <style id="v183-mobile-type-scale">
@@ -4637,8 +4654,12 @@ html.tu-phone .topbar.service-nav .main-nav .desktop-kaila-link{display:none !im
             <span id="songDuration">0:00</span>
           </div>
           <div class="song-page-volume"><span>VOLUME</span><input id="songVolume" type="range" min="0" max="1" value="0.85" step="0.01" aria-label="Volume"></div>
+          <div class="why-song-card hidden" id="whySongCard">
+            <span class="why-song-label">WHY THIS SONG</span>
+            <p class="why-song-text" id="whySongText"></p>
+          </div>
           <div class="transmission-card">
-            <span class="transmission-label">TRANSMISSION</span>
+            <span class="transmission-label" id="songTransmissionLabel">TRANSMISSION</span>
             <p class="transmission-text" id="songTransmission"></p>
           </div>
         </div>
@@ -4969,8 +4990,8 @@ window.TABI_TRACKS = [
 
 </script>
   <script>
-console.info('Tabi Unplugged build v2.14-supabase-library');
-let tracks = [...window.TABI_TRACKS].filter(track => track.published !== false);
+console.info('Tabi Unplugged build v1.65-all-curated-sessions');
+const tracks = [...window.TABI_TRACKS].filter(track => track.published !== false);
 const audio = document.getElementById('audio');
 const trackGrid = document.getElementById('trackGrid');
 const playlistTrackGrid = document.getElementById('playlistTrackGrid');
@@ -5016,78 +5037,6 @@ let shuffleOn = false;
 let shuffleOrder = [];
 let shufflePosition = -1;
 let repeatMode = 0; // 0 off, 1 all, 2 one
-
-// v2.14 — Supabase-backed song library.
-// The existing embedded 120-song list stays in the file as an offline fallback.
-const TU_SUPABASE_URL = 'https://ilbwrttuuxgwzwlqtxwc.supabase.co';
-const TU_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_CAOmPrc4gjeuUx3d9_2BAA_9gZ85NMg';
-
-function trackIdFromSupabaseRow(row){
-  const audioPath = String(row?.audio_url || '');
-  const fileName = audioPath.split('/').pop() || '';
-  const fromAudio = fileName.replace(/\.[^.]+$/, '').trim();
-  if(fromAudio) return fromAudio;
-  return String(row?.title || '')
-    .toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-    .replace(/[^a-z0-9]+/g,'-')
-    .replace(/^-+|-+$/g,'');
-}
-
-function mapSupabaseSong(row){
-  return {
-    id: trackIdFromSupabaseRow(row),
-    title: row.title || 'Untitled',
-    artist: 'Tabi Unplugged',
-    audio: row.audio_url || '',
-    cover: row.cover_url || '',
-    album: row.album || '',
-    session: row.session || '',
-    playlist: row.playlist || '',
-    featured: row.is_featured === true,
-    published: row.is_published !== false,
-    sortOrder: Number.isFinite(Number(row.sort_order)) ? Number(row.sort_order) : 0,
-    shareUrl: row.share_url || '',
-    duration: row.duration || ''
-  };
-}
-
-async function syncTracksFromSupabase(){
-  try{
-    const fields = 'title,audio_url,cover_url,album,session,playlist,is_featured,is_published,sort_order,share_url,duration';
-    const endpoint = `${TU_SUPABASE_URL}/rest/v1/songs?select=${fields}&is_published=eq.true&order=sort_order.asc`;
-    const response = await fetch(endpoint, {
-      headers: {
-        apikey: TU_SUPABASE_PUBLISHABLE_KEY,
-        Authorization: `Bearer ${TU_SUPABASE_PUBLISHABLE_KEY}`
-      }
-    });
-    if(!response.ok) throw new Error(`Supabase returned ${response.status}`);
-    const rows = await response.json();
-    if(!Array.isArray(rows) || !rows.length) throw new Error('Supabase returned no published songs');
-
-    const remoteTracks = rows.map(mapSupabaseSong).filter(t => t.id && t.audio && t.cover);
-    if(!remoteTracks.length) throw new Error('Supabase rows were missing playable song data');
-
-    tracks = remoteTracks;
-    window.TABI_TRACKS = remoteTracks;
-    displayTracks = [...tracks];
-    queue = [...tracks];
-    currentIndex = -1;
-    shuffleOrder = [];
-    shufflePosition = -1;
-
-    renderTracks();
-    renderPlaylists();
-    if(typeof renderHomeSessions === 'function') renderHomeSessions();
-    if(typeof loadPublicSessions === 'function') loadPublicSessions();
-    if(typeof wireHomePlayButtons === 'function') wireHomePlayButtons();
-
-    console.info(`Tabi Unplugged: loaded ${tracks.length} published songs from Supabase.`);
-  }catch(error){
-    console.warn('Tabi Unplugged: Supabase library unavailable; using embedded fallback library.', error);
-  }
-}
 const TABI_TRANSMISSIONS = {"agnes-the-attitude":"I do not age out of my power. I get sharper, louder, freer, and more myself with every season.","am-i-fucking-invisible":"I am not invisible. I stop shrinking for rooms that refuse to recognize what is standing right in front of them.","ask-once-and-its-done":"I state what I require clearly, then I release the need to chase it. What aligns with me knows how to respond.","born-worthy":"Worth was never something I had to earn. I arrived with it, and nothing anyone did can subtract from it.","built-my-own-table":"I do not wait for permission to belong. I build the table, set the standard, and decide who gets a seat.","chin-up-crown-on":"I lift my head before the evidence changes. My crown is not a reward for surviving; it is a reminder of who I am.","chin-up-crown-on-remix":"I return to myself faster now. Head up, crown steady, energy back where it belongs.","connected-to-me":"My strongest connection begins inside me. I hear myself, trust myself, and stop abandoning myself to keep anything else.","cosmic-sweatshirt":"I am allowed to be mystical and comfortable, powerful and ordinary. My expansion does not require performance.","divine-timing-can-eat-one":"I am done using timing as a reason to postpone my life. I move with what is available to me now.","divine-timing-sucks-out-loud":"I can honor the process and still hate the wait. Frustration does not cancel alignment.","do-your-fucking-job":"I release what is not mine to carry. Everyone is responsible for the work that belongs to them, including me.","dont-call-me-cute":"Do not reduce what is powerful because it is beautiful. I can be soft, striking, dangerous, and fully self-defined.","everybodys-lighthouse":"I can illuminate without exhausting myself. I am not required to burn all night so everyone else can find shore.","everybodys-waiting-for-you-to-come-home":"Home is not only a place, it is a person, a feeling, a return. I trust the love that feels like coming home.","everything-is-gonna-be-alright":"I do not need every answer to know I will meet what comes. I have survived uncertainty before, and I am still here.","get-off-your-knees":"I stop begging life, love, people, or circumstances to choose me. I stand up and choose myself.","get-up-nobodys-coming":"Rescue is not the assignment. I become the movement I was waiting for and take the next step myself.","get-up-sweetpea":"Tenderness and strength can live in the same body. I speak to myself with love, then I rise.","hi-universe-sent-me":"I enter the room like an answered prayer. I do not apologize for arriving with purpose.","i-bought-my-own-board":"I invest in my own vision. I do not need someone else's infrastructure to validate what I am building.","i-can-love-you-with-my-eyes-closed":"Loving you feels so natural that I do not have to reach for it. I can close my eyes, feel you, and let love be what it already is.","i-love-you-so-much-its-weird":"I let love be expansive, ridiculous, tender, and true without making it smaller so it looks reasonable.","i-run-this-empire":"I lead my life from ownership. My time, energy, work, and vision answer to the standards I choose.","i-wasnt-lost-i-was-loading":"The pause was not proof that I failed. I was integrating, recalibrating, and becoming able to carry what comes next.","i-will-never-be-you":"I release comparison at the root. I was not designed to become anyone else, and neither were they.","im-not-crazy-im-just-awake":"I trust what I notice without needing everyone else to notice it too. Awareness does not require consensus.","it-didnt-change-me":"What happened affected me, but it does not own my identity. I decide what remains and what leaves with the past.","my-heart-aches":"My body remembers the love it is waiting to receive. The ache is not a prediction of absence, it is recognition of a connection my body already knows.","no-one-sees-the-cracks":"I do not have to appear unbreakable to be strong. I can be seen honestly and still be respected.","no-return-address":"I stop sending energy back to places that no longer exist. What has ended does not need another delivery from me.","noise-in-my-halo":"I can be sacred and messy at the same time. My humanity does not disqualify my light.","one-more-hug":"I let love be present while it is here. I do not rush past tenderness because I am afraid of missing it later.","overloaded":"My capacity is not infinite, and that is not a failure. I put down what my body and spirit were never meant to hold alone.","pink-smoke":"I let mystery remain mystery. I do not have to explain every beautiful thing before I am allowed to enjoy it.","rage-song-obstacle-course":"My anger is information, not my identity. I let it show me the obstacle, then I move with intention.","return-to-self":"Every road back to me is still a return home. I reclaim my attention, my energy, and my authority.","soft-arms":"I allow myself to be held without turning softness into danger. Rest, care, and tenderness are safe enough to receive.","tabby-unplugged":"I remove the performance and keep the truth. What remains when I unplug is still worthy of being heard.","tabs-on-the-bridge":"I take the bridge. I read the field, make the call, and trust the part of me built to command under pressure.","the-talents":"What I carry is meant to be used. I stop hiding gifts simply because they arrived naturally to me.","union":"I choose connection that does not require self-erasure. Real union makes room for two whole people.","when-she-walks-in":"I do not enter seeking permission to matter. My presence speaks before I explain a thing.","where-do-heroes-go":"Even the strong need somewhere to land. I give myself the care I so easily offer everyone else.","where-do-i-go-to-feel-loved":"I stop searching only outside myself for evidence of love. I build a home inside me that can recognize love when it arrives.","you-were-sent-here-on-purpose":"My life is not random to me. I treat my gifts, timing, and existence like they belong here.","i-have-always-known-you":"Some recognition arrives before explanation. I trust resonance without forcing it to become a story before its time.","narcissistic-bitch":"I refuse to confuse confidence with cruelty or self-respect with selfishness. I know who I am without needing to dominate anyone.","queenpin-smoke":"I move like the authority in my own life. I do not need chaos to prove I am powerful.","what-i-need-you-to-remember":"I return to what is true when fear gets loud. I remember myself before I remember the noise.","you-dont-know-loyalty":"Loyalty does not mean betraying myself to prove devotion. I give commitment where reciprocity can live.","youre-already-saved":"I stop waiting for a future version of me to become worthy of peace. I am allowed to live from wholeness now.","youre-everything-i-ever-wanted-and-didnt-know-i-was-allowed-to-have":"I expand my capacity to receive what once felt too good for me. Desire is not evidence that I am asking for too much.","be-that-man-son":"Character is built in choices nobody applauds. I become the kind of man whose actions can carry his name.","bell-ring-time":"When the moment arrives, I answer it. I do not keep myself waiting after life has already opened the door.","built-different-baby":"I stop treating my differences like defects. What makes me unusual may be exactly what makes my path work.","check-they-soil":"I look at what people consistently grow, not only what they promise. Patterns tell me where I am planting my trust.","check-your-soil":"I examine what I keep feeding inside myself. My inner environment shapes what can take root in my life.","choose-a-man-like-this":"I choose partnership by character, consistency, and capacity, not fantasy. Love should be able to stand up in real life.","clocked-in-again":"I honor the discipline of returning. Showing up again is how visions become structures.","daughter-wear-your-crown":"You do not need to become smaller to be loved. Wear what you know about yourself where the world can see it.","fuck-i-would-date-me":"I become someone whose company I genuinely enjoy. I stop asking others to recognize value I refuse to celebrate in myself.","listen-my-son":"Strength is not the absence of tenderness. I carry wisdom forward without repeating every wound that taught it.","remember-who-you-are":"Before the disappointment, before the labels, before the roles, I was still me. I remember that person now.","rest-is-a-revolution":"Rest is not a reward for depletion. I refuse a life that only values me when I am producing.","so-proud":"I let myself receive my own approval. I acknowledge how far I have come without moving the finish line again.","time-to-rest":"Nothing sacred is lost because I stop for a while. My body is allowed to complete the sentence.","time-to-rise":"The season of preparing has done its work. I stand, move, and let the next version of me become visible.","what-the-fuck-is-this":"Confusion is allowed to be honest. I can question what I am seeing without rushing to manufacture certainty.","yesterday-was-a-threshold":"I do not have to drag yesterday across today's doorway. I crossed something, and I let that crossing count.","you-dont-walk-in-quiet":"I was not built to disappear politely. My presence can have volume without becoming apology.","your-love-kept-me-here":"I honor the love that helped me stay without making survival a debt I must repay forever.","alignment-season":"I stop forcing what requires self-betrayal. This season is about choices that sound like me, feel like me, and fit my life.","ancestors-crowned-me":"I carry history without being trapped by it. I honor what came before by living beyond what once limited us.","bloodline-heavy":"I can feel the weight of my lineage without becoming its storage unit. I keep the strength and release what is not mine.","brick-by-brick":"I build what lasts at the speed of integrity. Small consistent moves are still construction.","come-closer":"I allow closeness where safety and truth are present. I do not confuse distance with protection forever.","get-back-to-the-original-code":"I return beneath conditioning, fear, and performance. The original code is the self that knew before it was taught to doubt.","i-cut-the-cloth":"I stop waiting for a pattern that was never made for me. I cut according to the life I am actually creating.","i-dont-bow":"Respect does not require submission. I can honor others without surrendering my authority over myself.","i-wrote-the-fucking-code":"I remember that I am not merely living inside the system. I am capable of rewriting the rules that govern my own life.","love-bombs-and-exit-wounds":"Intensity is not proof of intimacy. I trust the love that can stay consistent after the fireworks are gone.","new-york-swag-panama-bloodline":"I carry every place that made me without having to choose one piece of myself over another. My roots can move with swagger.","pressure-taste-like-breakfast":"Pressure is not automatically a warning. I know the difference between being challenged and being consumed.","read-your-manual":"I stop expecting other people to know me better than I know myself. I learn my signals, needs, patterns, and operating system.","soft-landing":"I no longer require pain to prove that change is real. Some arrivals are allowed to be gentle.","this-seems-familiar":"Recognition is a cue to become conscious, not to repeat automatically. Familiar does not always mean aligned.","watch-yo-mouth":"Words build atmosphere. I become more intentional about what I speak over myself, my work, and the people I love.","yall-got-me-fucked-up":"A boundary can arrive with clarity. I am allowed to recognize when enough is enough and act accordingly.","yall-study":"I pay attention to what life keeps teaching instead of demanding a different lesson every time.","you-did-it-again":"I notice my own patterns without turning awareness into shame. Seeing it sooner is already evidence of growth.","your-apology-was-a-trap":"I listen for repair, not performance. An apology that demands immediate access is not the same thing as accountability.","5k-a-day":"I normalize being well paid for value I create. Wealth can become ordinary enough for my nervous system to hold it.","authentic-or-nothing":"I would rather be accurately seen than broadly approved. What fits me can find me when I stop performing for what does not.","blackout-mode":"I am allowed to become unavailable to noise. Silence can be strategy, protection, and recalibration.","born-to-do-this":"I stop treating my natural direction like a coincidence. I give my gifts the seriousness they have been asking for.","broadcast-mode":"I let the signal travel. I stop editing my voice down to the size of the room.","default-blueprint":"I examine the life I inherited by default and consciously choose what becomes part of my design.","i-can-do-everything-i-want-to-do":"I expand beyond the false choice between my desires. I can build a life large enough to hold more than one dream.","its-already-done":"I act from completion instead of desperation. The version of me who has it moves differently now.","levitation-walk":"I rise into the version of me that already knows how to walk in everything I asked for. I move through life higher, freer, and fully aligned.","millionaire-mindset":"I think beyond survival while staying grounded in reality. Money becomes a tool I can direct, hold, and multiply responsibly.","paid-to-exist":"I stop separating my value from my presence. I allow support, opportunity, and compensation to meet the fullness of what I bring.","receiver-open":"I practice receiving without immediately earning, explaining, or giving it back. My system learns that good can stay.","signal-strong":"I stop diluting what I mean. The clearer I become, the easier it is for what matches me to recognize me.","strut-like-a-frequency":"I let my body carry the certainty my mind is still learning. I walk like the signal has already changed.","they-felt-that":"Impact does not always need explanation. I trust the resonance of what was real enough to move through the room.","wake-up-in-their-soul":"I am not here to force awakening. I live so fully that truth becomes difficult to sleep through around me.","wealth-flows-to-you":"I become available for wealth without making it my master. Resources can move toward me and through me with purpose.","you-did-good-baby":"I speak to myself the way I needed someone to speak to me. I let accomplishment land before I ask for more.","you-want-it-its-yours":"I allow desire to become direction. Wanting something can be the beginning of movement, not a reason for shame.","crocodile-tears":"I stop letting displays of emotion erase patterns of behavior. Compassion does not require me to abandon discernment.","gaslight-gospel":"I trust my memory, my perception, and the evidence of repeated experience. Someone else's certainty does not automatically outrank mine.","hoover-season":"Not every return is reconciliation. I recognize the difference between changed behavior and renewed access attempts.","love-bomb-funeral":"I bury the fantasy that intensity alone is love. What is real can survive ordinary days.","nothing-was-wasted":"Even what I would never choose again gave me information I can use. I keep the wisdom and release the cost.","pretty-lies-rotten-core":"I stop being hypnotized by presentation. Beauty without integrity is still decay.","the-mask-slipped":"When the mask slips, I believe the information. I do not rush to repair an illusion because truth feels inconvenient.","vault-open":"I am willing to access what I once kept locked away: capacity, wealth, creativity, desire, and possibility.","youre-living-proof":"My existence is evidence that transformation can become embodied. I do not need to be finished to be proof."};
 let songPageActive = false;
 let songPageReturnScroll = 0;
@@ -5701,7 +5650,9 @@ function queueForContext(context){
   }
   songQueueLabel='All Songs'; return [...displayTracks.length ? displayTracks : tracks];
 }
+let songPageContext = 'library';
 function openSongPage(trackId, context='library', autoplay=true, pushHistory=true){
+  songPageContext = context;
   const source=queueForContext(context);
   setQueue(source.length ? source : tracks, trackId);
   songPageReturnScroll=window.scrollY || 0;
@@ -5725,6 +5676,28 @@ function renderSongPage(track){
   const artist=document.getElementById('songPageArtist'); if(artist) artist.textContent=track.artist || 'Tabi Unplugged';
   const q=document.getElementById('songPageQueue'); if(q) q.textContent=`Playing from ${songQueueLabel} · ${currentIndex+1} of ${queue.length}`;
   const t=document.getElementById('songTransmission'); if(t) t.textContent=TABI_TRANSMISSIONS[track.id] || 'Return to yourself. Let the song meet you where you are.';
+  const transmissionCard = t ? t.closest('.transmission-card') : null;
+  if(transmissionCard) transmissionCard.classList.toggle('session-text-match', songPageContext === 'session');
+  const transmissionLabel = document.getElementById('songTransmissionLabel');
+  if(transmissionLabel) transmissionLabel.textContent = songPageContext === 'session'
+    ? 'REPEAT THIS AFFIRMATION THREE TIMES SLOWLY, WITH INTENTION'
+    : 'TRANSMISSION';
+
+  const whyCard = document.getElementById('whySongCard');
+  const whyText = document.getElementById('whySongText');
+  const sessionWhy = songPageContext === 'session' && activePublicSession
+    ? TU_SESSION_WHY[activePublicSession.id]?.[track.id]
+    : '';
+  if(whyCard && whyText){
+    if(sessionWhy){
+      whyText.textContent = sessionWhy;
+      whyCard.classList.remove('hidden');
+    }else{
+      whyText.textContent = '';
+      whyCard.classList.add('hidden');
+    }
+  }
+
   const sVol=document.getElementById('songVolume'); if(sVol) sVol.value=audio.volume;
   syncPlaybackModeButtons();
 }
@@ -6109,7 +6082,6 @@ window.addEventListener('popstate',()=>{ const m=location.hash.match(/^#song\/(.
 syncPlaybackModeButtons();
 
 renderTracks(); renderPlaylists();
-syncTracksFromSupabase();
 
 // v1.7 immersive home interactions
 function wireHomePlayButtons(){
@@ -6220,22 +6192,665 @@ function saveLibraryOrder(trackIds){
 // --- Tabi Sessions public experience ---
 const TU_SESSION_KEY = 'tabiUnplugged.sessions.v1';
 const TU_DEFAULT_SESSIONS = [
-  {id:'coming-home-to-self',title:'Coming Home to Self',cover:'assets/images/tabi-sessions/coming-home-to-self.png',description:'',trackIds:[],published:true},
-  {id:'healing-the-healers',title:'Healing the Healers',cover:'assets/images/tabi-sessions/healing-the-healers.png',description:'',trackIds:[],published:true},
-  {id:'time-for-rest',title:'Time for Rest',cover:'assets/images/tabi-sessions/time-for-rest.png',description:'',trackIds:[],published:true},
-  {id:'life-lessons',title:'Life Lessons',cover:'assets/images/tabi-sessions/life-lessons.png',description:'',trackIds:[],published:true},
-  {id:'the-spirit-speaks',title:'The Spirit Speaks',cover:'assets/images/tabi-sessions/the-spirit-speaks.png',description:'',trackIds:[],published:true},
-  {id:'wealth-frequency',title:'Wealth Frequency',cover:'assets/images/tabi-sessions/wealth-frequency.png',description:'',trackIds:[],published:true},
-  {id:'act-1-the-mask-slipped',title:'Act 1: The Mask Slipped',cover:'assets/images/tabi-sessions/act-1-the-mask-slipped.png',description:'',trackIds:[],published:true},
-  {id:'lineage-command',title:'Lineage Command',cover:'assets/images/tabi-sessions/lineage-command.png',description:'',trackIds:[],published:true},
-  {id:'alignment-season',title:'Alignment Season',cover:'assets/images/tabi-sessions/alignment-season.png',description:'',trackIds:[],published:true},
-  {id:'i-hate-it-here-sometimes',title:'I Hate It Here Sometimes',cover:'assets/images/tabi-sessions/i-hate-it-here-sometimes.png',description:'',trackIds:[],published:true},
-  {id:'you-are-ok',title:'You Are OK',cover:'assets/images/tabi-sessions/you-are-ok.png',description:'',trackIds:[],published:true},
-  {id:'its-go-season',title:'It’s Go Season',cover:'assets/images/tabi-sessions/its-go-season.png',description:'',trackIds:[],published:true},
-  {id:'you-were-never-too-much',title:'You Were Never Too Much',cover:'assets/images/tabi-sessions/you-were-never-too-much.png',description:'',trackIds:[],published:true},
-  {id:'its-ok-to-say-you-miss-them',title:'It’s OK to Say You Miss Them',cover:'assets/images/tabi-sessions/its-ok-to-say-you-miss-them.png',description:'',trackIds:[],published:true},
-  {id:'narcissistic-ex',title:'Narcissistic Ex',cover:'assets/images/tabi-sessions/narcissistic-ex.png',description:'',trackIds:[],published:true}
+  {
+    "id": "coming-home-to-self",
+    "title": "Coming Home to Self",
+    "cover": "assets/images/tabi-sessions/coming-home-to-self.png",
+    "description": "",
+    "trackIds": [
+      "overloaded",
+      "everybodys-lighthouse",
+      "no-one-sees-the-cracks",
+      "where-do-heroes-go",
+      "where-do-i-go-to-feel-loved",
+      "born-worthy",
+      "connected-to-me",
+      "it-didnt-change-me",
+      "i-wasnt-lost-i-was-loading",
+      "nothing-was-wasted",
+      "i-will-never-be-you",
+      "noise-in-my-halo",
+      "get-up-sweetpea",
+      "youre-living-proof",
+      "what-i-need-you-to-remember",
+      "return-to-self"
+    ],
+    "published": true
+  },
+  {
+    "id": "healing-the-healers",
+    "title": "Healing the Healers",
+    "cover": "assets/images/tabi-sessions/healing-the-healers.png",
+    "description": "",
+    "trackIds": [
+      "tabby-unplugged",
+      "check-your-soil",
+      "bloodline-heavy",
+      "you-dont-know-loyalty",
+      "do-your-fucking-job",
+      "wake-up-in-their-soul",
+      "check-they-soil",
+      "youre-already-saved",
+      "soft-arms",
+      "receiver-open",
+      "you-did-good-baby",
+      "the-talents",
+      "you-were-sent-here-on-purpose",
+      "alignment-season",
+      "union",
+      "rest-is-a-revolution"
+    ],
+    "published": true
+  },
+  {
+    "id": "time-for-rest",
+    "title": "Time for Rest",
+    "cover": "assets/images/tabi-sessions/time-for-rest.png",
+    "description": "",
+    "trackIds": [
+      "what-the-fuck-is-this",
+      "divine-timing-sucks-out-loud",
+      "ask-once-and-its-done",
+      "yesterday-was-a-threshold",
+      "everything-is-gonna-be-alright",
+      "cosmic-sweatshirt",
+      "pink-smoke",
+      "come-closer",
+      "i-can-love-you-with-my-eyes-closed",
+      "i-love-you-so-much-its-weird",
+      "your-love-kept-me-here",
+      "so-proud",
+      "read-your-manual",
+      "soft-landing",
+      "time-to-rest",
+      "everybodys-waiting-for-you-to-come-home"
+    ],
+    "published": true
+  },
+  {
+    "id": "life-lessons",
+    "title": "Life Lessons",
+    "cover": "assets/images/tabi-sessions/life-lessons.png",
+    "description": "",
+    "trackIds": [
+      "remember-who-you-are",
+      "built-different-baby",
+      "daughter-wear-your-crown",
+      "listen-my-son",
+      "be-that-man-son",
+      "this-seems-familiar",
+      "you-did-it-again",
+      "watch-yo-mouth",
+      "pressure-taste-like-breakfast",
+      "choose-a-man-like-this",
+      "fuck-i-would-date-me",
+      "i-dont-bow",
+      "i-cut-the-cloth",
+      "brick-by-brick",
+      "clocked-in-again",
+      "bell-ring-time"
+    ],
+    "published": true
+  },
+  {
+    "id": "the-spirit-speaks",
+    "title": "The Spirit Speaks",
+    "cover": "assets/images/tabi-sessions/the-spirit-speaks.png",
+    "description": "",
+    "trackIds": [
+      "im-not-crazy-im-just-awake",
+      "hi-universe-sent-me",
+      "i-have-always-known-you",
+      "my-heart-aches",
+      "get-back-to-the-original-code",
+      "default-blueprint",
+      "authentic-or-nothing",
+      "born-to-do-this",
+      "signal-strong",
+      "they-felt-that",
+      "broadcast-mode",
+      "tabs-on-the-bridge",
+      "when-she-walks-in",
+      "strut-like-a-frequency",
+      "levitation-walk",
+      "its-already-done"
+    ],
+    "published": true
+  },
+  {
+    "id": "wealth-frequency",
+    "title": "Wealth Frequency",
+    "cover": "assets/images/tabi-sessions/wealth-frequency.png",
+    "description": "",
+    "trackIds": [
+      "am-i-fucking-invisible",
+      "dont-call-me-cute",
+      "chin-up-crown-on",
+      "built-my-own-table",
+      "i-bought-my-own-board",
+      "i-run-this-empire",
+      "i-can-do-everything-i-want-to-do",
+      "you-want-it-its-yours",
+      "vault-open",
+      "paid-to-exist",
+      "5k-a-day",
+      "millionaire-mindset",
+      "queenpin-smoke",
+      "agnes-the-attitude",
+      "you-dont-walk-in-quiet",
+      "wealth-flows-to-you"
+    ],
+    "published": true
+  },
+  {
+    "id": "act-1-the-mask-slipped",
+    "title": "Act 1: The Mask Slipped",
+    "cover": "assets/images/tabi-sessions/act-1-the-mask-slipped.png",
+    "description": "",
+    "trackIds": [
+      "love-bomb-funeral",
+      "pretty-lies-rotten-core",
+      "the-mask-slipped",
+      "gaslight-gospel",
+      "crocodile-tears",
+      "your-apology-was-a-trap",
+      "hoover-season",
+      "love-bombs-and-exit-wounds",
+      "yall-got-me-fucked-up",
+      "no-return-address",
+      "nothing-was-wasted",
+      "youre-living-proof"
+    ],
+    "published": true
+  },
+  {
+    "id": "lineage-command",
+    "title": "Lineage Command",
+    "cover": "assets/images/tabi-sessions/lineage-command.png",
+    "description": "",
+    "trackIds": [
+      "bloodline-heavy",
+      "ancestors-crowned-me",
+      "new-york-swag-panama-bloodline",
+      "default-blueprint",
+      "get-back-to-the-original-code",
+      "check-your-soil",
+      "this-seems-familiar",
+      "yall-study",
+      "i-cut-the-cloth",
+      "i-wrote-the-fucking-code",
+      "daughter-wear-your-crown",
+      "listen-my-son",
+      "be-that-man-son",
+      "brick-by-brick",
+      "remember-who-you-are",
+      "born-worthy"
+    ],
+    "published": true
+  },
+  {
+    "id": "alignment-season",
+    "title": "Alignment Season",
+    "cover": "assets/images/tabi-sessions/alignment-season.png",
+    "description": "",
+    "trackIds": [
+      "blackout-mode",
+      "ask-once-and-its-done",
+      "divine-timing-can-eat-one",
+      "get-off-your-knees",
+      "authentic-or-nothing",
+      "you-want-it-its-yours",
+      "born-to-do-this",
+      "the-talents",
+      "read-your-manual",
+      "pressure-taste-like-breakfast",
+      "signal-strong",
+      "strut-like-a-frequency",
+      "alignment-season",
+      "i-wasnt-lost-i-was-loading",
+      "bell-ring-time",
+      "get-up-nobodys-coming"
+    ],
+    "published": true
+  },
+  {
+    "id": "i-hate-it-here-sometimes",
+    "title": "I Hate It Here Sometimes",
+    "cover": "assets/images/tabi-sessions/i-hate-it-here-sometimes.png",
+    "description": "",
+    "trackIds": [
+      "what-the-fuck-is-this",
+      "divine-timing-sucks-out-loud",
+      "am-i-fucking-invisible",
+      "overloaded",
+      "no-one-sees-the-cracks",
+      "rage-song-obstacle-course",
+      "my-heart-aches",
+      "no-return-address",
+      "nothing-was-wasted",
+      "everything-is-gonna-be-alright",
+      "get-up-sweetpea",
+      "soft-landing",
+      "cosmic-sweatshirt",
+      "pink-smoke",
+      "one-more-hug",
+      "everybodys-waiting-for-you-to-come-home"
+    ],
+    "published": true
+  },
+  {
+    "id": "you-are-ok",
+    "title": "You Are OK",
+    "cover": "assets/images/tabi-sessions/you-are-ok.png",
+    "description": "",
+    "trackIds": [
+      "everything-is-gonna-be-alright",
+      "youre-already-saved",
+      "born-worthy",
+      "it-didnt-change-me",
+      "i-wasnt-lost-i-was-loading",
+      "noise-in-my-halo",
+      "no-one-sees-the-cracks",
+      "get-up-sweetpea",
+      "you-did-good-baby",
+      "so-proud",
+      "one-more-hug",
+      "soft-landing",
+      "cosmic-sweatshirt",
+      "connected-to-me",
+      "return-to-self",
+      "youre-living-proof"
+    ],
+    "published": true
+  },
+  {
+    "id": "its-go-season",
+    "title": "It’s Go Season",
+    "cover": "assets/images/tabi-sessions/its-go-season.png",
+    "description": "",
+    "trackIds": [
+      "get-up-nobodys-coming",
+      "divine-timing-can-eat-one",
+      "born-to-do-this",
+      "i-can-do-everything-i-want-to-do",
+      "built-my-own-table",
+      "i-bought-my-own-board",
+      "i-run-this-empire",
+      "brick-by-brick",
+      "clocked-in-again",
+      "pressure-taste-like-breakfast",
+      "signal-strong",
+      "broadcast-mode",
+      "you-dont-walk-in-quiet",
+      "bell-ring-time",
+      "its-already-done",
+      "levitation-walk"
+    ],
+    "published": true
+  },
+  {
+    "id": "you-were-never-too-much",
+    "title": "You Were Never Too Much",
+    "cover": "assets/images/tabi-sessions/you-were-never-too-much.png",
+    "description": "",
+    "trackIds": [
+      "am-i-fucking-invisible",
+      "dont-call-me-cute",
+      "built-different-baby",
+      "noise-in-my-halo",
+      "born-worthy",
+      "i-will-never-be-you",
+      "authentic-or-nothing",
+      "you-dont-walk-in-quiet",
+      "when-she-walks-in",
+      "daughter-wear-your-crown",
+      "fuck-i-would-date-me",
+      "the-talents",
+      "queenpin-smoke",
+      "i-dont-bow",
+      "what-i-need-you-to-remember",
+      "tabby-unplugged"
+    ],
+    "published": true
+  },
+  {
+    "id": "its-ok-to-say-you-miss-them",
+    "title": "It’s OK to Say You Miss Them",
+    "cover": "assets/images/tabi-sessions/its-ok-to-say-you-miss-them.png",
+    "description": "",
+    "trackIds": [
+      "i-can-love-you-with-my-eyes-closed",
+      "i-love-you-so-much-its-weird",
+      "i-have-always-known-you",
+      "youre-everything-i-ever-wanted-and-didnt-know-i-was-allowed-to-have",
+      "come-closer",
+      "one-more-hug",
+      "soft-arms",
+      "my-heart-aches",
+      "where-do-i-go-to-feel-loved",
+      "your-love-kept-me-here",
+      "divine-timing-sucks-out-loud",
+      "ask-once-and-its-done",
+      "receiver-open",
+      "union",
+      "soft-landing",
+      "everybodys-waiting-for-you-to-come-home"
+    ],
+    "published": true
+  },
+  {
+    "id": "narcissistic-ex",
+    "title": "Narcissistic Ex",
+    "cover": "assets/images/tabi-sessions/narcissistic-ex.png",
+    "description": "",
+    "trackIds": [
+      "love-bomb-funeral",
+      "pretty-lies-rotten-core",
+      "the-mask-slipped",
+      "gaslight-gospel",
+      "crocodile-tears",
+      "your-apology-was-a-trap",
+      "am-i-fucking-invisible",
+      "this-seems-familiar",
+      "hoover-season",
+      "love-bombs-and-exit-wounds",
+      "you-dont-know-loyalty",
+      "do-your-fucking-job",
+      "blackout-mode",
+      "yall-got-me-fucked-up",
+      "no-return-address",
+      "narcissistic-bitch"
+    ],
+    "published": true
+  }
 ];
+
+const TU_SESSION_GUIDANCE = {
+  "coming-home-to-self": "You’ve been carrying too much for too long. You’ve been the strong one, the dependable one, the person everybody looks to, and somewhere in all of that, you may have stopped asking yourself where you go when you need care.\n\nThis Session is about bringing you back to you.\n\nStart with the exhaustion, because pretending it isn’t there will not bring you home. Then look at what happens when you spend so much time being everything for everybody else that you lose connection with yourself. From there, rebuild. Your worth. Your identity. Your voice. Your relationship with yourself.\n\nBy the time you reach the end, the goal is not just to hear songs about coming home. It is to understand that you are the home you’ve been trying to get back to.",
+  "healing-the-healers": "You can be gifted at holding people and still be tired of carrying everybody. You can know how to guide, support, teach, protect, or heal and still need somewhere to put your own weight down.\n\nThis Session is about separating your gift from overfunctioning. You are going to look at what you have been carrying, what actually belongs to you, what belongs to other people, and whether you have made receiving feel harder than giving.\n\nYour gifts are not supposed to cost you your whole self. The goal here is to let you keep the purpose without disappearing inside the responsibility.",
+  "time-for-rest": "You do not have to collapse before you are allowed to stop. You do not have to finish everything, solve everything, understand everything, or earn your way into rest.\n\nThis Session is a slow descent out of pressure. It gives you room to be confused, frustrated, tender, loved, ordinary, and still. You are not being pushed toward a breakthrough. You are being given permission to come down from the constant state of doing.\n\nRest is not the absence of movement. Sometimes it is the place where your body finally catches up with everything your life has already survived.",
+  "life-lessons": "Some lessons do not arrive gently. Some take years, repetition, bad choices, good choices, consequences, laughter, and finally enough life experience to recognize what has been trying to teach you the whole time.\n\nThis Session is kitchen-table wisdom. It is about identity, character, patterns, language, pressure, relationships, self-respect, discipline, and knowing when life is giving you another chance to choose differently.\n\nYou do not have to know everything. You do need to pay attention to what your life has already taught you.",
+  "the-spirit-speaks": "There are things you know before you can explain how you know them. There are moments when your body, your intuition, your timing, or something deeper keeps getting your attention until pretending not to hear it becomes harder than listening.\n\nThis Session starts with that quiet inner recognition and lets it get louder. You move from questioning yourself, to noticing the signal, to trusting what fits, to carrying that knowing in your body and your choices.\n\nYou do not have to force every message into an explanation. Sometimes the work is simply becoming quiet enough to hear what has been speaking all along.",
+  "wealth-frequency": "Wealth is not only about how much money comes in. It is also about whether you can see your own value, own what you build, receive without shrinking, hold more without panicking, and move like your life has room for expansion.\n\nThis Session takes you out of invisibility and into ownership. You are going to move through self-value, authority, capacity, receiving, money, presence, and the responsibility that comes with having more.\n\nThe goal is not to worship money. The goal is to stop making abundance feel like something that belongs to everybody except you.",
+  "act-1-the-mask-slipped": "Sometimes the hardest part is not what happened. It is realizing that what you thought you were looking at was not the whole truth.\n\nThis Session walks through the moment intensity stops feeling romantic and starts becoming information. You move through the presentation, the contradictions, the confusion, the false repair, the return attempts, the boundary, and finally the part where you stop sending yourself back into the same cycle.\n\nYou do not have to keep protecting an illusion after the truth has already introduced itself.",
+  "lineage-command": "You can love where you come from and still decide that everything you inherited does not get to continue through you. Lineage can carry strength, culture, survival, wisdom, expectation, pain, and patterns all at the same time.\n\nThis Session helps you separate inheritance from obligation. You are going to look at what came before you, what was handed to you by default, what keeps repeating, what needs to be rewritten, and what you want to pass forward differently.\n\nHonoring your lineage does not require repeating every part of it. Sometimes the deepest honor is becoming the point where something changes.",
+  "alignment-season": "Alignment is not sitting still and waiting for life to prove that you are on the right path. It is the practice of making choices that stop requiring you to betray yourself.\n\nThis Session moves you out of noise, chasing, begging, and passive waiting. From there, you get clearer about what you want, what you carry, how you operate, what pressure is actually asking of you, and what it looks like to move when the opening finally appears.\n\nYou do not need perfect certainty. You need enough honesty to recognize what fits and enough courage to act on it.",
+  "i-hate-it-here-sometimes": "Sometimes life is just too much. Not forever. Not every part of it. But sometimes. And you are allowed to say that without turning one hard moment into a permanent identity.\n\nThis Session makes room for the what-the-fuck, the exhaustion, the anger, the hurt, the frustration, and the need to stop pretending you are okay before you actually feel okay. Then it slowly brings you toward reassurance, tenderness, softness, and home.\n\nYou do not have to spiritualize every bad day. Sometimes you need to feel it honestly, let it move, and remember that a hard moment is not your whole life.",
+  "you-are-ok": "You do not have to wait until everything is fixed to know that you are okay. You can be tired, uncertain, healing, unfinished, emotional, or in the middle of something and still be okay right now.\n\nThis Session is reassurance without pretending. It brings you back to your worth, lets you stop treating every pause like failure, gives you room to be imperfect, and reminds you that tenderness and self-trust belong in the process too.\n\nThe goal is not to convince you that nothing hurts. It is to remind you that what hurts does not erase who you are.",
+  "its-go-season": "There comes a point when preparation has given you everything it can give you and the next answer only shows up after you move.\n\nThis Session is about motion. Not frantic motion. Not proving yourself. Deciding, building, returning, handling pressure, letting yourself be seen, answering the opportunity, and moving like the thing you said you wanted is something you are actually willing to participate in.\n\nYou do not need another permission slip. Take the next step, then take the one after that.",
+  "you-were-never-too-much": "Being powerful, visible, emotional, talented, loud, different, beautiful, complicated, or fully yourself does not make you too much. It may only mean you were standing in places that kept asking you to become less.\n\nThis Session starts with the wound of not being seen and moves toward refusing to be reduced. You are going to reclaim your difference, your worth, your presence, your gifts, your authority, and the parts of yourself you may have learned to edit for other people’s comfort.\n\nYou were never too much. You were being asked to become less.",
+  "its-ok-to-say-you-miss-them": "Missing someone does not automatically mean you are stuck, weak, confused, or supposed to move on. Sometimes love is still love even when there is distance, timing, absence, or space between two people.\n\nThis Session lets you admit the love before trying to manage it. You move through recognition, tenderness, physical longing, ache, frustration with distance, openness, closeness, and the feeling of home.\n\nYou do not have to turn missing someone into a problem to solve. Sometimes the most honest thing you can say is simply: you miss them.",
+  "narcissistic-ex": "This Session is not about diagnosing somebody from a distance. It is about recognizing a relationship pattern that can leave you doubting your own reality, carrying all the emotional labor, and repeatedly reopening a door that keeps hurting you.\n\nYou are going to move through the intensity, the polished presentation, the contradiction, the confusion, the false repair, the feeling of becoming invisible, the return attempts, and the point where recognition finally becomes a boundary.\n\nThe goal is not to keep studying the other person forever. It is to get your own perception, energy, and authority back into your hands."
+};
+
+const TU_SESSION_WHY = {
+  "coming-home-to-self": {
+    "overloaded": "You cannot come home to yourself while pretending you’re not exhausted. You’ve been carrying things your body and spirit were never meant to carry alone. Start by admitting that you’re tired. That doesn’t make you weak. It means you’ve reached your capacity, and your capacity matters.",
+    "everybodys-lighthouse": "You may be so used to being the light for everybody else that you forgot you need somewhere to rest too. You do not have to keep burning all night so everybody else can find shore. Start noticing how much of yourself you’ve been giving away just to keep everyone else okay.",
+    "no-one-sees-the-cracks": "You don’t have to be unbreakable for yourself, and you don’t have to be unbreakable for anyone else. Sometimes people see how capable you are and assume that means nothing hurts you. Stop hiding the cracks from yourself. You can be strong and still need care.",
+    "where-do-heroes-go": "If everybody comes to you, where do you go? Sit with that for a minute. Even the person everybody depends on needs somewhere to land. You deserve somewhere safe enough to put the armor down.",
+    "where-do-i-go-to-feel-loved": "Sit with the question underneath all that exhaustion. Where do you go when you need to feel loved, held, and cared for too? If you’ve gotten used to being the one who gives the love, remember that you are supposed to receive it too.",
+    "born-worthy": "This is where your worth gets separated from everything you thought you had to do to earn it. You do not become valuable because you are useful, strong, needed, productive, or good at carrying everybody else. You were worthy before any of that. Let that land.",
+    "connected-to-me": "Start turning some of that attention back toward yourself now. You have spent enough time looking outside of yourself for reassurance, answers, and proof. Your relationship with yourself has to become a connection you can actually trust.",
+    "it-didnt-change-me": "What happened to you mattered. You do not have to pretend it didn’t. But what happened does not get to become the permanent definition of who you are. You get to decide what belongs to your story without letting the story take ownership of you.",
+    "i-wasnt-lost-i-was-loading": "There may have been seasons when you thought you were lost because nothing looked like it was moving. Look at those pauses differently. You were processing, integrating, recalibrating, and becoming able to carry what came next. Not every quiet season means you were off course.",
+    "nothing-was-wasted": "Now you can look back without having to move back in. Even the things you would never choose again taught you something about yourself, your needs, your boundaries, and your life. Keep the wisdom. You do not have to keep paying for the lesson.",
+    "i-will-never-be-you": "Coming back to yourself means stopping the habit of measuring your life against somebody else’s design. You were never supposed to become them. They were never supposed to become you. Release the comparison and make room for the life that actually belongs to you.",
+    "noise-in-my-halo": "You do not have to become polished, quiet, perfect, or easy to understand before you are allowed to feel whole. You can be sacred and messy at the same time. Coming home to yourself means making room for all of you, not only the parts that look good from the outside.",
+    "get-up-sweetpea": "Getting back on your feet does not require dragging yourself there. Let tenderness come before the command. Speak to yourself with love first. Then rise. Strength does not have to sound cruel to work.",
+    "youre-living-proof": "Look at yourself and recognize what is already true. You do not have to be finished to be evidence that transformation happened. The fact that you are here, different, aware, still becoming, is proof. Let yourself see how far you have actually come.",
+    "what-i-need-you-to-remember": "Before this Session ends, remember what is true underneath the fear, the noise, the roles, the disappointment, and everything that tried to make you forget yourself. When all of that gets loud again, know what you are coming back to.",
+    "return-to-self": "This is where the whole Session has been bringing you. First came the exhaustion, then the weight you were carrying, then the reclaiming of your worth and the remembering of who you are. Now you can come back to your own attention, your own energy, and your own authority. This is you coming home."
+  },
+  "healing-the-healers": {
+    "tabby-unplugged": "Start by taking off the performance. You do not have to be the expert, the healer, the strong one, or the person with the answer in this moment. What is left when you unplug is still worthy of being heard.",
+    "check-your-soil": "Before you keep pouring into everybody else, look at what has been feeding you. Your inner environment matters. You cannot keep growing from soil that is depleted, crowded, or full of things you were never meant to keep carrying.",
+    "bloodline-heavy": "Some of what you carry did not begin with you. You can honor your lineage without becoming the storage unit for every unfinished wound, expectation, or survival pattern that came before you.",
+    "you-dont-know-loyalty": "If loyalty has taught you to betray yourself, redefine it. Commitment is not supposed to require your disappearance. You can care deeply and still refuse to abandon yourself to prove it.",
+    "do-your-fucking-job": "This is where everybody gets their responsibility back. You are not supposed to do another person’s healing, reflection, accountability, or growth for them. Put down the work that belongs to somebody else.",
+    "wake-up-in-their-soul": "You do not have to force anyone to wake up. Live your truth fully enough that people can feel what is real, then let their awakening belong to them. Your job is not to drag consciousness into somebody who keeps choosing sleep.",
+    "check-they-soil": "Look at what people consistently grow, not only what they say they intend to grow. Patterns tell you where you are planting your trust. Pay attention to the soil before you keep giving it your seeds.",
+    "youre-already-saved": "Stop waiting for some future version of yourself to become worthy of peace. You do not have to finish everybody else’s healing before you get to live from wholeness now.",
+    "soft-arms": "This is where receiving becomes physical. Let yourself imagine being held without having to perform, fix, explain, or stay alert. Softness is not automatically danger. Care can reach you too.",
+    "receiver-open": "Practice letting something good come toward you without immediately earning it, explaining it, or giving it back. If giving is familiar and receiving is uncomfortable, this is where that pattern starts to change.",
+    "you-did-good-baby": "Let accomplishment land. Before you move the goalpost again, speak to yourself with the tenderness you would give someone you love. You did something. You made it through something. Let that count.",
+    "the-talents": "Your gifts are not meant to stay hidden just because they came naturally to you. Use what you carry. Your purpose is not served by pretending your gifts are smaller than they are.",
+    "you-were-sent-here-on-purpose": "Treat your existence, your timing, and your gifts like they belong here. You do not have to make yourself accidental in order to stay humble.",
+    "alignment-season": "Service does not require self-betrayal. Start choosing what fits your actual life, energy, values, and capacity. Alignment is not selfish when it keeps you from disappearing inside your own gift.",
+    "union": "Connection can be real without turning two people into one person. Let relationship, community, and purpose make room for your whole self instead of rewarding self-erasure.",
+    "rest-is-a-revolution": "End here because rest has to become part of the work, not the prize you get after destroying yourself. Your value does not rise and fall with your productivity. Stop before depletion becomes the only way you know you are done."
+  },
+  "time-for-rest": {
+    "what-the-fuck-is-this": "You do not have to understand everything before you can stop for a minute. Confusion is allowed to be honest. Let the question exist without forcing yourself to manufacture an answer tonight.",
+    "divine-timing-sucks-out-loud": "You can believe there is a process and still be irritated by how long it is taking. Frustration does not mean you are failing. It means you are human enough to hate the wait sometimes.",
+    "ask-once-and-its-done": "Say what you need clearly, then release the chase. Rest gets harder when your nervous system believes it has to keep asking, checking, reminding, and controlling the answer.",
+    "yesterday-was-a-threshold": "Do not drag yesterday through today’s doorway just because it happened recently. Something ended, shifted, or taught you what it needed to teach you. Let the crossing count.",
+    "everything-is-gonna-be-alright": "You do not need every answer to rest. You only need enough trust to know that when the next thing arrives, you will meet it then. Right now does not have to solve tomorrow.",
+    "cosmic-sweatshirt": "You are allowed to be powerful and comfortable, spiritual and ordinary, expansive and still wearing something soft. You do not have to perform your growth every minute of the day.",
+    "pink-smoke": "Not everything beautiful needs to be analyzed. Let something remain soft, strange, mysterious, or simply pleasant without turning it into another assignment.",
+    "come-closer": "Rest can include closeness. If safety and truth are present, you do not have to keep distance just because distance once protected you. Let yourself come a little closer to what feels safe.",
+    "i-can-love-you-with-my-eyes-closed": "Love does not always have to be worked for. Sometimes it can feel natural enough that you stop reaching and simply let yourself feel it.",
+    "i-love-you-so-much-its-weird": "Let love be a little ridiculous, tender, expansive, and human. You do not have to make every feeling reasonable before you are allowed to enjoy it.",
+    "your-love-kept-me-here": "Honor the love that helped you stay standing. You can recognize what sustained you without turning gratitude into a debt you have to repay forever.",
+    "so-proud": "Pause long enough to be proud of yourself. You do not have to move the finish line the second you reach it. Let your own approval arrive before the next task does.",
+    "read-your-manual": "Rest gets easier when you know your own signals. Learn what exhaustion feels like before collapse, what overwhelm feels like before shutdown, and what your body has been trying to tell you sooner.",
+    "soft-landing": "Not every transition has to hurt. Let the possibility exist that change can arrive gently, without chaos being the proof that something important happened.",
+    "time-to-rest": "This is the direct permission. Stop. Nothing sacred disappears because you rest. Your body is allowed to finish the sentence your mind keeps interrupting with one more thing.",
+    "everybodys-waiting-for-you-to-come-home": "End with home. Rest is easier when you remember there is somewhere inside yourself, inside love, or inside your life where you do not have to perform. Let yourself return there."
+  },
+  "life-lessons": {
+    "remember-who-you-are": "Before the roles, disappointments, expectations, and labels got loud, there was still a version of you underneath all of it. Life gets clearer when you remember who is actually making the choices.",
+    "built-different-baby": "Stop treating your differences like defects. Some of the things that made you harder to categorize may be the exact things that make your path work.",
+    "daughter-wear-your-crown": "Do not learn that being loved requires becoming smaller. Carry what you know about yourself where the world can see it. Your confidence does not need to wait for approval.",
+    "listen-my-son": "Strength is not the absence of tenderness. Real strength can think, feel, listen, repair, and still stand firm. You do not have to inherit every wound that taught somebody else how to survive.",
+    "be-that-man-son": "Character gets built in the choices nobody claps for. Who you are when there is no audience matters. Build a life your name can actually carry.",
+    "this-seems-familiar": "Familiarity is information, not permission to repeat the pattern. When something feels familiar, slow down long enough to ask whether it is aligned or simply known.",
+    "you-did-it-again": "This belongs here as triumph. You got through something that once looked bigger than you. Let yourself recognize the pattern of overcoming too, not only the patterns that hurt.",
+    "watch-yo-mouth": "Words build atmosphere. Pay attention to what you keep speaking over yourself, your work, your relationships, and your future. Your language becomes part of the environment you live inside.",
+    "pressure-taste-like-breakfast": "Pressure is not automatically a warning sign. Learn the difference between pressure that stretches you and pressure that consumes you. One can build capacity. The other can erase it.",
+    "choose-a-man-like-this": "Choose partnership by character, consistency, and capacity, not only chemistry or fantasy. Love has to be able to stand up in real life, not just feel good in imagination.",
+    "fuck-i-would-date-me": "Become somebody whose company you genuinely enjoy. Stop waiting for another person to prove your value before you are willing to celebrate it yourself.",
+    "i-dont-bow": "Respect does not require submission. You can honor another person without handing them authority over who you are.",
+    "i-cut-the-cloth": "Stop waiting for a pattern that was never made for your life. Sometimes the lesson is that you have to cut your own cloth instead of squeezing yourself into somebody else’s design.",
+    "brick-by-brick": "Most lasting things are built through small, repeated choices. Do not dismiss steady progress because it is not dramatic. Brick by brick is still construction.",
+    "clocked-in-again": "A lot of life is returning. Showing up again after the excitement is gone is how ideas become structures and intentions become a life.",
+    "bell-ring-time": "When the opening arrives, answer it. Do not spend so long preparing for the opportunity that you keep yourself waiting after the door is already open."
+  },
+  "the-spirit-speaks": {
+    "im-not-crazy-im-just-awake": "Trust what you notice without needing everybody else to notice it first. Awareness does not require consensus. You can stay grounded and still honor what your perception keeps showing you.",
+    "hi-universe-sent-me": "Walk in like your existence has purpose. You do not have to apologize for arriving with something to bring, something to say, or something to do.",
+    "i-have-always-known-you": "Some recognition arrives before explanation. Let resonance be information without forcing it into a complete story before its time.",
+    "my-heart-aches": "Your body can recognize something before your mind has language for it. The ache can be information too. Feel it without making it a prediction that you will never receive what you need.",
+    "get-back-to-the-original-code": "Go beneath the conditioning, fear, performance, and noise. There is a version of you that knew before you were taught to doubt every signal. Get closer to that original code.",
+    "default-blueprint": "Look at the life you inherited by default. Family, culture, survival, expectation, and habit can build a blueprint before you consciously choose anything. You are allowed to examine it before you keep living inside it.",
+    "authentic-or-nothing": "Choose accurate over broadly approved. What actually fits you has a better chance of finding you when you stop performing for what does not.",
+    "born-to-do-this": "Stop treating your natural direction like a coincidence. If something keeps calling your gifts forward, take that pattern seriously.",
+    "signal-strong": "Clarity strengthens the signal. Stop diluting what you mean to make it easier for everybody else to digest. What matches you can recognize you faster when you are clear.",
+    "they-felt-that": "Not every impact needs a speech after it. Sometimes people feel what was real before they can explain it. Let resonance do some of the work.",
+    "broadcast-mode": "This is where you stop editing your voice down to the size of the room. Let the signal travel. You do not need to control who understands it before you speak it clearly.",
+    "tabs-on-the-bridge": "Trust yourself under pressure. Read the field, make the call, and let the part of you that knows how to command take the bridge when it is time.",
+    "when-she-walks-in": "Presence can speak before explanation. You do not have to enter a room asking for permission to matter. Let your body know you belong there too.",
+    "strut-like-a-frequency": "Let your body carry some of the certainty your mind is still learning. Walk like the signal has already changed, because embodiment teaches too.",
+    "levitation-walk": "Move as the version of yourself that can already hold what you asked for. Let your posture, choices, and pace reflect expansion instead of waiting for external proof first.",
+    "its-already-done": "Finish in completion instead of desperation. You do not have to move like you are chasing the thing forever. Practice making choices from the version of you who can already hold it."
+  },
+  "wealth-frequency": {
+    "am-i-fucking-invisible": "Wealth gets harder to receive when you keep making yourself invisible. Start here because being seen, valued, and compensated begins with refusing to disappear in rooms that benefit from your presence.",
+    "dont-call-me-cute": "Do not let people reduce what is powerful because it is easier to call it cute. Your value can be beautiful, strategic, serious, soft, and substantial at the same time.",
+    "chin-up-crown-on": "Before the numbers change, change the posture. Lift your head. You do not have to wait for proof of success before you carry yourself like someone whose value is real.",
+    "built-my-own-table": "Stop waiting for somebody else’s invitation to validate what you can build. Ownership begins when you create the table instead of spending your life asking for a seat.",
+    "i-bought-my-own-board": "Put resources behind your own vision. This is the shift from wanting permission to investing in the structure that can actually hold what you are creating.",
+    "i-run-this-empire": "Own your time, energy, work, and decisions. Wealth requires stewardship, not only desire. If you want more to move through your life, your life needs somewhere responsible for it to land.",
+    "i-can-do-everything-i-want-to-do": "Stop forcing your desires into false either-or choices. Capacity can grow. A larger life may be able to hold more than one thing you genuinely want.",
+    "you-want-it-its-yours": "Let desire become direction instead of shame. Wanting more does not make you greedy. It can tell you where movement, planning, and expansion need to begin.",
+    "vault-open": "This is where you stop keeping your own capacity locked away. Open the vault to creativity, opportunity, wealth, desire, and possibility that you may have learned to protect yourself from receiving.",
+    "paid-to-exist": "Your value is not limited to visible labor. Presence, judgment, experience, creativity, and perspective carry value too. Stop separating what you bring from what deserves to be supported and compensated.",
+    "5k-a-day": "Normalize larger numbers in your nervous system. Wealth becomes easier to hold when money stops feeling like an impossible event and starts feeling like a resource you can receive, direct, and manage.",
+    "millionaire-mindset": "Think beyond survival without leaving reality. More money requires more than wanting it. It requires the capacity to direct it, hold it, multiply it responsibly, and make decisions that are not driven only by fear.",
+    "queenpin-smoke": "Own authority without confusing power with chaos. You do not have to dominate anybody to run your own life. Leadership can be grounded, clear, and unapologetic.",
+    "agnes-the-attitude": "Expansion does not have an expiration date. You do not age out of power, reinvention, ambition, or style. Let experience sharpen you instead of convincing you that your biggest chapter had to happen earlier.",
+    "you-dont-walk-in-quiet": "Stop entering your own life like you need to apologize for taking up space. Presence matters in wealth because opportunity cannot keep recognizing a version of you that insists on disappearing.",
+    "wealth-flows-to-you": "End with receiving and stewardship. Wealth can move toward you and through you without becoming your master. The point is not only to get more. It is to become able to hold and direct more with purpose."
+  },
+  "act-1-the-mask-slipped": {
+    "love-bomb-funeral": "Start with the beginning of the trap. Intensity can feel like destiny when it is really acceleration. Let the fantasy die that overwhelming attention automatically means real love.",
+    "pretty-lies-rotten-core": "The presentation can be beautiful and still lack integrity underneath. This is where you stop letting polish outrank pattern.",
+    "the-mask-slipped": "When behavior contradicts the image you were sold, believe the information. You do not have to rush to repair the illusion just because the truth is uncomfortable.",
+    "gaslight-gospel": "Confusion can become self-doubt when your memory, perception, and evidence keep getting challenged. Come back to what you actually saw, heard, experienced, and know.",
+    "crocodile-tears": "Emotion does not erase behavior. Tears, regret, distress, and dramatic reactions can be real feelings without being proof of accountability or change.",
+    "your-apology-was-a-trap": "An apology that immediately demands access, forgiveness, closeness, or another chance is not the same thing as repair. Listen for changed behavior, not only convincing words.",
+    "hoover-season": "A return attempt after access is lost does not automatically mean growth happened. Learn the difference between reconciliation and someone simply wanting the old door reopened.",
+    "love-bombs-and-exit-wounds": "Now the full cycle is visible: intensity, attachment, confusion, and the damage left behind when consistency never existed. Intensity is not proof of intimacy.",
+    "yall-got-me-fucked-up": "This is the boundary turn. Enough analyzing, explaining, and giving the benefit of the doubt. At some point, what you already know has to become a decision.",
+    "no-return-address": "Stop sending energy, explanations, and emotional mail back to something that has ended. Closure does not always require one more conversation.",
+    "nothing-was-wasted": "Keep the lesson without keeping the cost. You can take the information, wisdom, boundaries, and discernment with you without continuing to live inside what taught them.",
+    "youre-living-proof": "End in embodiment. You do not have to be completely finished to recognize what survived, changed, and strengthened in you. Your life after the cycle is evidence too."
+  },
+  "lineage-command": {
+    "bloodline-heavy": "Start with the truth that lineage can carry both strength and weight. You can love where you come from without pretending everything you inherited feels light.",
+    "ancestors-crowned-me": "Honor what came before you without becoming trapped by it. The people before you can be part of your foundation without becoming the ceiling over your life.",
+    "new-york-swag-panama-bloodline": "Your roots, culture, place, history, and present-day self do not have to compete. You are allowed to carry all of it at once and let the combination become your own expression.",
+    "default-blueprint": "Some patterns arrived before you were old enough to choose them. Look at the family rules, roles, survival habits, and expectations that became a default blueprint before deciding what stays.",
+    "get-back-to-the-original-code": "Go beneath what was programmed into you and get closer to what feels true before fear, performance, and inherited expectation start speaking for you.",
+    "check-your-soil": "Look at what keeps feeding your inner world. Generational change is not only about what you reject. It is also about what you deliberately plant and nourish now.",
+    "this-seems-familiar": "Familiar patterns can feel normal simply because they have been around a long time. Recognition is the moment where repetition can become choice.",
+    "yall-study": "Study what keeps repeating. Pay attention to what your family, relationships, work, and life keep teaching you. Patterns become easier to interrupt when you stop treating every repetition like a surprise.",
+    "i-cut-the-cloth": "You do not have to keep wearing a design that never fit you. If the old pattern cannot hold the life you are building, cut new cloth.",
+    "i-wrote-the-fucking-code": "This is the rewrite. You are not only living inside inherited rules. You can create new rules for how you love, work, communicate, parent, lead, and live.",
+    "daughter-wear-your-crown": "Legacy moves forward through what the next generation learns about worth. Do not teach that love requires shrinking. Let confidence become part of what gets passed down.",
+    "listen-my-son": "Let strength and tenderness travel forward together. You do not have to hand the next generation every wound that taught the last one how to survive.",
+    "be-that-man-son": "Character is part of lineage too. What gets passed forward is not only blood. It is the standard built through choices nobody applauds.",
+    "brick-by-brick": "Generational change usually looks ordinary while it is happening. Repeated choices build a different structure one brick at a time.",
+    "remember-who-you-are": "When inheritance gets loud, come back to the self underneath the roles and expectations. You need to know who is making the next choice.",
+    "born-worthy": "End before approval, repair, or lineage can claim ownership of your worth. You were worthy before the family healed, before anybody understood you, and before you fixed anything."
+  },
+  "alignment-season": {
+    "blackout-mode": "Start by becoming unavailable to noise. You cannot hear what fits while every outside voice is still competing for the microphone. Silence can be strategy.",
+    "ask-once-and-its-done": "Say what you require clearly, then stop chasing the answer. Alignment does not need you to keep begging something that already heard you.",
+    "divine-timing-can-eat-one": "Stop using timing as an excuse to postpone your own participation. You can respect process and still move with what is available now.",
+    "get-off-your-knees": "Stop begging life, love, people, or circumstances to choose you. Alignment begins when you stand up and participate in choosing yourself.",
+    "authentic-or-nothing": "Choose what actually sounds, feels, and fits like you. Broad approval is not useful if you have to become inaccurate to receive it.",
+    "you-want-it-its-yours": "Let desire give you information. Wanting something can become direction when you stop treating desire like evidence that you are asking for too much.",
+    "born-to-do-this": "Take your natural direction seriously. If your gifts keep pointing somewhere, stop dismissing the pattern as coincidence.",
+    "the-talents": "Use what you carry. Alignment without expression becomes another form of hiding. Your gifts need somewhere real to go.",
+    "read-your-manual": "Know how you operate. Learn your signals, needs, rhythms, limits, and patterns so you stop building a life that constantly works against your own system.",
+    "pressure-taste-like-breakfast": "Not every hard thing means you are misaligned. Learn the difference between pressure that stretches you and pressure that consumes you.",
+    "signal-strong": "Clarity strengthens what you are sending. Stop diluting what you mean. The clearer you become, the easier it is to recognize what actually matches you.",
+    "strut-like-a-frequency": "Let your body practice the certainty your mind is still learning. Embodiment helps alignment become something you live instead of something you only understand.",
+    "alignment-season": "This is the center of the Session. Stop forcing what requires self-betrayal. Choose what fits your values, energy, voice, and actual life.",
+    "i-wasnt-lost-i-was-loading": "A pause is not always proof you were off course. Sometimes you were integrating, recalibrating, and getting ready to carry what comes next.",
+    "bell-ring-time": "When the opening appears, answer it. Alignment is not only sensing the door. It is walking through when the moment arrives.",
+    "get-up-nobodys-coming": "End in self-directed action. You do not need rescue to begin moving. Become the movement you were waiting for and take the next step yourself."
+  },
+  "i-hate-it-here-sometimes": {
+    "what-the-fuck-is-this": "Start exactly where the feeling is. Sometimes the honest response is simply, what the fuck is this? You do not have to manufacture meaning before you have even processed what happened.",
+    "divine-timing-sucks-out-loud": "You are allowed to hate the wait. Frustration does not cancel faith, growth, alignment, or whatever else you believe is happening underneath it.",
+    "am-i-fucking-invisible": "Sometimes the exhaustion comes from feeling unseen while you are still carrying everything. Your needs do not become less real because other people keep overlooking them.",
+    "overloaded": "Name the capacity problem before you turn it into a character flaw. You are not failing because too much is too much. Put something down.",
+    "no-one-sees-the-cracks": "You can be capable and still be hurting. Stop requiring yourself to look unbreakable when what you actually need is care.",
+    "rage-song-obstacle-course": "Let anger become information. It can show you where the obstacle, violation, or frustration lives. Feel it without letting it become your whole identity.",
+    "my-heart-aches": "Under anger there is often hurt. Let yourself reach the softer feeling underneath the frustration instead of staying armored forever.",
+    "no-return-address": "Some of what is exhausting you is energy still being sent toward something that is over. Stop mailing yourself back into places that no longer exist.",
+    "nothing-was-wasted": "Keep what the experience taught you without keeping the suffering active. Wisdom can stay after the cost is released.",
+    "everything-is-gonna-be-alright": "You do not need to know exactly how everything resolves to believe you can meet what comes next. This is reassurance without pretending the day was easy.",
+    "get-up-sweetpea": "Now the Session starts lifting, but not by yelling at you. Give yourself tenderness first. Then rise. Motivation does not have to sound cruel.",
+    "soft-landing": "Let the nervous system imagine change without impact. Not every next chapter has to arrive through chaos. Some things are allowed to land gently.",
+    "cosmic-sweatshirt": "You are allowed to be ordinary for a minute. Comfortable. Weird. Spiritual. Human. You do not have to turn every hard day into a performance of growth.",
+    "pink-smoke": "Let beauty exist without needing to explain it. Sometimes relief begins with something soft that does not ask anything from you.",
+    "one-more-hug": "Stay with tenderness a little longer. You do not have to rush away from care because you are afraid of needing it.",
+    "everybodys-waiting-for-you-to-come-home": "End with return. A bad day is not your whole life. Come back to whatever home means inside yourself, inside love, or inside the place where you can finally exhale."
+  },
+  "you-are-ok": {
+    "everything-is-gonna-be-alright": "Start with reassurance. You do not need every answer right now to know you can meet what comes. Uncertainty is not proof that everything is falling apart.",
+    "youre-already-saved": "Stop waiting for a future version of yourself to become worthy of peace. You do not need to finish becoming before you are allowed to feel safe inside your own life.",
+    "born-worthy": "Your worth did not disappear because something is hard. You do not have to earn it back through productivity, usefulness, healing, or perfect behavior.",
+    "it-didnt-change-me": "What happened can matter without owning your identity. You are allowed to be affected and still decide what gets to remain part of who you are.",
+    "i-wasnt-lost-i-was-loading": "A pause does not mean you failed. Some quiet seasons are integration. You may have been becoming able to carry what comes next even when nothing looked impressive from the outside.",
+    "noise-in-my-halo": "You do not have to be polished to be okay. Messy, sacred, emotional, imperfect, and human can all exist in the same person at the same time.",
+    "no-one-sees-the-cracks": "Strength does not require hiding every crack. You can need care without losing respect for yourself. Being honest about what hurts is not the same as falling apart.",
+    "get-up-sweetpea": "Speak to yourself gently before you ask yourself to move. You do not need cruelty to create momentum. Tenderness can be part of strength.",
+    "you-did-good-baby": "Let yourself receive your own kindness. Notice what you handled, survived, finished, or simply kept showing up through. Let that count before asking for more.",
+    "so-proud": "Stop moving the finish line for one minute. You are allowed to be proud of how far you have come, even while there is still more to do.",
+    "one-more-hug": "Let care stay long enough to reach you. You do not have to rush past tenderness because you are afraid it will disappear.",
+    "soft-landing": "Your next change does not have to hurt in order to be real. Let gentle become a possibility your nervous system is allowed to believe in.",
+    "cosmic-sweatshirt": "You are allowed to be comfortable, ordinary, strange, spiritual, and human without proving anything. Being okay does not have to look impressive.",
+    "connected-to-me": "Bring your attention back inside. The relationship you have with yourself matters. Hear yourself, trust yourself, and stop abandoning yourself just to keep something else.",
+    "return-to-self": "Come back to your own attention, energy, and authority. When everything outside gets loud, you need somewhere inside yourself that still feels like home.",
+    "youre-living-proof": "End with evidence. You do not have to be finished to recognize that transformation is already embodied in you. You are here. That matters."
+  },
+  "its-go-season": {
+    "get-up-nobodys-coming": "Start with movement. Waiting for rescue keeps your life in somebody else’s hands. Take the next step yourself, even if it is small.",
+    "divine-timing-can-eat-one": "Stop turning timing into a reason to postpone your participation. You can respect process without spending your whole life waiting for permission to move.",
+    "born-to-do-this": "Take your natural direction seriously. If your gifts keep pointing toward something, give that pattern the respect of action.",
+    "i-can-do-everything-i-want-to-do": "Stop forcing your desires into an either-or box before you have tested your actual capacity. Build a life large enough to hold more of what matters to you.",
+    "built-my-own-table": "If the invitation never comes, build the table. Go season is not about waiting for somebody else’s structure to recognize you first.",
+    "i-bought-my-own-board": "Put something behind the vision. Invest time, money, energy, planning, or infrastructure into what you keep saying you want to build.",
+    "i-run-this-empire": "Move from ownership. Your time, energy, work, and decisions need leadership if the vision is going to become real.",
+    "brick-by-brick": "Do not confuse speed with progress. Build what lasts through repeated choices. Brick by brick is still forward motion.",
+    "clocked-in-again": "Come back tomorrow. Momentum is not only the exciting first day. It is the discipline of returning after the mood changes.",
+    "pressure-taste-like-breakfast": "Expect some pressure. Growth can stretch you without meaning you are on the wrong path. Learn the difference between challenge and consumption.",
+    "signal-strong": "Get clear about what you are doing and why. A strong signal makes it easier to recognize what fits, what distracts, and what needs a no.",
+    "broadcast-mode": "Stop hiding the work after you build it. Let people hear the voice, see the offer, meet the idea, or know the thing exists. Visibility is part of execution.",
+    "you-dont-walk-in-quiet": "Do not enter your own opportunity apologizing for your presence. Take up the space required to actually participate in the life you asked for.",
+    "bell-ring-time": "When the moment arrives, answer it. Preparation becomes procrastination when the door is open and you keep standing outside.",
+    "its-already-done": "Shift out of desperation. Move like the version of you who can already hold the result. Completion changes the quality of the next decision.",
+    "levitation-walk": "Finish in embodiment. Walk like your life has already expanded enough to hold what you are building. Go season is not only about doing more. It is about becoming able to carry more."
+  },
+  "you-were-never-too-much": {
+    "am-i-fucking-invisible": "Start with the wound of not being seen. If people have overlooked you, that does not mean the answer is to become smaller so they can miss you more comfortably.",
+    "dont-call-me-cute": "Do not let people reduce what is powerful because a smaller label is easier to digest. You can be soft and still substantial, beautiful and still formidable.",
+    "built-different-baby": "Your difference is not automatically a defect. The parts that made you harder to categorize may be exactly what makes your path yours.",
+    "noise-in-my-halo": "You do not have to become quieter, cleaner, simpler, or more polished before you are allowed to feel sacred. Your humanity does not disqualify your light.",
+    "born-worthy": "Worth is not a reward for being easy to handle. You were worthy before anybody decided whether you were convenient.",
+    "i-will-never-be-you": "Stop reshaping yourself into someone else’s version of acceptable. You do not need to become quieter, easier, or more familiar in order to belong in your own life.",
+    "authentic-or-nothing": "Choose being accurately seen over broadly approved. What truly fits you cannot recognize you if you keep performing as somebody else.",
+    "you-dont-walk-in-quiet": "Your presence is not a problem to solve. You do not have to disappear politely so other people can stay comfortable.",
+    "when-she-walks-in": "You do not need permission to matter when you enter the room. Let your presence arrive before the explanation does.",
+    "daughter-wear-your-crown": "Do not teach yourself that love requires shrinking. Carry what you know about your worth where the world can see it.",
+    "fuck-i-would-date-me": "Enjoy your own value. Become somebody whose company you genuinely like instead of waiting for somebody else to certify that you are worth choosing.",
+    "the-talents": "Do not hide your gifts because somebody else feels uncomfortable around your capacity. What comes naturally to you still deserves to be used.",
+    "queenpin-smoke": "Own your authority without apologizing for it. Power does not require chaos, domination, or cruelty. It can simply mean your life answers to your standards.",
+    "i-dont-bow": "Respect does not require self-erasure. You can honor other people without surrendering your authority over yourself.",
+    "what-i-need-you-to-remember": "When criticism, rejection, or old conditioning gets loud, come back to what is true about you before the noise started telling you to become less.",
+    "tabby-unplugged": "End by removing the performance. When you unplug from everybody else’s expectations, what remains is still worthy of being heard. You were never too much. You were being asked to become less."
+  },
+  "its-ok-to-say-you-miss-them": {
+    "i-can-love-you-with-my-eyes-closed": "Start here because love can be instinctive. Physical presence is not always required for you to access what you feel. Sometimes you can close your eyes and the love is still right there.",
+    "i-love-you-so-much-its-weird": "Let yourself admit the size of the love. It can be intense, tender, physical, funny, vulnerable, and bigger than what feels reasonable. You do not have to shrink it before you name it.",
+    "i-have-always-known-you": "Sometimes connection feels more like recognition than introduction. You can feel familiar with someone before language has caught up enough to explain why.",
+    "youre-everything-i-ever-wanted-and-didnt-know-i-was-allowed-to-have": "Some connections touch desires you did not know how to ask for. Let yourself notice what the relationship showed you about what you are actually capable of wanting and receiving.",
+    "come-closer": "Recognition becomes longing here. Wanting someone closer is not automatically dependency. Sometimes it is simply the honest truth that distance is not what your heart wants.",
+    "one-more-hug": "Missing someone is not always philosophical. Sometimes your body wants one more embrace, one more moment of physical closeness, one more chance to feel them near.",
+    "soft-arms": "Your body can remember what it felt like to soften, be held, and stop carrying everything for a minute. Missing that safety can live in the body as much as it lives in the mind.",
+    "my-heart-aches": "This is the emotional center. Missing someone can become physical. The absence can ache. You do not have to pretend the body is not part of what is missing.",
+    "where-do-i-go-to-feel-loved": "When a connection became associated with love, care, or safety, distance can leave a very specific absence behind. Let yourself acknowledge the place that love occupied without shaming yourself for noticing the empty space.",
+    "your-love-kept-me-here": "Sometimes love carried real weight in your life. It may have helped you stay standing through something hard. You can honor what that love meant without turning it into a debt.",
+    "divine-timing-sucks-out-loud": "Understanding timing does not mean you have to enjoy distance. You can trust a process and still hate how long it is taking. Both things can be true at once.",
+    "ask-once-and-its-done": "You already know what your heart wants. You do not have to keep interrogating the feeling or explaining it to yourself over and over just because the situation is complicated.",
+    "receiver-open": "Longing is not only about wanting. It also asks whether you can receive closeness, love, and tenderness when they reach you. Keep the receiver open instead of protecting yourself from the very thing you miss.",
+    "union": "Togetherness does not require either person to disappear. Real union can make room for two whole people and still allow the connection to be deeply felt.",
+    "soft-landing": "After the ache and longing, let the emotional energy land gently. This is not goodbye and it is not forced closure. It is simply a softer place to hold what you feel.",
+    "everybodys-waiting-for-you-to-come-home": "This is the only closer. After knowing, loving, missing, wanting closeness, and remembering what the body feels, the final feeling is simple: come home."
+  },
+  "narcissistic-ex": {
+    "love-bomb-funeral": "Start with the beginning of the trap. Intensity can feel like destiny when it is really acceleration. Let the fantasy die that overwhelming attention automatically means real love.",
+    "pretty-lies-rotten-core": "The shine starts wearing off here. Presentation is not integrity. Something can look beautiful on the outside and still have a rotten core underneath.",
+    "the-mask-slipped": "This is the moment behavior becomes harder to explain away. When someone shows you something that contradicts the image they sold you, believe the information.",
+    "gaslight-gospel": "Confusion can become self-doubt when your memory, perception, and evidence keep getting challenged. Come back to what you actually experienced before somebody else’s certainty replaces your own.",
+    "crocodile-tears": "Emotion does not erase the pattern. Tears, regret, distress, and dramatic pain do not automatically equal accountability or changed behavior.",
+    "your-apology-was-a-trap": "An apology can become a doorway back in instead of real repair. If forgiveness is being used to demand immediate access, closeness, or another chance, pay attention to that.",
+    "am-i-fucking-invisible": "After enough cycles, you can start feeling like your needs, feelings, and experience are right there and somehow everything still revolves around the other person. That invisibility matters.",
+    "this-seems-familiar": "This is where recognition starts beating repetition. When the pattern feels familiar, use that familiarity as information instead of confusing it with love.",
+    "hoover-season": "When the distance becomes real, the attempt to pull you back in may begin. A return does not automatically mean growth. Sometimes it only means access was lost.",
+    "love-bombs-and-exit-wounds": "Now you can see the whole cycle more clearly: intensity, attachment, confusion, and damage when consistency never existed. Intensity is not proof of intimacy.",
+    "you-dont-know-loyalty": "Stop confusing endurance with devotion. Loyalty does not require abandoning yourself to prove that you stayed.",
+    "do-your-fucking-job": "Give the other person their emotional labor back. Their reflection, repair, responsibility, and accountability are not jobs you can complete for them.",
+    "blackout-mode": "This is the withdrawal of access. Silence can become strategy, protection, and recalibration instead of one more argument, explanation, or attempt to be understood.",
+    "yall-got-me-fucked-up": "This is the boundary turn. Enough analyzing, explaining, and giving the benefit of the doubt. At some point, what you already know has to become action.",
+    "no-return-address": "Stop sending energy, explanations, and emotional mail back to something that has already shown you what it is. You do not have to keep reopening a closed door.",
+    "narcissistic-bitch": "End with reclamation. Confidence, self-respect, and boundaries are not the same thing as selfishness or cruelty. Your identity belongs back in your own hands."
+  }
+};
 
 function getTabiSessionsWithMigration(){
   let saved = [];
@@ -6255,7 +6870,15 @@ function getTabiSessionsWithMigration(){
     try{ localStorage.setItem(TU_SESSION_KEY, JSON.stringify(fresh)); }catch(e){}
     return fresh;
   }
-  return saved;
+
+  // Curated Session rollout: apply the approved title, cover, order and song list to every built-in Session.
+  const savedById = new Map(saved.filter(Boolean).map(session => [session.id, session]));
+  const curated = TU_DEFAULT_SESSIONS.map(def => {
+    const prior = savedById.get(def.id) || {};
+    return {...prior, ...def, published: prior.published === false ? false : def.published};
+  });
+  try{ localStorage.setItem(TU_SESSION_KEY, JSON.stringify(curated)); }catch(e){}
+  return curated;
 }
 let tuSessions = [];
 let activePublicSession = null;
@@ -6359,6 +6982,19 @@ function openPublicSession(id){
 
   document.getElementById('sessionDetailTitle').textContent = session.title;
   document.getElementById('sessionDetailDescription').textContent = session.description || '';
+
+  const guidance = document.getElementById('sessionGuidance');
+  const guidanceText = document.getElementById('sessionGuidanceText');
+  const sessionGuidance = TU_SESSION_GUIDANCE[session.id] || '';
+  if(guidance && guidanceText){
+    if(sessionGuidance){
+      guidanceText.textContent = sessionGuidance;
+      guidance.classList.remove('hidden');
+    }else{
+      guidanceText.textContent = '';
+      guidance.classList.add('hidden');
+    }
+  }
 
   const coverBox = document.getElementById('sessionDetailCover');
   coverBox.innerHTML = session.cover
@@ -6613,6 +7249,10 @@ if(headerSearch){
           <p id="sessionDetailDescription"></p>
           <div class="session-detail-share-row"><button class="primary-btn" id="playSessionBtn">▶ Play Session</button><button class="mini-btn session-share-btn" id="shareSessionBtn" type="button">Share</button></div>
         </div>
+      </div>
+      <div class="session-guidance hidden" id="sessionGuidance">
+        <span class="session-guidance-label">IN THIS SESSION</span>
+        <p class="session-guidance-text" id="sessionGuidanceText"></p>
       </div>
       <div class="context-search-row session-context-search-row">
         <label class="context-search" aria-label="Search within this Tabi Session">
