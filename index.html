@@ -4448,6 +4448,17 @@ html.tu-phone .topbar.service-nav .main-nav .desktop-kaila-link{display:none !im
   html.tu-phone .public-session-card .session-share-row{width:100% !important;}
 }
 </style>
+
+<style>
+@media (max-width:620px){
+  .transmission-card.session-text-match .transmission-label{
+    font-size:8.5px !important;
+    letter-spacing:.10em !important;
+    white-space:nowrap;
+  }
+}
+</style>
+
 </head>
 <body>
   <div class="ambient ambient-one"></div>
@@ -4515,7 +4526,7 @@ html.tu-phone .topbar.service-nav .main-nav .desktop-kaila-link{display:none !im
     <section class="quick-listen service-row" aria-label="Featured songs">
       <div class="row-head">
         <div>
-          <h3>Tabi Sessions</h3><span class="sessions-slide-cue"><strong class="sessions-coming-soon">Coming soon</strong><span class="sessions-slide-text">Slide for more sessions →</span></span>
+          <h3>Tabi Sessions</h3><span class="sessions-slide-cue"><span class="sessions-slide-text">Slide for more sessions →</span></span>
         </div>
       </div>
       <div class="quick-rail service-rail" id="homeSessionsGrid">
@@ -7060,7 +7071,7 @@ function renderHomeSessions(){
           <div class="home-session-placeholder">TU</div>
         </div>
         <h3>Tabi Session</h3>
-        <small>Coming soon</small>
+        
       </article>`).join('');
     return;
   }
