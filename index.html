@@ -3711,7 +3711,7 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
   .topbar.service-nav .main-nav > a[href="#home"],
   .topbar.service-nav .main-nav > a[href="#playlists"],
   .topbar.service-nav .main-nav > a[href="#librarySection"],
-  .topbar.service-nav .main-nav > a[href="#merch"]{
+  .topbar.service-nav .main-nav > .nav-merch-link{
     width:100% !important;
     text-align:center !important;
     padding:8px 2px !important;
@@ -3778,7 +3778,7 @@ html.tu-phone .track-card.playlist-reorderable.dragging{
   .topbar.service-nav .main-nav > a[href="#home"],
   .topbar.service-nav .main-nav > a[href="#playlists"],
   .topbar.service-nav .main-nav > a[href="#librarySection"],
-  .topbar.service-nav .main-nav > a[href="#merch"]{
+  .topbar.service-nav .main-nav > .nav-merch-link{
     display:flex !important;
     justify-content:center !important;
     align-items:center !important;
@@ -4492,7 +4492,7 @@ html.tu-phone .topbar.service-nav .main-nav .desktop-kaila-link{display:none !im
         <a href="#home" class="active">Home</a>
         <a href="#playlists">Playlists</a>
         <a href="#librarySection">Library</a>
-        <a href="#merch">Merch</a>
+        <a class="nav-merch-link" href="https://kailanewyork.wixstudio.com/kailanewyorkllc/blank-3-5-1" target="_blank" rel="noopener">Merch</a>
         <button class="nav-share-link" id="globalShareBtn" type="button" aria-label="Share Tabi Unplugged">Share</button>
       </nav>
       <div class="mobile-nav-actions-row" aria-hidden="true"></div>
@@ -6263,8 +6263,9 @@ const tuShareVideoBuilds = new Map();
 function tuMediaShareTrack(){
   if(activeShareTarget?.type === 'track') return getTrackById(activeShareTarget.id);
   if(activeShareTarget?.type === 'session'){
-    const s=(tuSessions||[]).find(x=>x.id===activeShareTarget.id) || getTabiSessionsWithMigration().find(x=>x.id===activeShareTarget.id);
-    const first=(s?.trackIds||[]).map(getTrackById).find(Boolean);
+    const sessionList = (typeof getTabiSessionsWithMigration === 'function') ? getTabiSessionsWithMigration() : [];
+    const session = sessionList.find(x=>x.id===activeShareTarget.id);
+    const first=(session?.trackIds||[]).map(getTrackById).find(Boolean);
     if(first) return first;
   }
   if(activeShareTarget?.type === 'playlist'){
@@ -6381,43 +6382,91 @@ async function tuBuildShareVideo(track,label){
   tuShareVideoBuilds.set(track.id,task);
   return task;
 }
+function tuMediaUploadUrl(label){
+  return label === 'TikTok' ? 'https://www.tiktok.com/upload' : 'https://www.youtube.com/upload';
+}
+async function tuMediaShareFallback(label, track, reason=''){
+  const p=activeSharePayload||getSharePayload();
+  const fallbackUrl=tuMediaUploadUrl(label);
+  // Always give the listener visible feedback and preserve the Tabi URL.
+  const text=`${p.text} ${p.url}`.trim();
+  try{ await navigator.clipboard?.writeText?.(text); }catch(e){}
+  saveShareReturnState();
+  showShareFeedback(`${label} video handoff is unavailable here — opening ${label} upload. Tabi link copied.`);
+  const win=window.open(fallbackUrl,'_blank','noopener,noreferrer');
+  if(!win){
+    // Pop-up blockers can reject window.open. A direct navigation is still better than a dead button.
+    setTimeout(()=>{ try{ location.href=fallbackUrl; }catch(e){} },120);
+  }
+  return false;
+}
+function tuCanBuildShareVideo(){
+  return !!(window.MediaRecorder && HTMLCanvasElement.prototype.captureStream && (window.AudioContext||window.webkitAudioContext));
+}
+
 async function tuShareMediaPlatform(label){
   const track=tuMediaShareTrack();
   if(!track){ showShareFeedback('Choose a song first'); return; }
+
+  // Desktop browsers rarely support sharing generated files to external apps.
+  // Do not leave TikTok/YouTube as dead buttons there.
+  if(!isPhoneShareMode()){
+    await tuMediaShareFallback(label,track,'desktop');
+    return;
+  }
+
+  if(!tuCanBuildShareVideo()){
+    tuMediaShareButtonState(label,'unsupported');
+    await tuMediaShareFallback(label,track,'unsupported-browser');
+    return;
+  }
+
   const cached=tuShareVideoCache.get(track.id);
   if(cached){
-    if(!navigator.share || !navigator.canShare?.({files:[cached]})){
+    const canFileShare = !!(navigator.share && navigator.canShare?.({files:[cached]}));
+    if(!canFileShare){
       tuMediaShareButtonState(label,'unsupported');
-      showShareFeedback('This browser cannot send video files to apps');
+      await tuMediaShareFallback(label,track,'file-share-unsupported');
       return;
     }
     try{
       saveShareReturnState();
       await navigator.share({files:[cached],title:`${track.title} · Tabi Unplugged`,text:`${track.title} — Tabi Unplugged`});
       showShareFeedback(`Choose ${label} to post the video`);
-    }catch(err){ if(err?.name!=='AbortError') showShareFeedback('Video share did not open'); }
+    }catch(err){
+      if(err?.name!=='AbortError') await tuMediaShareFallback(label,track,'share-failed');
+    }
     return;
   }
+
+  // Immediate visible response on first tap.
   tuMediaShareButtonState(label,'building');
   showShareFeedback(`Building ${track.title} share video…`);
   try{
     const file=await tuBuildShareVideo(track,label);
-    if(navigator.canShare?.({files:[file]})){
+    const canFileShare = !!(navigator.share && navigator.canShare?.({files:[file]}));
+    if(canFileShare){
       tuMediaShareButtonState(label,'ready');
       showShareFeedback('Video ready — tap the button again to share');
     }else{
       tuMediaShareButtonState(label,'unsupported');
-      showShareFeedback('Video created, but this phone will not share this file type');
+      await tuMediaShareFallback(label,track,'generated-file-not-shareable');
     }
   }catch(err){
     console.error('Tabi media share video failed',err);
     tuMediaShareButtonState(label,'unsupported');
-    showShareFeedback('Could not build the share video on this browser');
+    await tuMediaShareFallback(label,track,'build-failed');
   }
 }
 
-document.getElementById('shareTikTok')?.addEventListener('click',()=>tuShareMediaPlatform('TikTok'));
-document.getElementById('shareYouTube')?.addEventListener('click',()=>tuShareMediaPlatform('YouTube'));
+
+document.addEventListener('click',e=>{
+  const btn=e.target?.closest?.('#shareTikTok,#shareYouTube');
+  if(!btn) return;
+  e.preventDefault();
+  e.stopPropagation();
+  tuShareMediaPlatform(btn.id==='shareTikTok'?'TikTok':'YouTube');
+});
 
 
 /* Restore the exact share/playlist state after returning from an external social app. */
