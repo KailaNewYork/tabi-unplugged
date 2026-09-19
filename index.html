@@ -4723,7 +4723,7 @@ html.tu-phone .topbar.service-nav .main-nav .desktop-kaila-link{display:none !im
       <h3 id="sharePanelTitle">Share Tabi Unplugged</h3>
       <p class="share-panel-copy" id="sharePanelCopy">Choose where you want to send it.</p>
       <div class="share-options-grid">
-        <button class="share-option" id="shareTikTok" type="button"><span class="share-option-icon">TT</span><span class="share-option-copy"><strong>TikTok</strong><small>Make & share video</small></span></button>
+        <button class="share-option" id="shareTikTok" type="button"><span class="share-option-icon">TT</span><span class="share-option-copy"><strong>TikTok</strong><small>Connect & send to TikTok</small></span></button>
         <button class="share-option" id="shareYouTube" type="button"><span class="share-option-icon">▶</span><span class="share-option-copy"><strong>YouTube</strong><small>Make & share video</small></span></button>
         <button class="share-option" id="shareInstagram" type="button"><span class="share-option-icon">IG</span><span class="share-option-copy"><strong>Instagram</strong><small>Send with your phone</small></span></button>
         <button class="share-option" id="shareFacebook" type="button"><span class="share-option-icon">f</span><span class="share-option-copy"><strong>Facebook</strong><small>Share this Tabi link</small></span></button>
@@ -6460,38 +6460,144 @@ async function tuShareMediaPlatform(label){
 }
 
 
-// v2.23 — guaranteed TikTok/YouTube response.
-// Open the platform synchronously inside the original user tap so popup blockers
-// cannot cancel it. Preserve/copy the Tabi share payload after the window is opened.
-function tuOpenSocialUploadNow(label){
+// v2.24 — TikTok Content Posting API integration (Upload to Inbox).
+// TikTok OAuth tokens remain server-side in the Supabase Edge Function.
+const TABI_TIKTOK_API = `${TABI_SUPABASE_URL}/functions/v1/tabi-tiktok`;
+let tuPendingTikTokTrackId = null;
+let tuTikTokPopup = null;
+
+function tuRandomToken(bytes=24){
+  const a=new Uint8Array(bytes); crypto.getRandomValues(a);
+  return Array.from(a,b=>b.toString(16).padStart(2,'0')).join('');
+}
+function tuTikTokIdentity(){
+  let deviceId=localStorage.getItem('tabiTikTokDeviceId');
+  let deviceSecret=localStorage.getItem('tabiTikTokDeviceSecret');
+  if(!deviceId){ deviceId=crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${tuRandomToken(12)}`; localStorage.setItem('tabiTikTokDeviceId',deviceId); }
+  if(!deviceSecret){ deviceSecret=tuRandomToken(32); localStorage.setItem('tabiTikTokDeviceSecret',deviceSecret); }
+  return {deviceId,deviceSecret};
+}
+async function tuTikTokStatus(){
+  const {deviceId,deviceSecret}=tuTikTokIdentity();
+  const r=await fetch(`${TABI_TIKTOK_API}?action=status`,{headers:{'x-tabi-device-id':deviceId,'x-tabi-device-secret':deviceSecret}});
+  if(!r.ok) return {connected:false};
+  return r.json();
+}
+function tuTikTokConnectUrl(){
+  const {deviceId,deviceSecret}=tuTikTokIdentity();
+  const origin=location.origin;
+  const q=new URLSearchParams({action:'start',device_id:deviceId,device_secret:deviceSecret,return_origin:origin});
+  return `${TABI_TIKTOK_API}?${q}`;
+}
+async function tuCopyTikTokCaption(track){
   const p=activeSharePayload||getSharePayload();
-  const url=label==='TikTok' ? 'https://www.tiktok.com/upload' : 'https://www.youtube.com/upload';
+  const text=`${p.text} ${p.url}`.trim();
+  try{ await navigator.clipboard?.writeText?.(text); }catch(e){}
+}
+async function tuUploadVideoToTikTok(track){
+  if(!track) throw new Error('Choose a song first');
+  tuMediaShareButtonState('TikTok','building');
+  showShareFeedback(`Building ${track.title} TikTok video…`);
+  const file=await tuBuildShareVideo(track,'TikTok');
+  const allowed=['video/mp4','video/quicktime','video/webm'];
+  if(!allowed.includes(file.type)) throw new Error(`TikTok cannot accept ${file.type||'this video format'}`);
+  const {deviceId,deviceSecret}=tuTikTokIdentity();
+  showShareFeedback('Sending video to TikTok…');
+  const r=await fetch(`${TABI_TIKTOK_API}?action=upload`,{
+    method:'POST',
+    headers:{
+      'content-type':file.type,
+      'x-tabi-device-id':deviceId,
+      'x-tabi-device-secret':deviceSecret,
+      'x-tabi-file-name':encodeURIComponent(file.name)
+    },
+    body:file
+  });
+  const data=await r.json().catch(()=>({}));
+  if(!r.ok || !data.ok) throw new Error(data.error||`TikTok upload failed (${r.status})`);
+  await tuCopyTikTokCaption(track);
+  tuMediaShareButtonState('TikTok','ready');
+  showShareFeedback('Sent to TikTok. Open the TikTok inbox notification to finish the post. Caption/link copied.');
+  return data;
+}
+async function tuContinuePendingTikTokShare(){
+  const id=tuPendingTikTokTrackId || localStorage.getItem('tabiPendingTikTokTrackId');
+  const track=id ? getTrackById(id) : tuMediaShareTrack();
+  if(!track) return;
+  tuPendingTikTokTrackId=track.id;
+  localStorage.setItem('tabiPendingTikTokTrackId',track.id);
+  try{
+    const status=await tuTikTokStatus();
+    if(!status.connected) throw new Error('TikTok is not connected yet');
+    await tuUploadVideoToTikTok(track);
+    localStorage.removeItem('tabiPendingTikTokTrackId');
+    tuPendingTikTokTrackId=null;
+  }catch(err){
+    console.error('Tabi TikTok share failed',err);
+    tuMediaShareButtonState('TikTok','unsupported');
+    showShareFeedback(err?.message || 'TikTok share failed');
+  }
+}
+async function tuStartTikTokShare(){
+  const track=tuMediaShareTrack();
+  if(!track){ showShareFeedback('Choose a song first'); return; }
+  tuPendingTikTokTrackId=track.id;
+  localStorage.setItem('tabiPendingTikTokTrackId',track.id);
   saveShareReturnState();
 
-  // IMPORTANT: this must happen before any await/promise work.
-  const win=window.open(url,'_blank','noopener,noreferrer');
-  if(!win){
-    try{ location.href=url; }catch(e){}
-  }
-
-  const shareText=`${p.text} ${p.url}`.trim();
+  // Open immediately from the user's tap so popup blockers cannot stop OAuth.
+  try{ tuTikTokPopup=window.open('about:blank','tabiTikTokConnect','width=620,height=760'); }catch(e){ tuTikTokPopup=null; }
+  showShareFeedback('Checking TikTok connection…');
   try{
-    const copied=navigator.clipboard?.writeText?.(shareText);
-    if(copied && typeof copied.catch==='function') copied.catch(()=>{});
-  }catch(e){}
-
-  showShareFeedback(`${label} opened. Tabi share text/link copied for your post.`);
+    const status=await tuTikTokStatus();
+    if(status.connected){
+      try{ tuTikTokPopup?.close(); }catch(e){}
+      await tuContinuePendingTikTokShare();
+      return;
+    }
+    if(tuTikTokPopup){ tuTikTokPopup.location.href=tuTikTokConnectUrl(); }
+    else location.href=tuTikTokConnectUrl();
+    showShareFeedback('Connect TikTok, then Tabi will send the video.');
+  }catch(err){
+    try{ if(tuTikTokPopup) tuTikTokPopup.location.href=tuTikTokConnectUrl(); else location.href=tuTikTokConnectUrl(); }catch(e){}
+  }
 }
 
-document.addEventListener('click',e=>{
-  const btn=e.target?.closest?.('#shareTikTok,#shareYouTube');
-  if(!btn) return;
-  e.preventDefault();
-  e.stopPropagation();
-  e.stopImmediatePropagation?.();
-  tuOpenSocialUploadNow(btn.id==='shareTikTok'?'TikTok':'YouTube');
-}, true);
+window.addEventListener('message',e=>{
+  if(e.origin!==new URL(TABI_TIKTOK_API).origin) return;
+  if(e.data?.type!=='tabi:tiktok-connected') return;
+  const {deviceId}=tuTikTokIdentity();
+  if(e.data.deviceId!==deviceId) return;
+  try{ tuTikTokPopup?.close(); }catch(err){}
+  showShareFeedback('TikTok connected — preparing your video…');
+  tuContinuePendingTikTokShare();
+});
 
+document.addEventListener('click',e=>{
+  const tiktok=e.target?.closest?.('#shareTikTok');
+  if(tiktok){
+    e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation?.();
+    tuStartTikTokShare();
+    return;
+  }
+  const youtube=e.target?.closest?.('#shareYouTube');
+  if(youtube){
+    e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation?.();
+    tuOpenSocialUploadNow('YouTube');
+  }
+},true);
+
+// YouTube keeps the reliable uploader fallback until its own OAuth/API backend is connected.
+function tuOpenSocialUploadNow(label){
+  const p=activeSharePayload||getSharePayload();
+  const url='https://www.youtube.com/upload';
+  saveShareReturnState();
+  const win=window.open(url,'_blank','noopener,noreferrer');
+  if(!win){ try{ location.href=url; }catch(e){} }
+  const shareText=`${p.text} ${p.url}`.trim();
+  try{ navigator.clipboard?.writeText?.(shareText)?.catch?.(()=>{}); }catch(e){}
+  showShareFeedback(`${label} opened. Tabi share text/link copied for your post.`);
+}
 
 /* Restore the exact share/playlist state after returning from an external social app. */
 window.addEventListener('pageshow',()=>setTimeout(restoreShareReturnState,80));
