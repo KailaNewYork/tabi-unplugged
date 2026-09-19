@@ -6460,13 +6460,37 @@ async function tuShareMediaPlatform(label){
 }
 
 
+// v2.23 — guaranteed TikTok/YouTube response.
+// Open the platform synchronously inside the original user tap so popup blockers
+// cannot cancel it. Preserve/copy the Tabi share payload after the window is opened.
+function tuOpenSocialUploadNow(label){
+  const p=activeSharePayload||getSharePayload();
+  const url=label==='TikTok' ? 'https://www.tiktok.com/upload' : 'https://www.youtube.com/upload';
+  saveShareReturnState();
+
+  // IMPORTANT: this must happen before any await/promise work.
+  const win=window.open(url,'_blank','noopener,noreferrer');
+  if(!win){
+    try{ location.href=url; }catch(e){}
+  }
+
+  const shareText=`${p.text} ${p.url}`.trim();
+  try{
+    const copied=navigator.clipboard?.writeText?.(shareText);
+    if(copied && typeof copied.catch==='function') copied.catch(()=>{});
+  }catch(e){}
+
+  showShareFeedback(`${label} opened. Tabi share text/link copied for your post.`);
+}
+
 document.addEventListener('click',e=>{
   const btn=e.target?.closest?.('#shareTikTok,#shareYouTube');
   if(!btn) return;
   e.preventDefault();
   e.stopPropagation();
-  tuShareMediaPlatform(btn.id==='shareTikTok'?'TikTok':'YouTube');
-});
+  e.stopImmediatePropagation?.();
+  tuOpenSocialUploadNow(btn.id==='shareTikTok'?'TikTok':'YouTube');
+}, true);
 
 
 /* Restore the exact share/playlist state after returning from an external social app. */
