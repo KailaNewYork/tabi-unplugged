@@ -4723,8 +4723,8 @@ html.tu-phone .topbar.service-nav .main-nav .desktop-kaila-link{display:none !im
       <h3 id="sharePanelTitle">Share Tabi Unplugged</h3>
       <p class="share-panel-copy" id="sharePanelCopy">Choose where you want to send it.</p>
       <div class="share-options-grid">
-        <button class="share-option" id="shareTikTok" type="button"><span class="share-option-icon">TT</span><span class="share-option-copy"><strong>TikTok</strong><small>Send with your phone</small></span></button>
-        <button class="share-option" id="shareYouTube" type="button"><span class="share-option-icon">▶</span><span class="share-option-copy"><strong>YouTube</strong><small>Send with your phone</small></span></button>
+        <button class="share-option" id="shareTikTok" type="button"><span class="share-option-icon">TT</span><span class="share-option-copy"><strong>TikTok</strong><small>Make & share video</small></span></button>
+        <button class="share-option" id="shareYouTube" type="button"><span class="share-option-icon">▶</span><span class="share-option-copy"><strong>YouTube</strong><small>Make & share video</small></span></button>
         <button class="share-option" id="shareInstagram" type="button"><span class="share-option-icon">IG</span><span class="share-option-copy"><strong>Instagram</strong><small>Send with your phone</small></span></button>
         <button class="share-option" id="shareFacebook" type="button"><span class="share-option-icon">f</span><span class="share-option-copy"><strong>Facebook</strong><small>Share this Tabi link</small></span></button>
         <button class="share-option" id="shareMessenger" type="button"><span class="share-option-icon">M</span><span class="share-option-copy"><strong>Messenger</strong><small>Send to a conversation</small></span></button>
@@ -6243,8 +6243,7 @@ async function shareSocial(label,desktopUrlBuilder=null,fallbackUrl=''){
   return copyAndOpenPlatform(fallbackUrl,label);
 }
 
-document.getElementById('shareTikTok')?.addEventListener('click',()=>shareSocial('TikTok',null,'https://www.tiktok.com/'));
-document.getElementById('shareYouTube')?.addEventListener('click',()=>shareSocial('YouTube',null,'https://www.youtube.com/'));
+
 document.getElementById('shareInstagram')?.addEventListener('click',()=>shareSocial('Instagram',null,'https://www.instagram.com/'));
 document.getElementById('shareFacebook')?.addEventListener('click',()=>shareSocial('Facebook',p=>`https://www.facebook.com/sharer.php?u=${encodeURIComponent(p.url)}`,'https://www.facebook.com/'));
 document.getElementById('shareMessenger')?.addEventListener('click',()=>nativeShareTo('Messenger','https://www.messenger.com/'));
@@ -6253,6 +6252,173 @@ document.getElementById('shareTelegram')?.addEventListener('click',shareToTelegr
 document.getElementById('shareLinkedIn')?.addEventListener('click',()=>shareSocial('LinkedIn',p=>`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(p.url)}`,'https://www.linkedin.com/'));
 document.getElementById('shareSpotify')?.addEventListener('click',()=>shareSocial('Spotify',null,'https://open.spotify.com/'));
 document.getElementById('shareCopy')?.addEventListener('click',copyShareLink);
+
+// v2.22 — real media sharing for TikTok + YouTube on phones.
+// These buttons build a short vertical video from the selected song's artwork + audio.
+// Once built, a fresh tap shares the actual video file through the OS share sheet.
+const TU_MEDIA_SHARE_SECONDS = 15;
+const tuShareVideoCache = new Map();
+const tuShareVideoBuilds = new Map();
+
+function tuMediaShareTrack(){
+  if(activeShareTarget?.type === 'track') return getTrackById(activeShareTarget.id);
+  if(activeShareTarget?.type === 'session'){
+    const s=(tuSessions||[]).find(x=>x.id===activeShareTarget.id) || getTabiSessionsWithMigration().find(x=>x.id===activeShareTarget.id);
+    const first=(s?.trackIds||[]).map(getTrackById).find(Boolean);
+    if(first) return first;
+  }
+  if(activeShareTarget?.type === 'playlist'){
+    const pl=getPlaylist(activeShareTarget.id);
+    const first=tracksForPlaylist(pl)[0];
+    if(first) return first;
+  }
+  return currentTrack() || tracks[0] || null;
+}
+function tuMediaShareButtonState(label,state){
+  const id=label==='TikTok'?'shareTikTok':'shareYouTube';
+  const btn=document.getElementById(id);
+  const small=btn?.querySelector('small');
+  if(!btn||!small) return;
+  btn.dataset.mediaState=state;
+  if(state==='building'){ small.textContent='Building share video…'; btn.setAttribute('aria-busy','true'); }
+  else if(state==='ready'){ small.textContent='Video ready — tap to share'; btn.removeAttribute('aria-busy'); }
+  else if(state==='unsupported'){ small.textContent='Video share unavailable here'; btn.removeAttribute('aria-busy'); }
+  else { small.textContent='Make & share video'; btn.removeAttribute('aria-busy'); }
+}
+function tuLoadImage(src){
+  return new Promise((resolve,reject)=>{
+    const img=new Image();
+    img.onload=()=>resolve(img); img.onerror=reject; img.src=src;
+  });
+}
+function tuWrapCanvasText(ctx,text,maxWidth){
+  const words=String(text||'').split(/\s+/); const lines=[]; let line='';
+  for(const word of words){
+    const test=line?`${line} ${word}`:word;
+    if(ctx.measureText(test).width>maxWidth && line){ lines.push(line); line=word; }
+    else line=test;
+  }
+  if(line) lines.push(line); return lines.slice(0,3);
+}
+function tuDrawShareVideoFrame(ctx,canvas,img,track){
+  const w=canvas.width,h=canvas.height;
+  ctx.fillStyle='#090711'; ctx.fillRect(0,0,w,h);
+  // Soft cover-colored backdrop.
+  ctx.save(); ctx.globalAlpha=.26; ctx.filter='blur(52px)';
+  const bgSize=Math.max(w,h)*1.15;
+  ctx.drawImage(img,(w-bgSize)/2,(h-bgSize)/2,bgSize,bgSize); ctx.restore();
+  const grad=ctx.createLinearGradient(0,0,0,h); grad.addColorStop(0,'rgba(8,7,14,.20)'); grad.addColorStop(.62,'rgba(8,7,14,.48)'); grad.addColorStop(1,'rgba(8,7,14,.96)');
+  ctx.fillStyle=grad; ctx.fillRect(0,0,w,h);
+  const art=860, x=(w-art)/2, y=300;
+  ctx.save(); ctx.shadowColor='rgba(0,0,0,.55)'; ctx.shadowBlur=48; ctx.drawImage(img,x,y,art,art); ctx.restore();
+  ctx.textAlign='center'; ctx.fillStyle='#f3c55b'; ctx.font='700 44px Arial'; ctx.fillText('TABI UNPLUGGED',w/2,1260);
+  ctx.fillStyle='#fff7e5'; ctx.font='700 62px Arial';
+  const lines=tuWrapCanvasText(ctx,track.title,900); lines.forEach((line,i)=>ctx.fillText(line,w/2,1360+i*72));
+  ctx.fillStyle='#c7c0cd'; ctx.font='400 34px Arial'; ctx.fillText(track.artist||'Tabi Unplugged',w/2,1590);
+  ctx.fillStyle='#f3c55b'; ctx.font='700 30px Arial'; ctx.fillText('tabiunplugged.com',w/2,1765);
+}
+function tuRecorderMime(){
+  const choices=['video/mp4;codecs=h264,aac','video/mp4','video/webm;codecs=vp8,opus','video/webm'];
+  return choices.find(t=>window.MediaRecorder?.isTypeSupported?.(t)) || '';
+}
+async function tuBuildShareVideo(track,label){
+  if(!track) throw new Error('No song selected');
+  if(tuShareVideoCache.has(track.id)) return tuShareVideoCache.get(track.id);
+  if(tuShareVideoBuilds.has(track.id)) return tuShareVideoBuilds.get(track.id);
+
+  const task=(async()=>{
+    if(!window.MediaRecorder || !HTMLCanvasElement.prototype.captureStream) throw new Error('Video creation is not supported by this browser');
+    const img=await tuLoadImage(track.cover);
+    const canvas=document.createElement('canvas'); canvas.width=1080; canvas.height=1920;
+    const ctx=canvas.getContext('2d',{alpha:false}); tuDrawShareVideoFrame(ctx,canvas,img,track);
+    const canvasStream=canvas.captureStream(12);
+    const AudioCtx=window.AudioContext||window.webkitAudioContext;
+    if(!AudioCtx) throw new Error('Audio processing is not supported by this browser');
+    const ac=new AudioCtx();
+    const mediaAudio=new Audio(); mediaAudio.preload='auto'; mediaAudio.src=track.audio;
+    const src=ac.createMediaElementSource(mediaAudio);
+    const capture=ac.createMediaStreamDestination();
+    const silent=ac.createGain(); silent.gain.value=0;
+    src.connect(capture); src.connect(silent); silent.connect(ac.destination);
+    const stream=new MediaStream([...canvasStream.getVideoTracks(),...capture.stream.getAudioTracks()]);
+    const mime=tuRecorderMime();
+    const rec=new MediaRecorder(stream,mime?{mimeType:mime,videoBitsPerSecond:2600000,audioBitsPerSecond:128000}:undefined);
+    const chunks=[]; rec.ondataavailable=e=>{ if(e.data?.size) chunks.push(e.data); };
+    const stopped=new Promise((resolve,reject)=>{ rec.onstop=resolve; rec.onerror=e=>reject(e.error||new Error('Video recorder error')); });
+    await new Promise((resolve,reject)=>{
+      if(mediaAudio.readyState>=1) return resolve();
+      mediaAudio.addEventListener('loadedmetadata',resolve,{once:true});
+      mediaAudio.addEventListener('error',()=>reject(new Error('Song audio could not be loaded')),{once:true});
+      mediaAudio.load();
+    });
+    if(ac.state==='suspended') await ac.resume().catch(()=>{});
+    rec.start(500);
+    mediaAudio.currentTime=0;
+    await mediaAudio.play();
+    const clipSeconds=Math.min(TU_MEDIA_SHARE_SECONDS,Number.isFinite(mediaAudio.duration)&&mediaAudio.duration>0?mediaAudio.duration:TU_MEDIA_SHARE_SECONDS);
+    await new Promise(resolve=>{
+      const started=performance.now();
+      const tick=()=>{
+        if(mediaAudio.ended || (performance.now()-started)/1000>=clipSeconds) return resolve();
+        requestAnimationFrame(tick);
+      }; tick();
+    });
+    mediaAudio.pause();
+    if(rec.state!=='inactive') rec.stop();
+    await stopped;
+    stream.getTracks().forEach(t=>t.stop());
+    canvasStream.getTracks().forEach(t=>t.stop());
+    await ac.close().catch(()=>{});
+    const actualType=rec.mimeType || mime || 'video/webm';
+    const ext=actualType.includes('mp4')?'mp4':'webm';
+    const blob=new Blob(chunks,{type:actualType});
+    if(!blob.size) throw new Error('The share video was empty');
+    const safe=String(track.id||'tabi-song').replace(/[^a-z0-9_-]+/gi,'-');
+    const file=new File([blob],`${safe}-tabi-unplugged.${ext}`,{type:actualType,lastModified:Date.now()});
+    tuShareVideoCache.set(track.id,file);
+    return file;
+  })().finally(()=>tuShareVideoBuilds.delete(track.id));
+  tuShareVideoBuilds.set(track.id,task);
+  return task;
+}
+async function tuShareMediaPlatform(label){
+  const track=tuMediaShareTrack();
+  if(!track){ showShareFeedback('Choose a song first'); return; }
+  const cached=tuShareVideoCache.get(track.id);
+  if(cached){
+    if(!navigator.share || !navigator.canShare?.({files:[cached]})){
+      tuMediaShareButtonState(label,'unsupported');
+      showShareFeedback('This browser cannot send video files to apps');
+      return;
+    }
+    try{
+      saveShareReturnState();
+      await navigator.share({files:[cached],title:`${track.title} · Tabi Unplugged`,text:`${track.title} — Tabi Unplugged`});
+      showShareFeedback(`Choose ${label} to post the video`);
+    }catch(err){ if(err?.name!=='AbortError') showShareFeedback('Video share did not open'); }
+    return;
+  }
+  tuMediaShareButtonState(label,'building');
+  showShareFeedback(`Building ${track.title} share video…`);
+  try{
+    const file=await tuBuildShareVideo(track,label);
+    if(navigator.canShare?.({files:[file]})){
+      tuMediaShareButtonState(label,'ready');
+      showShareFeedback('Video ready — tap the button again to share');
+    }else{
+      tuMediaShareButtonState(label,'unsupported');
+      showShareFeedback('Video created, but this phone will not share this file type');
+    }
+  }catch(err){
+    console.error('Tabi media share video failed',err);
+    tuMediaShareButtonState(label,'unsupported');
+    showShareFeedback('Could not build the share video on this browser');
+  }
+}
+
+document.getElementById('shareTikTok')?.addEventListener('click',()=>tuShareMediaPlatform('TikTok'));
+document.getElementById('shareYouTube')?.addEventListener('click',()=>tuShareMediaPlatform('YouTube'));
+
 
 /* Restore the exact share/playlist state after returning from an external social app. */
 window.addEventListener('pageshow',()=>setTimeout(restoreShareReturnState,80));
@@ -7584,6 +7750,8 @@ openPlaylist = function(id){
 (function(){
   const modal = document.getElementById('sessionDetailModal');
   const closeBtn = document.getElementById('closeSessionDetail');
+  const playBtn = document.getElementById('playSessionBtn');
+  const shareBtn = document.getElementById('shareSessionBtn');
 
   function closeSessionDetailNow(){
     if(modal) modal.classList.add('hidden');
@@ -7597,6 +7765,41 @@ openPlaylist = function(id){
 
   modal?.addEventListener('click', function(e){
     if(e.target === modal) closeSessionDetailNow();
+  });
+
+  // The Session modal appears after the main application script in this file.
+  // Wire these controls here, after their buttons exist in the DOM.
+  playBtn?.addEventListener('click', function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    playActiveSession();
+  });
+
+  shareBtn?.addEventListener('click', function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    if(activePublicSession) openSharePanel({type:'session', id:activePublicSession.id});
+  });
+
+  // Durable Session controls: the detail UI can be refreshed/re-rendered after load.
+  // Delegating from document means Play/Share keep working even if the button node changes.
+  document.addEventListener('click', function(e){
+    const sessionShare = e.target.closest?.('#shareSessionBtn');
+    if(sessionShare){
+      e.preventDefault();
+      e.stopPropagation();
+      if(activePublicSession){
+        openSharePanel({type:'session', id:activePublicSession.id});
+      }
+      return;
+    }
+
+    const sessionPlay = e.target.closest?.('#playSessionBtn');
+    if(sessionPlay){
+      e.preventDefault();
+      e.stopPropagation();
+      playActiveSession();
+    }
   });
 })();
 </script>
