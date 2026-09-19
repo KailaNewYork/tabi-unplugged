@@ -4723,12 +4723,15 @@ html.tu-phone .topbar.service-nav .main-nav .desktop-kaila-link{display:none !im
       <h3 id="sharePanelTitle">Share Tabi Unplugged</h3>
       <p class="share-panel-copy" id="sharePanelCopy">Choose where you want to send it.</p>
       <div class="share-options-grid">
-        <button class="share-option" id="shareTikTok" type="button"><span class="share-option-icon">TT</span><span class="share-option-copy"><strong>TikTok</strong><small>Copy link + open TikTok</small></span></button>
-        <button class="share-option" id="shareYouTube" type="button"><span class="share-option-icon">▶</span><span class="share-option-copy"><strong>YouTube</strong><small>Copy link + open YouTube</small></span></button>
-        <button class="share-option" id="shareInstagram" type="button"><span class="share-option-icon">IG</span><span class="share-option-copy"><strong>Instagram</strong><small>Copy link + open Instagram</small></span></button>
-        <button class="share-option" id="shareFacebook" type="button"><span class="share-option-icon">f</span><span class="share-option-copy"><strong>Facebook</strong><small>Share directly</small></span></button>
-        <button class="share-option" id="shareLinkedIn" type="button"><span class="share-option-icon">in</span><span class="share-option-copy"><strong>LinkedIn</strong><small>Share directly</small></span></button>
-        <button class="share-option" id="shareSpotify" type="button"><span class="share-option-icon">S</span><span class="share-option-copy"><strong>Spotify</strong><small>Copy link + open Spotify</small></span></button>
+        <button class="share-option" id="shareTikTok" type="button"><span class="share-option-icon">TT</span><span class="share-option-copy"><strong>TikTok</strong><small>Send with your phone</small></span></button>
+        <button class="share-option" id="shareYouTube" type="button"><span class="share-option-icon">▶</span><span class="share-option-copy"><strong>YouTube</strong><small>Send with your phone</small></span></button>
+        <button class="share-option" id="shareInstagram" type="button"><span class="share-option-icon">IG</span><span class="share-option-copy"><strong>Instagram</strong><small>Send with your phone</small></span></button>
+        <button class="share-option" id="shareFacebook" type="button"><span class="share-option-icon">f</span><span class="share-option-copy"><strong>Facebook</strong><small>Share this Tabi link</small></span></button>
+        <button class="share-option" id="shareMessenger" type="button"><span class="share-option-icon">M</span><span class="share-option-copy"><strong>Messenger</strong><small>Send to a conversation</small></span></button>
+        <button class="share-option" id="shareMessages" type="button"><span class="share-option-icon">✉</span><span class="share-option-copy"><strong>Messages</strong><small>Send by text message</small></span></button>
+        <button class="share-option" id="shareTelegram" type="button"><span class="share-option-icon">TG</span><span class="share-option-copy"><strong>Telegram</strong><small>Send to Telegram</small></span></button>
+        <button class="share-option" id="shareLinkedIn" type="button"><span class="share-option-icon">in</span><span class="share-option-copy"><strong>LinkedIn</strong><small>Share this Tabi link</small></span></button>
+        <button class="share-option" id="shareSpotify" type="button"><span class="share-option-icon">S</span><span class="share-option-copy"><strong>Spotify</strong><small>Send with your phone</small></span></button>
         <button class="share-option primary-share" id="shareCopy" type="button"><span class="share-option-icon">⧉</span><span class="share-option-copy"><strong>Copy Link</strong><small>Copy this Tabi link</small></span></button>
       </div>
     </div>
@@ -6198,12 +6201,57 @@ document.getElementById('sharePanelClose')?.addEventListener('click',e=>{e.preve
 sharePanelBackdrop?.addEventListener('click',e=>{ if(e.target===sharePanelBackdrop) closeSharePanel(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape' && !sharePanelBackdrop?.classList.contains('hidden')) closeSharePanel(); });
 
-document.getElementById('shareTikTok')?.addEventListener('click',()=>copyAndOpenPlatform('https://www.tiktok.com/','TikTok'));
-document.getElementById('shareYouTube')?.addEventListener('click',()=>copyAndOpenPlatform('https://www.youtube.com/','YouTube'));
-document.getElementById('shareInstagram')?.addEventListener('click',()=>copyAndOpenPlatform('https://www.instagram.com/','Instagram'));
-document.getElementById('shareFacebook')?.addEventListener('click',()=>{const p=activeSharePayload||getSharePayload();openShareWindow(`https://www.facebook.com/sharer.php?u=${encodeURIComponent(p.url)}`);});
-document.getElementById('shareLinkedIn')?.addEventListener('click',()=>{const p=activeSharePayload||getSharePayload();openShareWindow(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(p.url)}`);});
-document.getElementById('shareSpotify')?.addEventListener('click',()=>copyAndOpenPlatform('https://open.spotify.com/','Spotify'));
+function isPhoneShareMode(){
+  return document.documentElement.classList.contains('tu-phone') ||
+    window.matchMedia?.('(max-width: 900px), (pointer: coarse)')?.matches;
+}
+async function nativeShareTo(label,fallbackUrl=''){
+  const p=activeSharePayload||getSharePayload();
+  saveShareReturnState();
+  if(navigator.share){
+    try{
+      await navigator.share({title:p.title,text:p.text,url:p.url});
+      showShareFeedback(`Choose ${label} from your phone share sheet`);
+      return true;
+    }catch(err){
+      if(err?.name==='AbortError') return false;
+    }
+  }
+  const ok=await writeShareLink(`Link copied — paste it into ${label}`);
+  saveShareReturnState();
+  if(ok && fallbackUrl) window.open(fallbackUrl,'_blank','noopener,noreferrer');
+  return ok;
+}
+function shareToMessages(){
+  const p=activeSharePayload||getSharePayload();
+  saveShareReturnState();
+  const body=`${p.text} ${p.url}`;
+  // iOS and Android both accept an sms: composer; the separator differs, so choose by UA.
+  const isiOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
+  location.href=`sms:${isiOS?'&':'?'}body=${encodeURIComponent(body)}`;
+}
+function shareToTelegram(){
+  const p=activeSharePayload||getSharePayload();
+  saveShareReturnState();
+  const url=`https://t.me/share/url?url=${encodeURIComponent(p.url)}&text=${encodeURIComponent(p.text)}`;
+  window.open(url,'_blank','noopener,noreferrer');
+}
+async function shareSocial(label,desktopUrlBuilder=null,fallbackUrl=''){
+  const p=activeSharePayload||getSharePayload();
+  if(isPhoneShareMode()) return nativeShareTo(label,fallbackUrl);
+  if(desktopUrlBuilder){ openShareWindow(desktopUrlBuilder(p)); return true; }
+  return copyAndOpenPlatform(fallbackUrl,label);
+}
+
+document.getElementById('shareTikTok')?.addEventListener('click',()=>shareSocial('TikTok',null,'https://www.tiktok.com/'));
+document.getElementById('shareYouTube')?.addEventListener('click',()=>shareSocial('YouTube',null,'https://www.youtube.com/'));
+document.getElementById('shareInstagram')?.addEventListener('click',()=>shareSocial('Instagram',null,'https://www.instagram.com/'));
+document.getElementById('shareFacebook')?.addEventListener('click',()=>shareSocial('Facebook',p=>`https://www.facebook.com/sharer.php?u=${encodeURIComponent(p.url)}`,'https://www.facebook.com/'));
+document.getElementById('shareMessenger')?.addEventListener('click',()=>nativeShareTo('Messenger','https://www.messenger.com/'));
+document.getElementById('shareMessages')?.addEventListener('click',shareToMessages);
+document.getElementById('shareTelegram')?.addEventListener('click',shareToTelegram);
+document.getElementById('shareLinkedIn')?.addEventListener('click',()=>shareSocial('LinkedIn',p=>`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(p.url)}`,'https://www.linkedin.com/'));
+document.getElementById('shareSpotify')?.addEventListener('click',()=>shareSocial('Spotify',null,'https://open.spotify.com/'));
 document.getElementById('shareCopy')?.addEventListener('click',copyShareLink);
 
 /* Restore the exact share/playlist state after returning from an external social app. */
@@ -7155,8 +7203,7 @@ function renderActivePublicSessionTracks(){
       <button class="session-track-play">Open</button>`;
 
     const openAffirmation = () => {
-      closePublicSession();
-      openSongPage(t.id, 'session', true, true);
+      startSessionTrack(t.id);
     };
 
     row.querySelector('.session-track-play').addEventListener('click', e => {
@@ -7205,15 +7252,26 @@ function closePublicSession(){
   document.getElementById('sessionDetailModal')?.classList.add('hidden');
 }
 
+function startSessionTrack(trackId){
+  const t=getTrackById(trackId);
+  if(!t || !activePublicSession) return;
+  // Mobile browsers are more reliable when the Session overlay is dismissed
+  // before the song page/audio source transition begins. Keep the active
+  // Session object so queueForContext('session') still builds the full queue.
+  closePublicSession();
+  openSongPage(trackId, 'session', true, true);
+}
+
 function playTUTrack(trackId){
   const t=getTrackById(trackId); if(!t) return;
-  openSongPage(trackId, activePublicSession ? 'session' : 'library', true, true);
+  if(activePublicSession) startSessionTrack(trackId);
+  else openSongPage(trackId, 'library', true, true);
 }
 
 function playActiveSession(){
   if(!activePublicSession) return;
   const first = (activePublicSession.trackIds || []).map(getTrackById).find(Boolean);
-  if(first) openSongPage(first.id, 'session', true, true);
+  if(first) startSessionTrack(first.id);
 }
 
 document.getElementById('closeSessionDetail')?.addEventListener('click', closePublicSession);
