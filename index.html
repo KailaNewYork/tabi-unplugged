@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#090713" />
   <title>Tabi Unplugged</title>
-  <meta name="tabi-build" content="v2.16-full-song-source-tracking" />
+  <meta name="tabi-build" content="v2.21-mobile-playback-navigation-fix" />
   <style>
 :root{
   --bg:#08070e;
@@ -4681,7 +4681,7 @@ html.tu-phone .topbar.service-nav .main-nav .desktop-kaila-link{display:none !im
 </main>
 
   <footer class="player-shell" id="playerShell">
-    <audio id="audio"></audio>
+    <audio id="audio" preload="auto" playsinline webkit-playsinline></audio>
     <div class="player-track">
       <img id="playerCover" src="assets/images/2e7b783a154f5753.png" alt="Now playing cover" />
       <div class="player-meta">
@@ -5266,19 +5266,26 @@ function renderPlaylists(){
   });
 }
 
-function openPlaylist(id){
+function openPlaylist(id, pushHistory=true){
   selectedPlaylistId = id;
   document.body.classList.add('playlist-detail-active');
   renderPlaylistView();
   playlistView.classList.remove('hidden');
   librarySection.classList.add('hidden');
+  if(pushHistory){
+    const hash = '#playlist/' + encodeURIComponent(id);
+    try{ history.pushState({tabiView:'playlist',tabiPlaylist:id},'',hash); }catch(e){ location.hash=hash; }
+  }
   setTimeout(()=>playlistView.scrollIntoView({behavior:'smooth', block:'start'}),20);
 }
-function closePlaylistView(){
+function closePlaylistView(pushHistory=true){
   selectedPlaylistId = null;
   document.body.classList.remove('playlist-detail-active');
   playlistView.classList.add('hidden');
   librarySection.classList.remove('hidden');
+  if(pushHistory){
+    try{ history.pushState({tabiView:'home'},'',location.pathname+location.search+'#home'); }catch(e){ location.hash='home'; }
+  }
 }
 function renderPlaylistView(){
   const pl = getPlaylist(selectedPlaylistId); if (!pl) return closePlaylistView();
@@ -5809,22 +5816,55 @@ function setQueue(source, startId){
   currentIndex=Math.max(0,queue.findIndex(t=>t.id===startId));
   if(shuffleOn && queue.length) buildShuffleOrder(currentIndex); else { shuffleOrder=[]; shufflePosition=-1; }
 }
-function safePlay(){
+let playbackLoadToken = 0;
+let intendedToPlay = false;
+let nextTrackPreloader = null;
+function upcomingTrackForPreload(){
+  if(!queue.length || currentIndex < 0) return null;
+  if(shuffleOn && shuffleOrder.length){
+    const nextPos = shufflePosition + 1;
+    if(nextPos < shuffleOrder.length) return queue[shuffleOrder[nextPos]] || null;
+    if(repeatMode === 1 && shuffleOrder.length > 1) return queue[shuffleOrder[0]] || null;
+    return null;
+  }
+  const nextIndex = currentIndex + 1;
+  if(nextIndex < queue.length) return queue[nextIndex] || null;
+  return repeatMode === 1 ? queue[0] || null : null;
+}
+function preloadUpcomingTrack(){
+  const upcoming = upcomingTrackForPreload();
+  if(!upcoming?.audio) return;
+  try{
+    nextTrackPreloader = new Audio();
+    nextTrackPreloader.preload = 'auto';
+    nextTrackPreloader.src = upcoming.audio;
+    nextTrackPreloader.load();
+  }catch(e){}
+}
+function safePlay(token=playbackLoadToken, retry=0){
+  if(token !== playbackLoadToken || !intendedToPlay) return;
   if(audioContext?.state === 'suspended') audioContext.resume().catch(()=>{});
-  const attempt=audio.play();
+  let attempt;
+  try{ attempt = audio.play(); }catch(e){ attempt = Promise.reject(e); }
   if(attempt && typeof attempt.catch==='function') attempt.catch(()=>{
-    const resume=()=>{ audio.play().catch(()=>{}); };
-    audio.addEventListener('canplay',resume,{once:true});
+    if(token !== playbackLoadToken || !intendedToPlay || retry >= 4) return;
+    const delays=[180,450,900,1800,3200];
+    setTimeout(()=>safePlay(token,retry+1),delays[Math.min(retry,delays.length-1)]);
   });
 }
 function loadTrack(track, autoplay=false){
   if (!track) return;
+  const token = ++playbackLoadToken;
   tabiResetListenClock();
-  audio.src = track.audio; audio.load();
+  intendedToPlay = !!autoplay;
+  audio.src = track.audio;
+  audio.preload = 'auto';
+  audio.load();
   playerTitle.textContent = track.title; playerArtist.textContent = track.artist; playerCover.src = track.cover;
   if (heroNow) heroNow.textContent = `Now playing: ${track.title}`; document.title = `${track.title} · Tabi Unplugged`; renderTracks();
   if (songPageActive){ renderSongPage(track); updateSongHash(track.id, false); }
-  if (autoplay) safePlay();
+  preloadUpcomingTrack();
+  if (autoplay) safePlay(token);
 }
 function playTrackById(id, autoplay=true){ const source = displayTracks.some(t=>t.id===id) ? displayTracks : tracks; setQueue(source, id); loadTrack(currentTrack(), autoplay); }
 function nextTrack(manual=false){
@@ -5842,6 +5882,7 @@ function nextTrack(manual=false){
         shufflePosition = shuffleOrder.length > 1 ? 1 : 0;
       } else {
         shufflePosition = shuffleOrder.length - 1;
+        intendedToPlay=false;
         audio.pause();
         return;
       }
@@ -5851,7 +5892,7 @@ function nextTrack(manual=false){
     currentIndex += 1;
     if (currentIndex >= queue.length){
       if (repeatMode === 1 || manual) currentIndex = 0;
-      else { currentIndex = queue.length - 1; audio.pause(); return; }
+      else { currentIndex = queue.length - 1; intendedToPlay=false; audio.pause(); return; }
     }
   }
   loadTrack(currentTrack(), true);
@@ -5916,9 +5957,24 @@ audio.addEventListener('ended',()=>{
     const playback = getTabiPlaybackSource();
     recordTabiCompletedPlay(track.id, playback.source, playback.key);
   }
+  // Progression is automatic. Repeat All only controls whether the queue wraps after the final song.
   nextTrack(false);
 });
-playBtn.addEventListener('click',()=>{ if (!currentTrack()){ playAll(false); return; } if (audio.paused) audio.play(); else audio.pause(); });
+// Mobile browsers can briefly suspend the media pipeline between files. If the listener
+// still intends to play, retry the current source as soon as it is ready again.
+audio.addEventListener('canplay',()=>{ if(intendedToPlay && audio.paused && !audio.ended) safePlay(); });
+audio.addEventListener('error',()=>{
+  if(!intendedToPlay || !currentTrack()) return;
+  const failedToken=playbackLoadToken;
+  setTimeout(()=>{ if(intendedToPlay && failedToken===playbackLoadToken) nextTrack(false); },700);
+});
+document.addEventListener('visibilitychange',()=>{
+  if(!document.hidden && intendedToPlay && currentTrack() && audio.paused && !audio.ended) safePlay();
+});
+window.addEventListener('pageshow',()=>{
+  if(intendedToPlay && currentTrack() && audio.paused && !audio.ended) setTimeout(()=>safePlay(),120);
+});
+playBtn.addEventListener('click',()=>{ if (!currentTrack()){ playAll(false); return; } if (audio.paused){ intendedToPlay=true; safePlay(); } else { intendedToPlay=false; audio.pause(); } });
 nextBtn.addEventListener('click',()=>nextTrack(true)); prevBtn.addEventListener('click',prevTrack);
 shuffleBtn.addEventListener('click',()=>{ shuffleOn=!shuffleOn; if(shuffleOn && queue.length) buildShuffleOrder(currentIndex); else {shuffleOrder=[];shufflePosition=-1;} syncPlaybackModeButtons(); });
 repeatOneBtn.addEventListener('click',()=>setRepeatMode(2));
@@ -5987,7 +6043,7 @@ const songVolume=document.getElementById('songVolume');
 const songCurrentTime=document.getElementById('songCurrentTime');
 const songDuration=document.getElementById('songDuration');
 songPageBack?.addEventListener('click',closeSongPage);
-songPlayBtn?.addEventListener('click',()=>{ if(!currentTrack()){playAll(false);return;} if(audio.paused) audio.play(); else audio.pause(); });
+songPlayBtn?.addEventListener('click',()=>{ if(!currentTrack()){playAll(false);return;} if(audio.paused){ intendedToPlay=true; safePlay(); } else { intendedToPlay=false; audio.pause(); } });
 songPrevBtn?.addEventListener('click',prevTrack);
 songNextBtn?.addEventListener('click',()=>nextTrack(true));
 songShuffleBtn?.addEventListener('click',()=>{shuffleOn=!shuffleOn;if(shuffleOn && queue.length) buildShuffleOrder(currentIndex); else {shuffleOrder=[];shufflePosition=-1;} syncPlaybackModeButtons();});
@@ -6187,10 +6243,36 @@ audio.addEventListener('timeupdate',()=>{ if(songProgress) songProgress.value=au
 audio.addEventListener('loadedmetadata',()=>{ if(songDuration) songDuration.textContent=fmt(audio.duration); });
 audio.addEventListener('play',()=>{if(songPlayBtn) songPlayBtn.textContent='❚❚'; syncPlaybackModeButtons();});
 audio.addEventListener('pause',()=>{if(songPlayBtn) songPlayBtn.textContent='▶';});
-window.addEventListener('popstate',()=>{ const m=location.hash.match(/^#song\/(.+)$/); if(m){ const id=decodeURIComponent(m[1]); if(getTrackById(id)){ songPageActive=true; document.body.classList.add('song-page-active'); if(currentTrack()?.id!==id){setQueue(tracks,id);songQueueLabel='All Songs';loadTrack(currentTrack(),false);} else renderSongPage(currentTrack()); } } else if(songPageActive){ songPageActive=false; document.body.classList.remove('song-page-active'); } });
+window.addEventListener('popstate',()=>{
+  const songMatch=location.hash.match(/^#song\/(.+)$/);
+  const playlistMatch=location.hash.match(/^#playlist\/(.+)$/);
+  if(songMatch){
+    const id=decodeURIComponent(songMatch[1]);
+    if(getTrackById(id)){
+      songPageActive=true;
+      document.body.classList.add('song-page-active');
+      if(currentTrack()?.id!==id){ setQueue(tracks,id); songQueueLabel='All Songs'; loadTrack(currentTrack(),false); }
+      else renderSongPage(currentTrack());
+    }
+    return;
+  }
+  if(songPageActive){ songPageActive=false; document.body.classList.remove('song-page-active'); }
+  if(playlistMatch){
+    const id=decodeURIComponent(playlistMatch[1]);
+    if(getPlaylist(id)){ openPlaylist(id,false); return; }
+  }
+  // Home/library state: close internal detail views instead of falling out of the app.
+  if(selectedPlaylistId) closePlaylistView(false);
+  document.body.classList.remove('playlist-detail-active');
+  playlistView.classList.add('hidden');
+  librarySection.classList.remove('hidden');
+});
 (function openDeepLinkedSong(){ const m=location.hash.match(/^#song\/(.+)$/); if(m){ const id=decodeURIComponent(m[1]); if(getTrackById(id)){ songPageActive=true; songQueueLabel='All Songs'; document.body.classList.add('song-page-active'); setQueue(tracks,id); loadTrack(currentTrack(),false); window.scrollTo(0,0); } } })();
-(function openDeepLinkedPlaylist(){ const m=location.hash.match(/^#playlist\/(.+)$/); if(m){ const id=decodeURIComponent(m[1]); if(getPlaylist(id)){ openPlaylist(id); window.scrollTo(0,0); } } })();
+(function openDeepLinkedPlaylist(){ const m=location.hash.match(/^#playlist\/(.+)$/); if(m){ const id=decodeURIComponent(m[1]); if(getPlaylist(id)){ openPlaylist(id,false); window.scrollTo(0,0); } } })();
 syncPlaybackModeButtons();
+if(!location.hash){
+  try{ history.replaceState({tabiView:'home'},'',location.pathname+location.search+'#home'); }catch(e){}
+}
 
 renderTracks(); renderPlaylists();
 
