@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#090713" />
   <title>Tabi Unplugged</title>
-  <meta name="tabi-build" content="v2.21-mobile-playback-navigation-fix" />
+  <meta name="tabi-build" content="v2.22-session-links-media-controls-background-audio" />
   <style>
 :root{
   --bg:#08070e;
@@ -5862,6 +5862,7 @@ function loadTrack(track, autoplay=false){
   audio.preload = 'auto';
   audio.load();
   playerTitle.textContent = track.title; playerArtist.textContent = track.artist; playerCover.src = track.cover;
+  updateMediaSessionMetadata(track);
   if (heroNow) heroNow.textContent = `Now playing: ${track.title}`; document.title = `${track.title} · Tabi Unplugged`; renderTracks();
   if (songPageActive){ renderSongPage(track); updateSongHash(track.id, false); }
   preloadUpcomingTrack();
@@ -5914,7 +5915,15 @@ function refreshOrder(){ const q = searchInput.value.trim().toLowerCase(); displ
 let audioContext = null;
 let audioSourceNode = null;
 let roomGainNode = null;
+function shouldUseNativeMobileAudio(){
+  return document.documentElement.classList.contains('tu-phone') ||
+    window.matchMedia?.('(max-width: 900px)').matches ||
+    /iPhone|iPad|iPod|Android/i.test(navigator.userAgent || '');
+}
 function ensureRoomBoost(){
+  // Mobile lock-screen/background playback is more reliable when the <audio> element
+  // stays on the browser's native media path instead of being routed through Web Audio.
+  if(shouldUseNativeMobileAudio()) return null;
   if(roomGainNode) return roomGainNode;
   try{
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -5941,10 +5950,51 @@ function applyVolume(){
   }
 }
 audio.volume = Math.min(1, Number(volume.value));
-audio.addEventListener('play',()=>{ playBtn.textContent='❚❚'; renderTracks(); });
+
+function updateMediaSessionMetadata(track){
+  if(!('mediaSession' in navigator) || !track) return;
+  try{
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: track.title || 'Tabi Unplugged',
+      artist: track.artist || 'Tabi Unplugged',
+      album: songQueueLabel || 'Tabi Unplugged',
+      artwork: track.cover ? [{src: new URL(track.cover, location.href).href}] : []
+    });
+  }catch(e){}
+}
+function syncMediaSessionPosition(){
+  if(!('mediaSession' in navigator) || !navigator.mediaSession.setPositionState) return;
+  const duration=Number(audio.duration);
+  if(!Number.isFinite(duration) || duration<=0) return;
+  try{
+    navigator.mediaSession.setPositionState({
+      duration,
+      playbackRate: audio.playbackRate || 1,
+      position: Math.min(duration, Math.max(0, Number(audio.currentTime)||0))
+    });
+  }catch(e){}
+}
+function wireMediaSessionControls(){
+  if(!('mediaSession' in navigator) || !navigator.mediaSession.setActionHandler) return;
+  const set=(action,handler)=>{ try{ navigator.mediaSession.setActionHandler(action,handler); }catch(e){} };
+  set('play',()=>{ intendedToPlay=true; safePlay(); });
+  set('pause',()=>{ intendedToPlay=false; audio.pause(); });
+  set('nexttrack',()=>nextTrack(true));
+  set('previoustrack',()=>prevTrack());
+  set('seekbackward',details=>{ audio.currentTime=Math.max(0,audio.currentTime-(details.seekOffset||10)); });
+  set('seekforward',details=>{ audio.currentTime=Math.min(audio.duration||Infinity,audio.currentTime+(details.seekOffset||10)); });
+  set('seekto',details=>{ if(Number.isFinite(details.seekTime)) audio.currentTime=details.seekTime; });
+}
+wireMediaSessionControls();
+
+audio.addEventListener('play',()=>{
+  playBtn.textContent='❚❚';
+  try{ if('mediaSession' in navigator) navigator.mediaSession.playbackState='playing'; }catch(e){}
+  renderTracks();
+});
 audio.addEventListener('playing',()=>{ tabiStartListenClock(); });
-audio.addEventListener('pause',()=>{ tabiStopListenClock(); playBtn.textContent='▶'; renderTracks(); });
-audio.addEventListener('timeupdate',()=>{ progress.value = audio.duration ? (audio.currentTime/audio.duration)*100 : 0; currentTimeEl.textContent = fmt(audio.currentTime); });
+audio.addEventListener('pause',()=>{ tabiStopListenClock(); playBtn.textContent='▶'; try{ if('mediaSession' in navigator) navigator.mediaSession.playbackState='paused'; }catch(e){} renderTracks(); });
+audio.addEventListener('timeupdate',()=>{ progress.value = audio.duration ? (audio.currentTime/audio.duration)*100 : 0; currentTimeEl.textContent = fmt(audio.currentTime); syncMediaSessionPosition(); });
 audio.addEventListener('loadedmetadata',()=> durationEl.textContent = fmt(audio.duration));
 audio.addEventListener('ended',()=>{
   tabiStopListenClock();
@@ -5982,6 +6032,18 @@ repeatOneBtn.addEventListener('click',()=>setRepeatMode(2));
 repeatBtn.addEventListener('click',()=>setRepeatMode(1));
 progress.addEventListener('input',()=>{ if(audio.duration) audio.currentTime=(Number(progress.value)/100)*audio.duration; });
 volume.addEventListener('input',applyVolume); volume.addEventListener('pointerdown',()=>{ ensureRoomBoost(); applyVolume(); },{passive:true}); searchInput.addEventListener('input',refreshOrder); sortSelect.addEventListener('change',refreshOrder);
+function configureVolumeForDevice(){
+  if(!shouldUseNativeMobileAudio()) return;
+  // iOS/Android browsers control final headphone/speaker loudness at the system level.
+  // Keep the in-app slider on the native 0-100% range so it does not show a fake boost.
+  volume.max='1';
+  if(Number(volume.value)>1) volume.value='1';
+  const sVol=document.getElementById('songVolume');
+  if(sVol){ sVol.max='1'; if(Number(sVol.value)>1) sVol.value='1'; }
+  audio.volume=Math.min(1,Number(volume.value)||0.85);
+}
+configureVolumeForDevice();
+
 const playAllBtn = document.getElementById('playAll');
 const shuffleAllBtn = document.getElementById('shuffleAll');
 const shuffleAllTopBtn = document.getElementById('shuffleAllTop');
@@ -6629,7 +6691,7 @@ document.getElementById('globalShareBtn')?.addEventListener('click',shareCurrent
 document.getElementById('mobileShareBtn')?.addEventListener('click',shareCurrent);
 document.getElementById('mobileNavShareBtn')?.addEventListener('click',shareCurrent);
 songProgress?.addEventListener('input',()=>{if(audio.duration) audio.currentTime=(Number(songProgress.value)/100)*audio.duration;});
-songVolume?.addEventListener('input',()=>{audio.volume=Number(songVolume.value);volume.value=audio.volume;});
+songVolume?.addEventListener('input',()=>{ volume.value=String(Math.min(Number(volume.max)||1, Number(songVolume.value)||0)); applyVolume(); songVolume.value=String(Math.min(1,audio.volume)); });
 audio.addEventListener('timeupdate',()=>{ if(songProgress) songProgress.value=audio.duration?(audio.currentTime/audio.duration)*100:0; if(songCurrentTime) songCurrentTime.textContent=fmt(audio.currentTime); });
 audio.addEventListener('loadedmetadata',()=>{ if(songDuration) songDuration.textContent=fmt(audio.duration); });
 audio.addEventListener('play',()=>{if(songPlayBtn) songPlayBtn.textContent='❚❚'; syncPlaybackModeButtons();});
@@ -6637,6 +6699,13 @@ audio.addEventListener('pause',()=>{if(songPlayBtn) songPlayBtn.textContent='▶
 window.addEventListener('popstate',()=>{
   const songMatch=location.hash.match(/^#song\/(.+)$/);
   const playlistMatch=location.hash.match(/^#playlist\/(.+)$/);
+  const sessionMatch=location.hash.match(/^#session\/(.+)$/);
+  if(sessionMatch){
+    const id=decodeURIComponent(sessionMatch[1]);
+    if(!tuSessions.length) loadPublicSessions();
+    if(tuSessions.some(s=>s.id===id)){ openPublicSession(id); }
+    return;
+  }
   if(songMatch){
     const id=decodeURIComponent(songMatch[1]);
     if(getTrackById(id)){
@@ -6687,15 +6756,6 @@ function wireHomePlayButtons(){
       document.querySelectorAll('.main-nav a[href^="#"]').forEach(item => item.classList.remove('active'));
       loadPublicSessions();
 
-(function openDeepLinkedSession(){
-  const m=location.hash.match(/^#session\/(.+)$/);
-  if(!m) return;
-  const id=decodeURIComponent(m[1]);
-  const exists=(tuSessions||[]).some(s=>s.id===id);
-  if(exists){
-    requestAnimationFrame(()=>openPublicSession(id));
-  }
-})();
 
       window.scrollTo({top:0, behavior:'smooth'});
     });
@@ -7638,6 +7698,15 @@ document.querySelectorAll('[data-view="sessions"]').forEach(btn => {
 
 loadPublicSessions();
 
+// v2.22 — session deep links must run after the curated sessions are loaded.
+(function openInitialDeepLinkedSession(){
+  const m=location.hash.match(/^#session\/(.+)$/);
+  if(!m) return;
+  const id=decodeURIComponent(m[1]);
+  if(tuSessions.some(s=>s.id===id)){
+    requestAnimationFrame(()=>{ openPublicSession(id); window.scrollTo(0,0); });
+  }
+})();
 
 // v1.28 - Home Tabi Sessions strip (replaces Featured Songs)
 function renderHomeSessions(){
